@@ -1,0 +1,17 @@
+# Node build artifacts
+node_modules
+npm-debug.log
+
+# Local development
+*.env
+*.dev
+.DS_Store
+
+# Docker
+Dockerfile
+docker-compose.yml
+
+#Push shizzle
+AuthKey_T3G5YPJ4L9.p8
+
+
