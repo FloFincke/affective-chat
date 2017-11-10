@@ -13,5 +13,5 @@ docker-compose.yml
 
 #Push shizzle
 AuthKey_T3G5YPJ4L9.p8
-
+.env
 

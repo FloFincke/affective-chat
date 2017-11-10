@@ -1,46 +1,51 @@
 /*
 
-
 IDEEN:
-
-man könnte mongoDB nutzen um einen Überblick über die Devices zu erhalten --> https://github.com/agenda/agenda
 
 1. Register device (token, createdAt)
 2. schedule first push
 3. if push is sent schedule next (random time inbetween)
 
-4. wenn data is received -> Log in MongoDB and save Data somewhere else (maybe S3) -> https://www.npmjs.com/package/s3
+4. wenn data is received -> Log in MongoDB and save Data in S3
 
 
 Für den Chat könnte man eigentlich ne socket sache basteln,d ann sollte kein großer Act sein. 
 
 */
 
-var express = require('express')
-var apn = require('apn');
-var mongoose = require('mongoose');
+const express = require('express');
+const apn = require('apn');
+const mongoose = require('mongoose');
+const AWS = require('aws-sdk');
+const moment = require('moment');
 
+/* --- Express Setup --- */
 
-//Express Setup
+const app = express()
+const port = process.env.PORT || 8080;
 
-var app = express()
-var port = process.env.PORT || 8080;
-
-var bodyParser = require('body-parser');
+const bodyParser = require('body-parser');
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
-
-//MongoDB Setup
+/* --- MongoDB Setup --- */
 
 mongoose.connect('mongodb://localhost/affective', { useMongoClient: true });
 mongoose.Promise = global.Promise;
 
-var Phone = mongoose.model('Phone', { token: String, createdAt: Date });
+const Phone = mongoose.model('Phone', { username: String, token: String, createdAt: Date });
 
-//Push Setup
+const Log = mongoose.model('Log', { id: String, content: String, createdAt: Date });
 
-var options = {
+const MESSAGES = {
+    NEW_DATA: "new data arrived",
+    NEW_PUSH_SCHEDULED: "new push scheduled",
+    NEW_PUSH_SENT: "new push sent"
+};
+
+/* --- Push Setup --- */
+
+const apnOptions = {
     token: {
         key: "./AuthKey_T3G5YPJ4L9.p8",
         keyId: "T3G5YPJ4L9",
@@ -49,28 +54,117 @@ var options = {
     production: false
 };
 
-var apnProvider = new apn.Provider(options);
+const apnProvider = new apn.Provider(apnOptions);
+
+/* --- S3 Setup --- */
+
+AWS.config.update({ accessKeyId: process.env.AWS_ACCESS_KEY_ID, secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY });
+
+const S3 = new AWS.S3();
 
 
-// API
+/* --- API --- */
+
+
+//Register device (receives token and username)
 
 app.post('/newDevice', function(req, res) {
-    //Register device (token, createdAt)
 
-    //schedule first push
+    if (req.body.username && req.body.token) {
+        let date = new Date();
+        let phone = new Phone({
+            username: req.body.username,
+            token: req.body.token,
+            createdAt: date
+        });
+
+        phone.save(function(err, data) {
+            if (err) {
+                console.log(err);
+                res.status(500).send(err);
+            } else {
+                console.log(date + ' -- Registered phone of ' + username + ' with token: ' + token);
+
+                //TODO: schedule first push
+
+                res.send(data.id);
+            }
+        });
+
+    } else {
+        res.sendStatus(422);
+    }
+
 });
 
 app.post('/newData', function(req, res) {
-    //Log in DB
-    //Save in S3
+
+    if (req.body.id) {
+        Phone.findOne({ '_id': req.body.id }, function(err, phone) {
+            if (phone) {
+                //Save in S3
+                S3.getSignedUrl('putObject', {
+                    Bucket: 'affective-chat',
+                    Key: phone.id + '/' + req.query.file_name, //filename should be YYYY-MM-DD_hh-mm-ss
+                    ContentType: req.query.file_type
+                }, function(err, data) {
+                    if (err) return res.send('Error with S3')
+
+                    res.json({
+                        signed_request: data,
+                        url: 'https://s3.amazonaws.com/' + S3_BUCKET + '/' + phone.id + '/' + req.query.file_name
+                    })
+                });
+
+                //Log in DB
+                let log = new Log({
+                    id: phone._id,
+                    content: MESSAGES.NEW_DATA,
+                    createdAt: new Date()
+                });
+
+                log.save(function(err, data) {
+                    if (err) {
+                        console.log(err);
+                        res.status(500).send(err);
+                    } else {
+                        console.log(date + ' -- new data from phone with id: ' + phone._id);
+                        res.sendStatus(200);
+                    }
+                });
+
+            } else {
+                res.status(422).send('Phone not found');
+            }
+        });
+
+    } else {
+        res.sendStatus(422);
+    }
+
 });
 
 
-function newPush() {
+function newPush(phoneId, token) {
     //schedule push and put next schdule in callback
-    //Log that in MongoDB
+    //Log that in DB
+    let log = new Log({
+        id: phoneId,
+        content: MESSAGES.NEW_PUSH_SCHEDULED, //maybe add more here like when its scheduled etc.
+        createdAt: new Date()
+    });
 
-    let deviceToken = '9cf9ea6ddbdb00ae5a3d6f9f84613aecf8ab746230a829195ebaccf165063f9b';
+    log.save(function(err, data) {
+        if (err) {
+            console.log(err);
+            res.status(500).send(err);
+        } else {
+            console.log(date + ' -- new push scheduled for phone with id: ' + phone._id);
+            res.sendStatus(200);
+        }
+    });
+
+    //let deviceToken = '9cf9ea6ddbdb00ae5a3d6f9f84613aecf8ab746230a829195ebaccf165063f9b';
 
     let note = new apn.Notification();
     note.expiry = Math.floor(Date.now() / 1000) + 3600; // Expires 1 hour from now.
@@ -82,10 +176,24 @@ function newPush() {
 
     apnProvider.send(note, deviceToken).then((result) => {
         console.log(new Date() + "-- pushed to :" + deviceToken);
-        jobs[deviceToken].cancel();
+        
+        let log = new Log({
+            id: phoneId,
+            content: MESSAGES.NEW_PUSH_SENT,
+            createdAt: new Date()
+        });
+
+        log.save(function(err, data) {
+            if (err) {
+                console.log(err);
+                res.status(500).send(err);
+            } else {
+                console.log(date + ' -- new push sent to phone with id: ' + phoneId);
+                res.sendStatus(200);
+            }
+        });
     });
 }
-newPush();
 
 
 /*
