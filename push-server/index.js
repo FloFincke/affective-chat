@@ -18,6 +18,7 @@ const apn = require('apn');
 const mongoose = require('mongoose');
 const AWS = require('aws-sdk');
 const moment = require('moment');
+const Agenda = require('agenda');
 
 /* --- Express Setup --- */
 
@@ -30,7 +31,7 @@ app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
 /* --- MongoDB Setup --- */
 
-mongoose.connect('mongodb://localhost/affective', { useMongoClient: true });
+const db = mongoose.connect('mongodb://localhost/affective', { useMongoClient: true });
 mongoose.Promise = global.Promise;
 
 const Phone = mongoose.model('Phone', { username: String, token: String, createdAt: Date });
@@ -62,7 +63,6 @@ AWS.config.update({ accessKeyId: process.env.AWS_ACCESS_KEY_ID, secretAccessKey:
 
 const S3 = new AWS.S3();
 
-
 /* --- API --- */
 
 
@@ -83,15 +83,29 @@ app.post('/newDevice', function(req, res) {
                 console.log(err);
                 res.status(500).send(err);
             } else {
-                console.log(date + ' -- Registered phone of ' + username + ' with token: ' + token);
+                console.log(date + ' -- Registered phone of ' + phone.username + ' with token: ' + phone.token);
 
-                //TODO: schedule first push
+                //schedule pushes
+                let agenda = new Agenda();
+                agenda.mongo(db);
+
+                agenda.define('push', function(job, done) {
+                    newPush(Math.random().toString(36).substr(2, 9), phone.token);
+                    done();
+                });
+
+                agenda.on('ready', function() {
+                    //sends first push right away and the following in regular intervals of 25min
+                    agenda.every('25 minutes', 'push');
+                    agenda.start();
+                });
 
                 res.send(data.id);
             }
         });
 
     } else {
+        console.log('parameters not provided');
         res.sendStatus(422);
     }
 
@@ -110,10 +124,10 @@ app.post('/newData', function(req, res) {
                 }, function(err, data) {
                     if (err) return res.send('Error with S3')
 
-                    res.json({
-                        signed_request: data,
-                        url: 'https://s3.amazonaws.com/' + S3_BUCKET + '/' + phone.id + '/' + req.query.file_name
-                    })
+                        res.json({
+                            signed_request: data,
+                            url: 'https://s3.amazonaws.com/' + S3_BUCKET + '/' + phone.id + '/' + req.query.file_name
+                        })
                 });
 
                 //Log in DB
@@ -144,27 +158,28 @@ app.post('/newData', function(req, res) {
 
 });
 
-
 function newPush(phoneId, token) {
     //schedule push and put next schdule in callback
     //Log that in DB
+
     let log = new Log({
         id: phoneId,
         content: MESSAGES.NEW_PUSH_SCHEDULED, //maybe add more here like when its scheduled etc.
         createdAt: new Date()
     });
 
-    log.save(function(err, data) {
-        if (err) {
-            console.log(err);
-            res.status(500).send(err);
-        } else {
-            console.log(date + ' -- new push scheduled for phone with id: ' + phone._id);
-            res.sendStatus(200);
-        }
-    });
+    // log.save(function(err, data) {
+    //     if (err) {
+    //         console.log(err);
+    //         res.status(500).send(err);
+    //     } else {
+    //         console.log(date + ' -- new push scheduled for phone with id: ' + phoneId);
+    //         res.sendStatus(200);
+    //     }
+    // });
 
     //let deviceToken = '9cf9ea6ddbdb00ae5a3d6f9f84613aecf8ab746230a829195ebaccf165063f9b';
+    //let deviceToken = '2289185441b03386f07747af62e6962dd3e86faef5ec2dec98f433f44010fe00';
 
     let note = new apn.Notification();
     note.expiry = Math.floor(Date.now() / 1000) + 3600; // Expires 1 hour from now.
@@ -174,8 +189,8 @@ function newPush(phoneId, token) {
     note.payload = { 'messageFrom': 'John Appleseed' };
     note.topic = "de.lmu.ifi.mobile.affective-chat";
 
-    apnProvider.send(note, deviceToken).then((result) => {
-        console.log(new Date() + "-- pushed to :" + deviceToken);
+    apnProvider.send(note, token).then((result) => {
+        console.log(new Date() + "-- pushed to :" + token);
         
         let log = new Log({
             id: phoneId,
@@ -183,15 +198,15 @@ function newPush(phoneId, token) {
             createdAt: new Date()
         });
 
-        log.save(function(err, data) {
-            if (err) {
-                console.log(err);
-                res.status(500).send(err);
-            } else {
-                console.log(date + ' -- new push sent to phone with id: ' + phoneId);
-                res.sendStatus(200);
-            }
-        });
+        // log.save(function(err, data) {
+        //     if (err) {
+        //         console.log(err);
+        //         res.status(500).send(err);
+        //     } else {
+        //         console.log(date + ' -- new push sent to phone with id: ' + phoneId);
+        //         res.sendStatus(200);
+        //     }
+        // });
     });
 }
 
