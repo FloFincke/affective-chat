@@ -28,6 +28,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             dlog("\(aps)")
         }
 
+
+        let viewController: UIViewController
+        if UserDefaults.standard.value(forKey: Constants.usernameKey) != nil {
+            viewController = ListViewController()
+        } else {
+            let viewModel = RegisterViewModel()
+            viewController = RegisterViewController(viewModel: viewModel)
+        }
+
+        window = UIWindow()
+        window?.rootViewController = viewController
+        window?.makeKeyAndVisible()
+
         registerForPushNotifications()
         return true
     }
@@ -64,13 +77,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication,
                      didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+
         let tokenParts = deviceToken.map { String(format: "%02.2hhx", $0) }
         let token = tokenParts.joined()
-        dlog("Device Token: \(token)")
+        UserDefaults.standard.set(token, forKey: Constants.tokenKey)
+        UserDefaults.standard.synchronize()
     }
 
     func application(_ application: UIApplication,
                      didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        
         dlog("Failed to register: \(error)")
     }
 
@@ -79,9 +95,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         didReceiveRemoteNotification userInfo: [AnyHashable : Any],
         fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
 
-        if let aps = userInfo["aps"] as? [String: Any] {
-            dlog("\(aps)")
-        }
+        guard let aps = userInfo["aps"] as? [String: Any] else { return }
+        dlog("\(aps)")
     }
 
     // MARK: - Private Functions

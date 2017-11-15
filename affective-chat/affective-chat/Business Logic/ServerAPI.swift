@@ -1,5 +1,5 @@
 //
-//  AffectiveChatEndpoint.swift
+//  ServerAPI.swift
 //  affective-chat
 //
 //  Created by vfu on 15.11.17.
@@ -9,13 +9,16 @@
 import Foundation
 import Moya
 
-private let serverUrl = "http://www.google.com"
+private let serverUrl = "http://localhost:8080/"
+private let newDevicePath = "newDevice"
+private let usernameParameter = "username"
+private let tokenParameter = "token"
 
-//let ACProvider = MoyaProvider<ServerAPI>()
-let ACProvider = MoyaProvider<ServerAPI>(plugins: [NetworkLoggerPlugin()])
+//let apiProvider = MoyaProvider<ServerAPI>()
+let apiProvider = MoyaProvider<ServerAPI>(plugins: [NetworkLoggerPlugin()])
 
 enum ServerAPI {
-
+    case newDevice(username: String, token: String)
 }
 
 extension ServerAPI: TargetType {
@@ -25,16 +28,26 @@ extension ServerAPI: TargetType {
     }
 
     var path: String {
-        return ""
+        switch self {
+        case .newDevice:
+            return newDevicePath
+        }
     }
 
     var method: Moya.Method {
-        return .get
+        switch self {
+        case .newDevice:
+            return .post
+        }
     }
 
     var parameters: [String: Any]? {
-        let params = [String: Any]()
-        print(params)
+        var params = [String: Any]()
+        switch self {
+        case .newDevice(let username, let token):
+            params[usernameParameter] = username
+            params[tokenParameter] = token
+        }
         return params
     }
 

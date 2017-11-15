@@ -1,0 +1,68 @@
+//
+//  RegisterView.swift
+//  affective-chat
+//
+//  Created by vfu on 15.11.17.
+//  Copyright © 2017 Florian Fincke. All rights reserved.
+//
+
+import UIKit
+import RxSwift
+import RxGesture
+import PureLayout
+
+class RegisterView: UIView {
+
+    let stackView = UIStackView()
+    let textField = UITextField()
+    let button = UIButton()
+    private var shouldSetupConstraints = true
+    private let disposeBag = DisposeBag()
+
+    // MARK: - Lifecycle
+
+    init() {
+        super.init(frame: CGRect.zero)
+        backgroundColor = UIColor.white
+
+        rx.tapGesture()
+            .when(.recognized)
+            .subscribe(onNext: { [weak self] _ in self?.endEditing(true) })
+            .disposed(by: disposeBag)
+
+        stackView.alignment = .center
+        stackView.axis = .vertical
+        stackView.spacing = 20
+        addSubview(stackView)
+
+        textField.textAlignment = .center
+        textField.placeholder = "Username"
+        textField.clipsToBounds = true
+        textField.layer.cornerRadius = 8
+        textField.layer.borderWidth = 1
+        textField.layer.borderColor = UIColor.lightGray.cgColor
+        stackView.addArrangedSubview(textField)
+
+        button.setTitle("Register", for: .normal)
+        button.setTitleColor(UIColor.blue, for: .normal)
+        stackView.addArrangedSubview(button)
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) is not implemented")
+    }
+
+    override func updateConstraints() {
+        if(shouldSetupConstraints) {
+            shouldSetupConstraints = false
+        }
+        super.updateConstraints()
+
+        stackView.autoCenterInSuperview()
+        stackView.autoPinEdge(toSuperviewEdge: .left, withInset: 60)
+        textField.autoPinEdge(toSuperviewEdge: .left, withInset: 0)
+        textField.autoSetDimension(.height, toSize: 32)
+        button.autoSetDimensions(to: CGSize(width: 80, height: 44))
+    }
+
+}
