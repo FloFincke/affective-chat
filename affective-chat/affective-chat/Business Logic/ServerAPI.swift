@@ -9,8 +9,10 @@
 import Foundation
 import Moya
 
-//let ACProvider = RxMoyaProvider<SSIEndpoint>()
-let ACProvider = RxMoyaProvider<SSIEndpoint>(plugins: [NetworkLoggerPlugin()])
+private let serverUrl = "http://www.google.com"
+
+//let ACProvider = MoyaProvider<ServerAPI>()
+let ACProvider = MoyaProvider<ServerAPI>(plugins: [NetworkLoggerPlugin()])
 
 enum ServerAPI {
 
@@ -18,34 +20,38 @@ enum ServerAPI {
 
 extension ServerAPI: TargetType {
 
-    public var baseURL: URL {
-        return URL(string: requestUrl)!
+    var baseURL: URL {
+        return URL(string: serverUrl)!
     }
 
-    public var path: String {
+    var path: String {
         return ""
     }
 
-    public var method: Moya.Method {
+    var method: Moya.Method {
         return .get
     }
 
-    public var parameters: [String: Any]? {
-        var params = [String: Any]()
+    var parameters: [String: Any]? {
+        let params = [String: Any]()
         print(params)
         return params
     }
 
-    public var task: Task {
-        return .request
+    var sampleData: Data {
+        return "".data(using: String.Encoding.utf8)!
     }
 
-    public var validate: Bool {
+    var task: Task {
+        return .requestPlain
+    }
+
+    var validate: Bool {
         return false
     }
 
-    public var sampleData: Data {
-        return "".data(using: String.Encoding.utf8)!
+    var headers: [String : String]? {
+        return nil
     }
 
 }

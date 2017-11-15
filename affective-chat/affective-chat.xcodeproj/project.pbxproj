@@ -7,15 +7,23 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2442273FB9BD6EEC9678A937 /* Pods_affective_chat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C9949768F5927D626B3EEE3 /* Pods_affective_chat.framework */; };
 		90CAECFA1FB36137007693CB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90CAECF91FB36137007693CB /* AppDelegate.swift */; };
 		90CAECFC1FB36137007693CB /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90CAECFB1FB36137007693CB /* ViewController.swift */; };
 		90CAECFF1FB36137007693CB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 90CAECFD1FB36137007693CB /* Main.storyboard */; };
 		90CAED021FB36137007693CB /* affective_chat.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 90CAED001FB36137007693CB /* affective_chat.xcdatamodeld */; };
 		90CAED041FB36137007693CB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 90CAED031FB36137007693CB /* Assets.xcassets */; };
 		90CAED071FB36137007693CB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 90CAED051FB36137007693CB /* LaunchScreen.storyboard */; };
+		E528F9E21FBC437E00FFD02E /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E528F9E11FBC437E00FFD02E /* DataStore.swift */; };
+		E528F9E51FBC458800FFD02E /* DLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = E528F9E41FBC458800FFD02E /* DLog.swift */; };
+		E528F9E71FBC46B200FFD02E /* ServerAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = E528F9E61FBC46B200FFD02E /* ServerAPI.swift */; };
+		E528F9E91FBC4D1000FFD02E /* MicrosoftBandKit_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E528F9E81FBC4D1000FFD02E /* MicrosoftBandKit_iOS.framework */; };
+		E54ABE081FBC4F820056D1ED /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E528F9EA1FBC4DC500FFD02E /* CoreBluetooth.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4FB0EC44D9A4BCFFF54941EF /* Pods-affective-chat.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-affective-chat.debug.xcconfig"; path = "Pods/Target Support Files/Pods-affective-chat/Pods-affective-chat.debug.xcconfig"; sourceTree = "<group>"; };
+		5C9949768F5927D626B3EEE3 /* Pods_affective_chat.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_affective_chat.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		90CAECF61FB36137007693CB /* affective-chat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "affective-chat.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		90CAECF91FB36137007693CB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		90CAECFB1FB36137007693CB /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -25,6 +33,12 @@
 		90CAED061FB36137007693CB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		90CAED081FB36137007693CB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		90CAED0E1FB368E8007693CB /* affective-chat.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "affective-chat.entitlements"; sourceTree = "<group>"; };
+		D6F408E7B83AA07EA9635B3B /* Pods-affective-chat.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-affective-chat.release.xcconfig"; path = "Pods/Target Support Files/Pods-affective-chat/Pods-affective-chat.release.xcconfig"; sourceTree = "<group>"; };
+		E528F9E11FBC437E00FFD02E /* DataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataStore.swift; sourceTree = "<group>"; };
+		E528F9E41FBC458800FFD02E /* DLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DLog.swift; sourceTree = "<group>"; };
+		E528F9E61FBC46B200FFD02E /* ServerAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerAPI.swift; sourceTree = "<group>"; };
+		E528F9E81FBC4D1000FFD02E /* MicrosoftBandKit_iOS.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = MicrosoftBandKit_iOS.framework; sourceTree = "<group>"; };
+		E528F9EA1FBC4DC500FFD02E /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -32,6 +46,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E54ABE081FBC4F820056D1ED /* CoreBluetooth.framework in Frameworks */,
+				2442273FB9BD6EEC9678A937 /* Pods_affective_chat.framework in Frameworks */,
+				E528F9E91FBC4D1000FFD02E /* MicrosoftBandKit_iOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -41,8 +58,11 @@
 		90CAECED1FB36137007693CB = {
 			isa = PBXGroup;
 			children = (
+				E528F9E81FBC4D1000FFD02E /* MicrosoftBandKit_iOS.framework */,
 				90CAECF81FB36137007693CB /* affective-chat */,
 				90CAECF71FB36137007693CB /* Products */,
+				92E87EE0E9E78B11A97317E6 /* Pods */,
+				A79296D49357BD5F58A9F74D /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -57,16 +77,77 @@
 		90CAECF81FB36137007693CB /* affective-chat */ = {
 			isa = PBXGroup;
 			children = (
-				90CAED0E1FB368E8007693CB /* affective-chat.entitlements */,
 				90CAECF91FB36137007693CB /* AppDelegate.swift */,
-				90CAECFB1FB36137007693CB /* ViewController.swift */,
+				E528F9E41FBC458800FFD02E /* DLog.swift */,
+				E528F9E01FBC437000FFD02E /* Model */,
+				E528F9DF1FBC436000FFD02E /* Business Logic */,
+				E528F9DE1FBC435800FFD02E /* Presentation */,
+				E528F9DD1FBC432E00FFD02E /* Resources */,
+				E528F9DC1FBC432000FFD02E /* Supporting Files */,
+			);
+			path = "affective-chat";
+			sourceTree = "<group>";
+		};
+		92E87EE0E9E78B11A97317E6 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				4FB0EC44D9A4BCFFF54941EF /* Pods-affective-chat.debug.xcconfig */,
+				D6F408E7B83AA07EA9635B3B /* Pods-affective-chat.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		A79296D49357BD5F58A9F74D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E528F9EA1FBC4DC500FFD02E /* CoreBluetooth.framework */,
+				5C9949768F5927D626B3EEE3 /* Pods_affective_chat.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		E528F9DC1FBC432000FFD02E /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				90CAED081FB36137007693CB /* Info.plist */,
+				90CAED0E1FB368E8007693CB /* affective-chat.entitlements */,
+			);
+			path = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		E528F9DD1FBC432E00FFD02E /* Resources */ = {
+			isa = PBXGroup;
+			children = (
 				90CAECFD1FB36137007693CB /* Main.storyboard */,
 				90CAED031FB36137007693CB /* Assets.xcassets */,
 				90CAED051FB36137007693CB /* LaunchScreen.storyboard */,
-				90CAED081FB36137007693CB /* Info.plist */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		E528F9DE1FBC435800FFD02E /* Presentation */ = {
+			isa = PBXGroup;
+			children = (
+				90CAECFB1FB36137007693CB /* ViewController.swift */,
+			);
+			path = Presentation;
+			sourceTree = "<group>";
+		};
+		E528F9DF1FBC436000FFD02E /* Business Logic */ = {
+			isa = PBXGroup;
+			children = (
+				E528F9E61FBC46B200FFD02E /* ServerAPI.swift */,
+				E528F9E11FBC437E00FFD02E /* DataStore.swift */,
+			);
+			path = "Business Logic";
+			sourceTree = "<group>";
+		};
+		E528F9E01FBC437000FFD02E /* Model */ = {
+			isa = PBXGroup;
+			children = (
 				90CAED001FB36137007693CB /* affective_chat.xcdatamodeld */,
 			);
-			path = "affective-chat";
+			path = Model;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -76,9 +157,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 90CAED0B1FB36137007693CB /* Build configuration list for PBXNativeTarget "affective-chat" */;
 			buildPhases = (
+				B960AE7B37AA931FBF812343 /* [CP] Check Pods Manifest.lock */,
 				90CAECF21FB36137007693CB /* Sources */,
 				90CAECF31FB36137007693CB /* Frameworks */,
 				90CAECF41FB36137007693CB /* Resources */,
+				7D423892096F685C18B4D198 /* [CP] Embed Pods Frameworks */,
+				E85718DE56DAE24C5BD20122 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -103,6 +187,9 @@
 						CreatedOnToolsVersion = 9.1;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = 1;
+							};
 							com.apple.Push = {
 								enabled = 1;
 							};
@@ -141,12 +228,63 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		7D423892096F685C18B4D198 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-affective-chat/Pods-affective-chat-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		B960AE7B37AA931FBF812343 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		E85718DE56DAE24C5BD20122 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-affective-chat/Pods-affective-chat-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		90CAECF21FB36137007693CB /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E528F9E71FBC46B200FFD02E /* ServerAPI.swift in Sources */,
+				E528F9E51FBC458800FFD02E /* DLog.swift in Sources */,
 				90CAECFC1FB36137007693CB /* ViewController.swift in Sources */,
+				E528F9E21FBC437E00FFD02E /* DataStore.swift in Sources */,
 				90CAECFA1FB36137007693CB /* AppDelegate.swift in Sources */,
 				90CAED021FB36137007693CB /* affective_chat.xcdatamodeld in Sources */,
 			);
@@ -283,13 +421,18 @@
 		};
 		90CAED0C1FB36137007693CB /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4FB0EC44D9A4BCFFF54941EF /* Pods-affective-chat.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = "affective-chat/affective-chat.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "affective-chat/Supporting Files/affective-chat.entitlements";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = C7PLUFBAM2;
-				INFOPLIST_FILE = "affective-chat/Info.plist";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				INFOPLIST_FILE = "affective-chat/Supporting Files/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "de.lmu.ifi.mobile.affective-chat";
@@ -302,13 +445,18 @@
 		};
 		90CAED0D1FB36137007693CB /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D6F408E7B83AA07EA9635B3B /* Pods-affective-chat.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = "affective-chat/affective-chat.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "affective-chat/Supporting Files/affective-chat.entitlements";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = C7PLUFBAM2;
-				INFOPLIST_FILE = "affective-chat/Info.plist";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				INFOPLIST_FILE = "affective-chat/Supporting Files/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "de.lmu.ifi.mobile.affective-chat";
