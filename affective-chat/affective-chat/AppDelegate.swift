@@ -28,6 +28,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             dlog("\(aps)")
         }
 
+        UNUserNotificationCenter.current().delegate = self
+        registerForPushNotifications()
 
         let viewController: UIViewController
         if UserDefaults.standard.value(forKey: Constants.usernameKey) != nil {
@@ -41,7 +43,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window?.rootViewController = viewController
         window?.makeKeyAndVisible()
 
-        registerForPushNotifications()
+        scheduleIsReceptibleNotification(inSeconds: 10)
+
         return true
     }
 
@@ -66,11 +69,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
         // Saves changes in the application's managed object context before the application terminates.
-        do {
-            try dataStore.save()
-        } catch let error {
-            dlog("\(error)")
-        }
+        try? dataStore.save()
     }
 
     // MARK: - Notifications
@@ -97,9 +96,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         guard let aps = userInfo["aps"] as? [String: Any] else { return }
         dlog("\(aps)")
+        // TODO: Schedule is receptible notification
     }
 
     // MARK: - Private Functions
+
+    func scheduleIsReceptibleNotification(inSeconds seconds: Double) {
+        let content = UNMutableNotificationContent()
+        content.title = "Title"
+        content.body = "Are you receptible for messages?"
+        content.sound = UNNotificationSound.default()
+        content.categoryIdentifier = receptibleCategoryIdentifier
+
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: seconds, repeats: false)
+
+        let request = UNNotificationRequest(
+            identifier: "IsReceptibleNotification",
+            content: content,
+            trigger: trigger
+        )
+
+        UNUserNotificationCenter.current().add(request)
+    }
 
     func registerForPushNotifications() {
         UNUserNotificationCenter
@@ -137,7 +155,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UNUserNotificationCenter.current().getNotificationSettings { (settings) in
             dlog("Notification settings: \(settings)")
             guard settings.authorizationStatus == .authorized else { return }
-            UIApplication.shared.registerForRemoteNotifications()
+            DispatchQueue.main.async {
+                UIApplication.shared.registerForRemoteNotifications()
+            }
         }
     }
 

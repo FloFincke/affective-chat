@@ -11,7 +11,7 @@ import RxSwift
 
 class RegisterViewController: UIViewController {
 
-    private let registerView = RegisterView()
+    private var registerView: RegisterView!
     private let viewModel: RegisterViewModel
     private let disposeBag = DisposeBag()
 
@@ -29,6 +29,7 @@ class RegisterViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        registerView = RegisterView()
         view.addSubview(registerView)
         registerView.autoPinEdgesToSuperviewEdges()
 

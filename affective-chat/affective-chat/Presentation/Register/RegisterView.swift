@@ -13,9 +13,9 @@ import PureLayout
 
 class RegisterView: UIView {
 
-    let stackView = UIStackView()
-    let textField = UITextField()
-    let button = UIButton()
+    var stackView: UIStackView!
+    var textField: UITextField!
+    var button: UIButton!
     private var shouldSetupConstraints = true
     private let disposeBag = DisposeBag()
 
@@ -30,22 +30,24 @@ class RegisterView: UIView {
             .subscribe(onNext: { [weak self] _ in self?.endEditing(true) })
             .disposed(by: disposeBag)
 
-        stackView.alignment = .center
-        stackView.axis = .vertical
-        stackView.spacing = 20
-        addSubview(stackView)
-
+        textField = UITextField()
         textField.textAlignment = .center
         textField.placeholder = "Username"
         textField.clipsToBounds = true
         textField.layer.cornerRadius = 8
         textField.layer.borderWidth = 1
         textField.layer.borderColor = UIColor.lightGray.cgColor
-        stackView.addArrangedSubview(textField)
 
+        button = UIButton()
         button.setTitle("Register", for: .normal)
         button.setTitleColor(UIColor.blue, for: .normal)
-        stackView.addArrangedSubview(button)
+
+        stackView = UIStackView(arrangedSubviews: [textField, button])
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.alignment = .center
+        stackView.axis = .vertical
+        stackView.spacing = 20
+        addSubview(stackView)
     }
 
     required init?(coder aDecoder: NSCoder) {
