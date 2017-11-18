@@ -1,5 +1,5 @@
 //
-//  AffectiveChatEndpoint.swift
+//  ServerAPI.swift
 //  affective-chat
 //
 //  Created by vfu on 15.11.17.
@@ -9,43 +9,62 @@
 import Foundation
 import Moya
 
-//let ACProvider = RxMoyaProvider<SSIEndpoint>()
-let ACProvider = RxMoyaProvider<SSIEndpoint>(plugins: [NetworkLoggerPlugin()])
+private let serverUrl = "http://localhost:8080/"
+private let newDevicePath = "newDevice"
+private let usernameParameter = "username"
+private let tokenParameter = "token"
+
+//let apiProvider = MoyaProvider<ServerAPI>()
+let apiProvider = MoyaProvider<ServerAPI>(plugins: [NetworkLoggerPlugin()])
 
 enum ServerAPI {
-
+    case newDevice(username: String, token: String)
 }
 
 extension ServerAPI: TargetType {
 
-    public var baseURL: URL {
-        return URL(string: requestUrl)!
+    var baseURL: URL {
+        return URL(string: serverUrl)!
     }
 
-    public var path: String {
-        return ""
+    var path: String {
+        switch self {
+        case .newDevice:
+            return newDevicePath
+        }
     }
 
-    public var method: Moya.Method {
-        return .get
+    var method: Moya.Method {
+        switch self {
+        case .newDevice:
+            return .post
+        }
     }
 
-    public var parameters: [String: Any]? {
+    var parameters: [String: Any]? {
         var params = [String: Any]()
-        print(params)
+        switch self {
+        case .newDevice(let username, let token):
+            params[usernameParameter] = username
+            params[tokenParameter] = token
+        }
         return params
     }
 
-    public var task: Task {
-        return .request
+    var sampleData: Data {
+        return "".data(using: String.Encoding.utf8)!
     }
 
-    public var validate: Bool {
+    var task: Task {
+        return .requestPlain
+    }
+
+    var validate: Bool {
         return false
     }
 
-    public var sampleData: Data {
-        return "".data(using: String.Encoding.utf8)!
+    var headers: [String : String]? {
+        return nil
     }
 
 }

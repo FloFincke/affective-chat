@@ -10,51 +10,42 @@ import UIKit
 import CoreData
 import UserNotifications
 
+fileprivate let isReceptibleActionIdentifier = "isReceptibleAction"
+fileprivate let isNotReceptibleActionIdentifier = "isNotReceptibleAction"
+fileprivate let receptibleCategoryIdentifier = "receptibleCategory"
+
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-
+    private var dataStore = CoreDataStack()
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        registerForRemoteNotification()
+
+        if let notification = launchOptions?[.remoteNotification] as? [String: Any],
+            let aps = notification["aps"] as? [String: Any] {
+            dlog("\(aps)")
+        }
+
+        UNUserNotificationCenter.current().delegate = self
+        registerForPushNotifications()
+
+        let viewController: UIViewController
+        if UserDefaults.standard.value(forKey: Constants.usernameKey) != nil {
+            viewController = ListViewController()
+        } else {
+            let viewModel = RegisterViewModel()
+            viewController = RegisterViewController(viewModel: viewModel)
+        }
+
+        window = UIWindow()
+        window?.rootViewController = viewController
+        window?.makeKeyAndVisible()
+
+        scheduleIsReceptibleNotification(inSeconds: 10)
+
         return true
-    }
-    
-    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        let token = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
-        print(token)
-    }
-    
-    func registerForRemoteNotification() {
-        if #available(iOS 10.0, *) {
-            let center  = UNUserNotificationCenter.current()
-            center.delegate = self
-            center.requestAuthorization(options: [.sound, .alert, .badge]) { (granted, error) in
-                if error == nil{
-                    UIApplication.shared.registerForRemoteNotifications()
-                }
-            }
-        }
-        else {
-            UIApplication.shared.registerUserNotificationSettings(UIUserNotificationSettings(types: [.sound, .alert, .badge], categories: nil))
-            UIApplication.shared.registerForRemoteNotifications()
-        }
-    }
-    
-    //Called when a notification is delivered to a foreground app.
-    @available(iOS 10.0, *)
-    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        print("User Info = ",notification.request.content.userInfo)
-        completionHandler([.alert, .badge, .sound])
-    }
-    
-    //Called to let your app know which action was selected by the user for a given notification.
-    @available(iOS 10.0, *)
-    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        print("User Info = ",response.notification.request.content.userInfo)
-        completionHandler()
     }
 
     func applicationWillResignActive(_ application: UIApplication) {
@@ -78,53 +69,114 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
         // Saves changes in the application's managed object context before the application terminates.
-        self.saveContext()
+        try? dataStore.save()
     }
 
-    // MARK: - Core Data stack
+    // MARK: - Notifications
 
-    lazy var persistentContainer: NSPersistentContainer = {
-        /*
-         The persistent container for the application. This implementation
-         creates and returns a container, having loaded the store for the
-         application to it. This property is optional since there are legitimate
-         error conditions that could cause the creation of the store to fail.
-        */
-        let container = NSPersistentContainer(name: "affective_chat")
-        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
-            if let error = error as NSError? {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                 
-                /*
-                 Typical reasons for an error here include:
-                 * The parent directory does not exist, cannot be created, or disallows writing.
-                 * The persistent store is not accessible, due to permissions or data protection when the device is locked.
-                 * The device is out of space.
-                 * The store could not be migrated to the current model version.
-                 Check the error message to determine what the actual problem was.
-                 */
-                fatalError("Unresolved error \(error), \(error.userInfo)")
-            }
-        })
-        return container
-    }()
+    func application(_ application: UIApplication,
+                     didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
 
-    // MARK: - Core Data Saving support
+        let tokenParts = deviceToken.map { String(format: "%02.2hhx", $0) }
+        let token = tokenParts.joined()
+        UserDefaults.standard.set(token, forKey: Constants.tokenKey)
+        UserDefaults.standard.synchronize()
+    }
 
-    func saveContext () {
-        let context = persistentContainer.viewContext
-        if context.hasChanges {
-            do {
-                try context.save()
-            } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                let nserror = error as NSError
-                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
+    func application(_ application: UIApplication,
+                     didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        
+        dlog("Failed to register: \(error)")
+    }
+
+    func application(
+        _ application: UIApplication,
+        didReceiveRemoteNotification userInfo: [AnyHashable : Any],
+        fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+
+        guard let aps = userInfo["aps"] as? [String: Any] else { return }
+        dlog("\(aps)")
+        // TODO: Schedule is receptible notification
+    }
+
+    // MARK: - Private Functions
+
+    func scheduleIsReceptibleNotification(inSeconds seconds: Double) {
+        let content = UNMutableNotificationContent()
+        content.title = "Title"
+        content.body = "Are you receptible for messages?"
+        content.sound = UNNotificationSound.default()
+        content.categoryIdentifier = receptibleCategoryIdentifier
+
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: seconds, repeats: false)
+
+        let request = UNNotificationRequest(
+            identifier: "IsReceptibleNotification",
+            content: content,
+            trigger: trigger
+        )
+
+        UNUserNotificationCenter.current().add(request)
+    }
+
+    func registerForPushNotifications() {
+        UNUserNotificationCenter
+            .current()
+            .requestAuthorization(options: [.alert, .sound, .badge]) { (granted, error) in
+                print("Permission granted: \(granted)")
+                guard granted else { return }
+
+                let isReceptibleAction = UNNotificationAction(
+                    identifier: isReceptibleActionIdentifier,
+                    title: "Receptible",
+                    options: [.foreground]
+                )
+
+                let isNotReceptibleAction = UNNotificationAction(
+                    identifier: isNotReceptibleActionIdentifier,
+                    title: "Not receptible",
+                    options: [.foreground]
+                )
+
+                let receptibleCategory = UNNotificationCategory(
+                    identifier: receptibleCategoryIdentifier,
+                    actions: [isReceptibleAction, isNotReceptibleAction],
+                    intentIdentifiers: [],
+                    options: []
+                )
+
+                UNUserNotificationCenter.current().setNotificationCategories([receptibleCategory])
+
+                self.notificationSettings()
+        }
+    }
+
+    private func notificationSettings() {
+        UNUserNotificationCenter.current().getNotificationSettings { (settings) in
+            dlog("Notification settings: \(settings)")
+            guard settings.authorizationStatus == .authorized else { return }
+            DispatchQueue.main.async {
+                UIApplication.shared.registerForRemoteNotifications()
             }
         }
     }
 
+}
+
+// MARK: - UNUserNotificationCenterDelegate
+extension AppDelegate: UNUserNotificationCenterDelegate {
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                didReceive response: UNNotificationResponse,
+                                withCompletionHandler completionHandler: @escaping () -> Void) {
+
+        if response.actionIdentifier == isReceptibleActionIdentifier {
+            dlog("receptible")
+        } else if response.actionIdentifier == isReceptibleActionIdentifier {
+            dlog("not receptible")
+        }
+
+        completionHandler()
+    }
 }
 
