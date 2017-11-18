@@ -28,6 +28,7 @@
 		E53F577B1FBCD7DD0013043C /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53F577A1FBCD7DD0013043C /* Constants.swift */; };
 		E54ABE081FBC4F820056D1ED /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E528F9EA1FBC4DC500FFD02E /* CoreBluetooth.framework */; };
 		E5F914211FC0623400367BFE /* ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5F914201FC0623400367BFE /* ActivityIndicator.swift */; };
+		E5FD33181FC0BF5600A3AED2 /* CompactNetworkLoggerPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5FD33171FC0BF5600A3AED2 /* CompactNetworkLoggerPlugin.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -58,6 +59,7 @@
 		E53F57781FBCD6E10013043C /* RegisterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterViewModel.swift; sourceTree = "<group>"; };
 		E53F577A1FBCD7DD0013043C /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		E5F914201FC0623400367BFE /* ActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityIndicator.swift; sourceTree = "<group>"; };
+		E5FD33171FC0BF5600A3AED2 /* CompactNetworkLoggerPlugin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CompactNetworkLoggerPlugin.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -205,6 +207,7 @@
 			isa = PBXGroup;
 			children = (
 				E5F914201FC0623400367BFE /* ActivityIndicator.swift */,
+				E5FD33171FC0BF5600A3AED2 /* CompactNetworkLoggerPlugin.swift */,
 				E53F577A1FBCD7DD0013043C /* Constants.swift */,
 				E528F9E41FBC458800FFD02E /* DLog.swift */,
 			);
@@ -354,6 +357,7 @@
 				E535DDB91FC08DC4007D6BE6 /* NotificationHandler.swift in Sources */,
 				E535DDB31FC089FC007D6BE6 /* MBConnection.swift in Sources */,
 				E53F57751FBCD51C0013043C /* ListViewController.swift in Sources */,
+				E5FD33181FC0BF5600A3AED2 /* CompactNetworkLoggerPlugin.swift in Sources */,
 				90CAED021FB36137007693CB /* affective_chat.xcdatamodeld in Sources */,
 				E53F57771FBCD52B0013043C /* ListView.swift in Sources */,
 				E535DDBB1FC08FFB007D6BE6 /* MBDataStore.swift in Sources */,

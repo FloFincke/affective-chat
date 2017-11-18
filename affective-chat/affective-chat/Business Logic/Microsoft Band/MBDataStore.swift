@@ -8,16 +8,24 @@
 
 import Foundation
 import Zip
+import RxSwift
 
-private let sensorDataFileName = "sensor-data.json"
+private let sensorDataFileName = "sensor-data"
+private let sensorDataJsonName = "\(sensorDataFileName).json"
+private let sensorDataZipName = "\(sensorDataFileName).zip"
 private let heartRatesKey = "heartRates"
 
 class MBDataStore {
 
     private var documentsDirectory: URL!
-    private var sensorDataFileUrl: URL! {
-        return documentsDirectory.appendingPathComponent(sensorDataFileName)
+    private var sensorDataJsonUrl: URL! {
+        return documentsDirectory.appendingPathComponent(sensorDataJsonName)
     }
+    private var sensorDataZipUrl: URL! {
+        return documentsDirectory.appendingPathComponent(sensorDataZipName)
+    }
+
+    private let disposeBag = DisposeBag()
 
     // MARK: - Lifecycle
 
@@ -39,7 +47,7 @@ class MBDataStore {
 
     func compressSensorData() {
         do {
-            let _ = try Zip.quickZipFiles([sensorDataFileUrl], fileName: "sensor-data")
+            let _ = try Zip.quickZipFiles([sensorDataJsonUrl], fileName: sensorDataFileName)
         } catch {
             print(error)
         }
@@ -54,11 +62,20 @@ class MBDataStore {
                 return
         }
 
-        try? jsonString.write(to: sensorDataFileUrl, atomically: true, encoding: .utf8)
+        try? jsonString.write(to: sensorDataJsonUrl, atomically: true, encoding: .utf8)
+        compressSensorData()
+
+        guard let zipData = try? Data(contentsOf: sensorDataZipUrl) else {
+            return
+        }
+
+        apiProvider.rx.request(.newData(id: "123456", data: zipData))
+            .subscribe()
+            .disposed(by: disposeBag)
     }
 
     private func getSensorData() -> [String: Any] {
-        guard let jsonString = try? String(contentsOf: sensorDataFileUrl, encoding: .utf8),
+        guard let jsonString = try? String(contentsOf: sensorDataJsonUrl, encoding: .utf8),
             let jsonData = jsonString.data(using: .utf8),
             let json = try? JSONSerialization.jsonObject(with: jsonData, options: []),
             let validJson = json as? [String: Any]
