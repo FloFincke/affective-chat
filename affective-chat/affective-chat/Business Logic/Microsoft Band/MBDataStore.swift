@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Zip
 
 private let sensorDataFileName = "sensor-data.json"
 private let heartRatesKey = "heartRates"
@@ -36,8 +37,12 @@ class MBDataStore {
         saveSensorData(sensorData)
     }
 
-    func compressedSensorData() {
-        // TODO: Implement
+    func compressSensorData() {
+        do {
+            let _ = try Zip.quickZipFiles([sensorDataFileUrl], fileName: "sensor-data")
+        } catch {
+            print(error)
+        }
     }
 
     // MARK: - Private Functions
