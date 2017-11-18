@@ -2,7 +2,7 @@
 //  ActivityIndicator.swift
 //  affective-chat
 //
-//  Created by vfu on 18.11.17.
+//  Created by Vincent Füseschi on 18.11.17.
 //  Copyright © 2017 Florian Fincke. All rights reserved.
 //
 

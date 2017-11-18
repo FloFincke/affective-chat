@@ -2,7 +2,7 @@
 //  RegisterViewModel.swift
 //  affective-chat
 //
-//  Created by vfu on 15.11.17.
+//  Created by Vincent Füseschi on 15.11.17.
 //  Copyright © 2017 Florian Fincke. All rights reserved.
 //
 
@@ -33,14 +33,7 @@ class RegisterViewModel {
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
 
-        registerTap
-            .subscribe(onNext: {
-                print("register tap")
-            })
-            .disposed(by: disposeBag)
-
         isRegistered = registerTap
-            .debug("registerTap")
             .map { UserDefaults.standard.value(forKey: Constants.tokenKey) as? String }
             .filterNil()
             .withLatestFrom(validUsername) { ($0, $1) }
