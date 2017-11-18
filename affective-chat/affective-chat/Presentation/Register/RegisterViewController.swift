@@ -33,19 +33,37 @@ class RegisterViewController: UIViewController {
         view.addSubview(registerView)
         registerView.autoPinEdgesToSuperviewEdges()
 
-        registerView.textField.rx.text.asObservable()
-            .bind(to: viewModel.username)
-            .disposed(by: disposeBag)
-
-        registerView.button.rx.tap
-            .bind(to: viewModel.registerTap)
-            .disposed(by: disposeBag)
+        setupTextField()
+        setupButton()
 
         viewModel.isRegistered
             .filter { $0 }
             .drive(onNext: { _ in
                 UIApplication.shared.keyWindow?.rootViewController = ListViewController()
             })
+            .disposed(by: disposeBag)
+    }
+
+    // MARK: - Setup Functions
+
+    private func setupTextField() {
+        registerView.textField.rx.text.asObservable()
+            .bind(to: viewModel.username)
+            .disposed(by: disposeBag)
+
+        viewModel.isRegistering
+            .map { !$0 }
+            .drive(registerView.textField.rx.isEnabled)
+            .disposed(by: disposeBag)
+    }
+
+    private func setupButton() {
+        registerView.button.rx.tap
+            .bind(to: viewModel.registerTap)
+            .disposed(by: disposeBag)
+
+        viewModel.isRegistering
+            .drive(registerView.button.rx.isHidden)
             .disposed(by: disposeBag)
     }
 

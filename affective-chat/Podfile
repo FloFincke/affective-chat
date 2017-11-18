@@ -8,6 +8,7 @@ target 'affective-chat' do
   # Pods for affective-chat
   pod 'RxSwift',                  '~> 4.0'
   pod 'RxCocoa',                  '~> 4.0'
+  pod 'RxSwiftExt'
   pod 'RxOptional'
   pod 'RxGesture'
   pod 'Moya/RxSwift'

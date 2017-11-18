@@ -23,6 +23,7 @@
 		E53F57791FBCD6E10013043C /* RegisterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53F57781FBCD6E10013043C /* RegisterViewModel.swift */; };
 		E53F577B1FBCD7DD0013043C /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53F577A1FBCD7DD0013043C /* Constants.swift */; };
 		E54ABE081FBC4F820056D1ED /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E528F9EA1FBC4DC500FFD02E /* CoreBluetooth.framework */; };
+		E5F914211FC0623400367BFE /* ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5F914201FC0623400367BFE /* ActivityIndicator.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -47,6 +48,7 @@
 		E53F57761FBCD52B0013043C /* ListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListView.swift; sourceTree = "<group>"; };
 		E53F57781FBCD6E10013043C /* RegisterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterViewModel.swift; sourceTree = "<group>"; };
 		E53F577A1FBCD7DD0013043C /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		E5F914201FC0623400367BFE /* ActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityIndicator.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,11 +88,10 @@
 			isa = PBXGroup;
 			children = (
 				90CAECF91FB36137007693CB /* AppDelegate.swift */,
-				E53F577A1FBCD7DD0013043C /* Constants.swift */,
-				E528F9E41FBC458800FFD02E /* DLog.swift */,
 				E528F9E01FBC437000FFD02E /* Model */,
 				E528F9DF1FBC436000FFD02E /* Business Logic */,
 				E528F9DE1FBC435800FFD02E /* Presentation */,
+				E5F9141F1FC0621200367BFE /* Extensions & Helpers */,
 				E528F9DD1FBC432E00FFD02E /* Resources */,
 				E528F9DC1FBC432000FFD02E /* Supporting Files */,
 			);
@@ -176,6 +177,16 @@
 				E53F57761FBCD52B0013043C /* ListView.swift */,
 			);
 			path = List;
+			sourceTree = "<group>";
+		};
+		E5F9141F1FC0621200367BFE /* Extensions & Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				E5F914201FC0623400367BFE /* ActivityIndicator.swift */,
+				E53F577A1FBCD7DD0013043C /* Constants.swift */,
+				E528F9E41FBC458800FFD02E /* DLog.swift */,
+			);
+			path = "Extensions & Helpers";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -312,6 +323,7 @@
 				E53F577B1FBCD7DD0013043C /* Constants.swift in Sources */,
 				E53F57791FBCD6E10013043C /* RegisterViewModel.swift in Sources */,
 				E528F9E51FBC458800FFD02E /* DLog.swift in Sources */,
+				E5F914211FC0623400367BFE /* ActivityIndicator.swift in Sources */,
 				E53F57701FBCA6330013043C /* RegisterViewController.swift in Sources */,
 				E53F57721FBCCE130013043C /* RegisterView.swift in Sources */,
 				E528F9E21FBC437E00FFD02E /* DataStore.swift in Sources */,

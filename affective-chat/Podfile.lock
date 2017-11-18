@@ -27,6 +27,10 @@ PODS:
     - RxCocoa (~> 4.0)
     - RxSwift (~> 4.0)
   - RxSwift (4.0.0)
+  - RxSwiftExt (3.0.0):
+    - RxSwiftExt/Core (= 3.0.0)
+  - RxSwiftExt/Core (3.0.0):
+    - RxSwift (~> 4.0)
 
 DEPENDENCIES:
   - Moya-ObjectMapper/RxSwift
@@ -36,6 +40,7 @@ DEPENDENCIES:
   - RxGesture
   - RxOptional
   - RxSwift (~> 4.0)
+  - RxSwiftExt
 
 SPEC CHECKSUMS:
   Alamofire: 2d95912bf4c34f164fdfc335872e8c312acaea4a
@@ -48,7 +53,8 @@ SPEC CHECKSUMS:
   RxGesture: c278eb05b187abd47e11e65464ae4de53ab71d95
   RxOptional: e5448d3e21024489e07c31f6a262f2b50c975367
   RxSwift: fd680d75283beb5e2559486f3c0ff852f0d35334
+  RxSwiftExt: b06c47dff66cd33ca7683bba1e74b0c5c8e3592e
 
-PODFILE CHECKSUM: 4d4d87f37392f7c3a7ca7d3ff1749422a029a2a6
+PODFILE CHECKSUM: 92e8fbd2a3902fac19dde2ff9acc3a114c746278
 
 COCOAPODS: 1.2.0
