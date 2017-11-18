@@ -16,6 +16,10 @@
 		E528F9E51FBC458800FFD02E /* DLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = E528F9E41FBC458800FFD02E /* DLog.swift */; };
 		E528F9E71FBC46B200FFD02E /* ServerAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = E528F9E61FBC46B200FFD02E /* ServerAPI.swift */; };
 		E528F9E91FBC4D1000FFD02E /* MicrosoftBandKit_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E528F9E81FBC4D1000FFD02E /* MicrosoftBandKit_iOS.framework */; };
+		E535DDB31FC089FC007D6BE6 /* MBConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = E535DDB21FC089FC007D6BE6 /* MBConnection.swift */; };
+		E535DDB91FC08DC4007D6BE6 /* NotificationHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E535DDB81FC08DC4007D6BE6 /* NotificationHandler.swift */; };
+		E535DDBB1FC08FFB007D6BE6 /* MBDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E535DDBA1FC08FFB007D6BE6 /* MBDataStore.swift */; };
+		E535DDBE1FC09358007D6BE6 /* MBDataSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = E535DDBD1FC09358007D6BE6 /* MBDataSubscriber.swift */; };
 		E53F57701FBCA6330013043C /* RegisterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53F576F1FBCA6330013043C /* RegisterViewController.swift */; };
 		E53F57721FBCCE130013043C /* RegisterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53F57711FBCCE130013043C /* RegisterView.swift */; };
 		E53F57751FBCD51C0013043C /* ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53F57741FBCD51C0013043C /* ListViewController.swift */; };
@@ -42,6 +46,11 @@
 		E528F9E61FBC46B200FFD02E /* ServerAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerAPI.swift; sourceTree = "<group>"; };
 		E528F9E81FBC4D1000FFD02E /* MicrosoftBandKit_iOS.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = MicrosoftBandKit_iOS.framework; sourceTree = "<group>"; };
 		E528F9EA1FBC4DC500FFD02E /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
+		E535DDB21FC089FC007D6BE6 /* MBConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MBConnection.swift; sourceTree = "<group>"; };
+		E535DDB41FC08A46007D6BE6 /* affective-chat-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "affective-chat-Bridging-Header.h"; sourceTree = "<group>"; };
+		E535DDB81FC08DC4007D6BE6 /* NotificationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHandler.swift; sourceTree = "<group>"; };
+		E535DDBA1FC08FFB007D6BE6 /* MBDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MBDataStore.swift; sourceTree = "<group>"; };
+		E535DDBD1FC09358007D6BE6 /* MBDataSubscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MBDataSubscriber.swift; sourceTree = "<group>"; };
 		E53F576F1FBCA6330013043C /* RegisterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterViewController.swift; sourceTree = "<group>"; };
 		E53F57711FBCCE130013043C /* RegisterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterView.swift; sourceTree = "<group>"; };
 		E53F57741FBCD51C0013043C /* ListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewController.swift; sourceTree = "<group>"; };
@@ -121,6 +130,7 @@
 			children = (
 				90CAED081FB36137007693CB /* Info.plist */,
 				90CAED0E1FB368E8007693CB /* affective-chat.entitlements */,
+				E535DDB41FC08A46007D6BE6 /* affective-chat-Bridging-Header.h */,
 			);
 			path = "Supporting Files";
 			sourceTree = "<group>";
@@ -146,8 +156,10 @@
 		E528F9DF1FBC436000FFD02E /* Business Logic */ = {
 			isa = PBXGroup;
 			children = (
-				E528F9E61FBC46B200FFD02E /* ServerAPI.swift */,
+				E535DDBC1FC0930D007D6BE6 /* Microsoft Band */,
 				E528F9E11FBC437E00FFD02E /* DataStore.swift */,
+				E535DDB81FC08DC4007D6BE6 /* NotificationHandler.swift */,
+				E528F9E61FBC46B200FFD02E /* ServerAPI.swift */,
 			);
 			path = "Business Logic";
 			sourceTree = "<group>";
@@ -158,6 +170,16 @@
 				90CAED001FB36137007693CB /* affective_chat.xcdatamodeld */,
 			);
 			path = Model;
+			sourceTree = "<group>";
+		};
+		E535DDBC1FC0930D007D6BE6 /* Microsoft Band */ = {
+			isa = PBXGroup;
+			children = (
+				E535DDB21FC089FC007D6BE6 /* MBConnection.swift */,
+				E535DDBD1FC09358007D6BE6 /* MBDataSubscriber.swift */,
+				E535DDBA1FC08FFB007D6BE6 /* MBDataStore.swift */,
+			);
+			path = "Microsoft Band";
 			sourceTree = "<group>";
 		};
 		E53F576E1FBCA5CB0013043C /* Register */ = {
@@ -224,6 +246,7 @@
 				TargetAttributes = {
 					90CAECF51FB36137007693CB = {
 						CreatedOnToolsVersion = 9.1;
+						LastSwiftMigration = 0910;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
@@ -328,9 +351,13 @@
 				E53F57721FBCCE130013043C /* RegisterView.swift in Sources */,
 				E528F9E21FBC437E00FFD02E /* DataStore.swift in Sources */,
 				90CAECFA1FB36137007693CB /* AppDelegate.swift in Sources */,
+				E535DDB91FC08DC4007D6BE6 /* NotificationHandler.swift in Sources */,
+				E535DDB31FC089FC007D6BE6 /* MBConnection.swift in Sources */,
 				E53F57751FBCD51C0013043C /* ListViewController.swift in Sources */,
 				90CAED021FB36137007693CB /* affective_chat.xcdatamodeld in Sources */,
 				E53F57771FBCD52B0013043C /* ListView.swift in Sources */,
+				E535DDBB1FC08FFB007D6BE6 /* MBDataStore.swift in Sources */,
+				E535DDBE1FC09358007D6BE6 /* MBDataSubscriber.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -460,6 +487,7 @@
 			baseConfigurationReference = 4FB0EC44D9A4BCFFF54941EF /* Pods-affective-chat.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = "affective-chat/Supporting Files/affective-chat.entitlements";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
@@ -474,6 +502,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "de.lmu.ifi.mobile.affective-chat";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "affective-chat/Supporting Files/affective-chat-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -484,6 +514,7 @@
 			baseConfigurationReference = D6F408E7B83AA07EA9635B3B /* Pods-affective-chat.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = "affective-chat/Supporting Files/affective-chat.entitlements";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
@@ -498,6 +529,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "de.lmu.ifi.mobile.affective-chat";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "affective-chat/Supporting Files/affective-chat-Bridging-Header.h";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

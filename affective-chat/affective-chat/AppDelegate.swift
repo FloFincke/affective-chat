@@ -8,17 +8,22 @@
 
 import UIKit
 import CoreData
-import UserNotifications
-
-fileprivate let isReceptibleActionIdentifier = "isReceptibleAction"
-fileprivate let isNotReceptibleActionIdentifier = "isNotReceptibleAction"
-fileprivate let receptibleCategoryIdentifier = "receptibleCategory"
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+
+    // MARK: - Services
+
     private var dataStore = CoreDataStack()
+    private var notificationHandler = NotificationHandler()
+    private var bandConnection = MBConnection()
+
+    // Testing
+    private var subscriber: MBDataSubscriber?
+
+    // MARK: - UIApplicationDelegate Functions
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
@@ -28,8 +33,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             dlog("\(aps)")
         }
 
-        UNUserNotificationCenter.current().delegate = self
-        registerForPushNotifications()
+        notificationHandler.registerForPushNotifications()
+        
 
         let viewController: UIViewController
         if UserDefaults.standard.value(forKey: Constants.usernameKey) != nil {
@@ -43,7 +48,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window?.rootViewController = viewController
         window?.makeKeyAndVisible()
 
-        scheduleIsReceptibleNotification(inSeconds: 10)
+        subscriber = MBDataSubscriber(connection: bandConnection, dataStore: MBDataStore())
 
         return true
     }
@@ -99,84 +104,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // TODO: Schedule is receptible notification
     }
 
-    // MARK: - Private Functions
-
-    func scheduleIsReceptibleNotification(inSeconds seconds: Double) {
-        let content = UNMutableNotificationContent()
-        content.title = "Title"
-        content.body = "Are you receptible for messages?"
-        content.sound = UNNotificationSound.default()
-        content.categoryIdentifier = receptibleCategoryIdentifier
-
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: seconds, repeats: false)
-
-        let request = UNNotificationRequest(
-            identifier: "IsReceptibleNotification",
-            content: content,
-            trigger: trigger
-        )
-
-        UNUserNotificationCenter.current().add(request)
-    }
-
-    func registerForPushNotifications() {
-        UNUserNotificationCenter
-            .current()
-            .requestAuthorization(options: [.alert, .sound, .badge]) { (granted, error) in
-                print("Permission granted: \(granted)")
-                guard granted else { return }
-
-                let isReceptibleAction = UNNotificationAction(
-                    identifier: isReceptibleActionIdentifier,
-                    title: "Receptible",
-                    options: [.foreground]
-                )
-
-                let isNotReceptibleAction = UNNotificationAction(
-                    identifier: isNotReceptibleActionIdentifier,
-                    title: "Not receptible",
-                    options: [.foreground]
-                )
-
-                let receptibleCategory = UNNotificationCategory(
-                    identifier: receptibleCategoryIdentifier,
-                    actions: [isReceptibleAction, isNotReceptibleAction],
-                    intentIdentifiers: [],
-                    options: []
-                )
-
-                UNUserNotificationCenter.current().setNotificationCategories([receptibleCategory])
-
-                self.notificationSettings()
-        }
-    }
-
-    private func notificationSettings() {
-        UNUserNotificationCenter.current().getNotificationSettings { (settings) in
-            dlog("Notification settings: \(settings)")
-            guard settings.authorizationStatus == .authorized else { return }
-            DispatchQueue.main.async {
-                UIApplication.shared.registerForRemoteNotifications()
-            }
-        }
-    }
-
-}
-
-// MARK: - UNUserNotificationCenterDelegate
-extension AppDelegate: UNUserNotificationCenterDelegate {
-
-    func userNotificationCenter(_ center: UNUserNotificationCenter,
-                                didReceive response: UNNotificationResponse,
-                                withCompletionHandler completionHandler: @escaping () -> Void) {
-
-        if response.actionIdentifier == isReceptibleActionIdentifier {
-            dlog("receptible")
-        } else if response.actionIdentifier == isReceptibleActionIdentifier {
-            dlog("not receptible")
-        }
-
-        completionHandler()
-    }
 }
 
