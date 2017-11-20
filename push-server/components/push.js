@@ -25,7 +25,7 @@ agenda.mongo(database.db);
 agenda.define('push', function(job, done) {
     database.Phone.find({}).exec(function(err, phones) {
         phones.forEach(function(phone) {
-            newPush(phone._id);
+            newPush(phone._id, phone.token);
         });
         done();
     });
@@ -39,39 +39,37 @@ agenda.on('ready', function() {
 });
 
 
-function newPush(phoneId) {
+function newPush(phoneId, token) {
     //schedule push and put next schdule in callback
     //Log that in DB
-    database.Phone.findOne({ _id: phoneId }, function(err, phone) {
-        const note = new apn.Notification();
-        note.expiry = Math.floor(Date.now() / 1000) + 3600; // Expires 1 hour from now.
-        note.badge = 0;
-        note.sound = null;
-        note.alert = null;
-        note.payload = { 'duration': duration };
-        note.topic = "de.lmu.ifi.mobile.affective-chat";
+    const note = new apn.Notification();
+    note.expiry = Math.floor(Date.now() / 1000) + 3600; // Expires 1 hour from now.
+    note.badge = 0;
+    note.sound = null;
+    note.alert = null;
+    note.contentAvailable = 1;
+    note.payload = { 'duration': duration };
+    note.topic = "de.lmu.ifi.mobile.affective-chat";
 
-        apnProvider.send(note, phone.token).then((result) => {
+    apnProvider.send(note, token).then((result) => {
 
-            //TODO: check for errors
-            console.log(new Date() + "-- pushed to :" + phone.token);
+        //TODO: check for errors
+        console.log(new Date() + "-- pushed to :" + token);
 
-            const log = new database.Log({
-                id: phoneId,
-                content: database.MESSAGES.NEW_PUSH_SENT,
-                createdAt: new Date()
-            });
+        const log = new database.Log({
+            id: phoneId,
+            content: database.MESSAGES.NEW_PUSH_SENT,
+            createdAt: new Date()
+        });
 
-            log.save(function(err, data) {
-                if (err) {
-                    console.log(err);
-                } else {
-                    console.log(new Date + ' -- new push sent to phone with id: ' + phoneId);
-                }
-            });
+        log.save(function(err, data) {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log(new Date + ' -- new push sent to phone with token: ' + phoneId);
+            }
         });
     });
-
 }
 
 

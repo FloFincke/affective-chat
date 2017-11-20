@@ -6,20 +6,27 @@ const database = require('../components/database');
 router.post('/new', function(req, res, next) {
     if (req.body.username && req.body.token) {
         const date = new Date();
-        const phone = new database.Phone({
-            username: req.body.username,
-            token: req.body.token,
-            createdAt: date
-        });
 
-        phone.save(function(err, data) {
-            if (err) {
-                console.log(err);
-                return res.status(500).send(err);
+        database.Phone.findOne({ token: req.body.token }, function(err, phone) {
+            if (!phone) {
+                const newPhone = new database.Phone({
+                    username: req.body.username,
+                    token: req.body.token,
+                    createdAt: date
+                });
+
+                newPhone.save(function(err, data) {
+                    if (err) {
+                        console.log(err);
+                        return res.status(500).send(err);
+                    } else {
+                        console.log(date + ' -- Registered phone of ' + data.username + ' with token: ' + data.token);
+
+                        res.status(200).send(data.id);
+                    }
+                });
             } else {
-                console.log(date + ' -- Registered phone of ' + phone.username + ' with token: ' + phone.token);
-
-                res.status(200).send(data.id);
+                res.status(200).send(phone.id)
             }
         });
 
