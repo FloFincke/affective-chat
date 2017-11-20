@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 
 const database = require('../components/database');
-const newPushSchedule = require('../components/push');
 
 router.post('/new', function(req, res, next) {
     if (req.body.username && req.body.token) {
@@ -19,9 +18,6 @@ router.post('/new', function(req, res, next) {
                 return res.status(500).send(err);
             } else {
                 console.log(date + ' -- Registered phone of ' + phone.username + ' with token: ' + phone.token);
-
-                //schedule pushes
-                newPushSchedule(data.id);
 
                 res.status(200).send(data.id);
             }
