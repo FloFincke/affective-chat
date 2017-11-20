@@ -88,10 +88,6 @@ class MBDataSubscriber {
         self.client = client
         verifyHeartRateUserConsent { [weak self] in
             self?.heartRateUserConsentGranted = $0
-            let _ = self?.startHeartRateUpdates()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-                self?.stopHeartRateUpdates()
-            }
         }
     }
 

@@ -77,7 +77,7 @@ extension ServerAPI: TargetType {
             let data = MultipartFormData(
                 provider: .data(data),
                 name: "watch_data",
-                fileName: "\(fileName).zip",
+                fileName: fileName,
                 mimeType: "application/zip"
             )
             return .uploadMultipart([data])

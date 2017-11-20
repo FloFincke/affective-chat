@@ -21,10 +21,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     private var dataStore = CoreDataStack()
     private var notificationHandler = NotificationHandler()
-    private var bandConnection = MBConnection()
 
-    // Testing
-    private var subscriber: MBDataSubscriber?
+    private var bandConnection = MBConnection()
+    private var bandDataStore = MBDataStore()
+    private var bandDataSubscriber: MBDataSubscriber?
 
     // MARK: - UIApplicationDelegate Functions
     
@@ -49,7 +49,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         notificationHandler.registerForPushNotifications()
-        
+        notificationHandler.userInteractedWithPush
+            .subscribe(onNext: { [weak self] _ in
+                self?.bandDataSubscriber?.stopHeartRateUpdates()
+                self?.bandDataStore.sendSensorData()
+            })
 
         let viewController: UIViewController
         if UserDefaults.standard.value(forKey: Constants.usernameKey) != nil {
@@ -63,7 +67,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window?.rootViewController = viewController
         window?.makeKeyAndVisible()
 
-        subscriber = MBDataSubscriber(connection: bandConnection, dataStore: MBDataStore())
+        bandDataSubscriber = MBDataSubscriber(
+            connection: bandConnection,
+            dataStore: bandDataStore
+        )
 
         return true
     }
@@ -116,7 +123,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         guard let aps = userInfo["aps"] as? [String: Any] else { return }
         log.debug("\(aps)")
+
         // TODO: Schedule is receptible notification
+        bandDataSubscriber?.startHeartRateUpdates()
+        notificationHandler.scheduleIsReceptibleNotification(inSeconds: 5)
     }
 
 }

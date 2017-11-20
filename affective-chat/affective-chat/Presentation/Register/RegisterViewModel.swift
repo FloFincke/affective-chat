@@ -42,15 +42,15 @@ class RegisterViewModel {
                     .request(.newDevice(username: $1, token: $0))
                     .asObservable()
                     .filterSuccessfulStatusCodes()
+                    .mapString()
                     .materialize()
                     .trackActivity(isRegistering)
             }
             .flatMap { event -> Observable<Bool> in
-                if let response = event.element {
-                    log.debug(response)
-                    UserDefaults.standard.set("asdf", forKey: Constants.phoneIdKey)
+                if let string = event.element {
+                    UserDefaults.standard.set(string, forKey: Constants.phoneIdKey)
                     UserDefaults.standard.synchronize()
-                    return Observable.just(false)
+                    return Observable.just(true)
                 } else {
                     return Observable.just(false)
                 }

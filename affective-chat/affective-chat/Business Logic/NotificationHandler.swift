@@ -8,12 +8,15 @@
 
 import Foundation
 import UserNotifications
+import RxSwift
 
 fileprivate let isReceptibleActionIdentifier = "isReceptibleAction"
 fileprivate let isNotReceptibleActionIdentifier = "isNotReceptibleAction"
 fileprivate let receptibleCategoryIdentifier = "receptibleCategory"
 
 class NotificationHandler: NSObject {
+
+    var userInteractedWithPush = PublishSubject<Void>()
 
     // MARK: - Lifecycle
     

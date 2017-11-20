@@ -59,6 +59,23 @@ class MBDataStore {
         }
     }
 
+    func sendSensorData() {
+        guard let zipData = try? Data(contentsOf: sensorDataZipUrl),
+            let phoneId = UserDefaults.standard.string(forKey: Constants.phoneIdKey) else {
+            return
+        }
+
+        let endpoint = ServerAPI.newData(
+            id: phoneId,
+            data: zipData,
+            fileName: fileNameDateFormatter.string(from: Date()) + ".zip"
+        )
+
+        apiProvider.rx.request(endpoint)
+            .subscribe()
+            .disposed(by: disposeBag)
+    }
+
     // MARK: - Private Functions
 
     private func saveSensorData(_ sensorData: [String: Any]) {
@@ -70,20 +87,6 @@ class MBDataStore {
 
         try? jsonString.write(to: sensorDataJsonUrl, atomically: true, encoding: .utf8)
         compressSensorData()
-
-        guard let zipData = try? Data(contentsOf: sensorDataZipUrl) else {
-            return
-        }
-
-        let endpoint = ServerAPI.newData(
-            id: "5a132032ad5a325b17a9b364",
-            data: zipData,
-            fileName: fileNameDateFormatter.string(from: Date())
-        )
-
-        apiProvider.rx.request(endpoint)
-            .subscribe()
-            .disposed(by: disposeBag)
     }
 
     private func getSensorData() -> [String: Any] {
