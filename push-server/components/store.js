@@ -23,10 +23,10 @@ const uploadFile = (phoneId, file, callback) => {
 
     S3.putObject(params, function(err, data) {
         if (err) {
-            console.log("Error uploading image: ", err);
+            console.log("Error uploading file: ", err);
             callback(err)
         } else {
-            console.log("Successfully uploaded image on S3");
+            console.log("Successfully uploaded file on S3");
             callback()
         }
     })
