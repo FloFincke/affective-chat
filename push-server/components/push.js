@@ -3,6 +3,11 @@ const apn = require('apn');
 
 const database = require('./database');
 
+/* Variables */
+
+const duration = 20 * 60; //20 min --> time of tracking
+const pushScheduleTime = 20;
+
 const apnOptions = {
     token: {
         key: "AuthKey_T3G5YPJ4L9.p8",
@@ -14,25 +19,25 @@ const apnOptions = {
 
 const apnProvider = new apn.Provider(apnOptions);
 
+const agenda = new Agenda();
+agenda.mongo(database.db);
 
-function newPushSchedule(phoneId) {
-    const agenda = new Agenda();
-    agenda.mongo(database.db);
-
-    newPush(phoneId)
-
-    agenda.define('push', function(job, done) {
-        newPush(phoneId);
+agenda.define('push', function(job, done) {
+    database.Phone.find({}).exec(function(err, phones) {
+        phones.forEach(function(phone) {
+            newPush(phone._id);
+        });
         done();
     });
+});
 
-    agenda.on('ready', function() {
-        //sends first push right away and the following in regular intervals of 25min
-        agenda.every('25 minutes', 'push');
-        agenda.start();
-    });
+agenda.on('ready', function() {
+    //sends first push right away and the following in regular intervals of 25min
 
-}
+    agenda.every(pushScheduleTime + ' minutes', 'push');
+    agenda.start();
+});
+
 
 function newPush(phoneId) {
     //schedule push and put next schdule in callback
@@ -40,15 +45,15 @@ function newPush(phoneId) {
     database.Phone.findOne({ _id: phoneId }, function(err, phone) {
         const note = new apn.Notification();
         note.expiry = Math.floor(Date.now() / 1000) + 3600; // Expires 1 hour from now.
-        note.badge = 3;
-        note.sound = "ping.aiff";
-        note.alert = "\uD83D\uDCE7 \u2709 You have a new message";
-        note.payload = { 'messageFrom': 'John Appleseed' };
+        note.badge = 0;
+        note.sound = null;
+        note.alert = null;
+        note.payload = { 'duration': duration };
         note.topic = "de.lmu.ifi.mobile.affective-chat";
 
         apnProvider.send(note, phone.token).then((result) => {
 
-        	//TODO: check for errors
+            //TODO: check for errors
             console.log(new Date() + "-- pushed to :" + phone.token);
 
             const log = new database.Log({
@@ -70,4 +75,4 @@ function newPush(phoneId) {
 }
 
 
-module.exports = newPushSchedule;
+module.exports = agenda;

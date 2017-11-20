@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 
-const db = mongoose.connect('mongodb://localhost/affective', { useMongoClient: true });
+const address = 'mongodb://localhost/affective';
+
+const db = mongoose.connect(address, { useMongoClient: true });
 mongoose.Promise = global.Promise;
 
 const Phone = mongoose.model('Phone', { username: String, token: String, createdAt: Date });
