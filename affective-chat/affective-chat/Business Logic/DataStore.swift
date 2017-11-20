@@ -76,7 +76,7 @@ final class CoreDataStack: DataStoreProtocol {
             do {
                 try self.managedObjectContext.save()
             } catch {
-                dlog("An error occured while saving the view context \(error)")
+                log.error("An error occured while saving the view context \(error)")
             }
         }
     }

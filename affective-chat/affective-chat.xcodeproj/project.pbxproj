@@ -13,7 +13,6 @@
 		90CAED041FB36137007693CB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 90CAED031FB36137007693CB /* Assets.xcassets */; };
 		90CAED071FB36137007693CB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 90CAED051FB36137007693CB /* LaunchScreen.storyboard */; };
 		E528F9E21FBC437E00FFD02E /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E528F9E11FBC437E00FFD02E /* DataStore.swift */; };
-		E528F9E51FBC458800FFD02E /* DLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = E528F9E41FBC458800FFD02E /* DLog.swift */; };
 		E528F9E71FBC46B200FFD02E /* ServerAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = E528F9E61FBC46B200FFD02E /* ServerAPI.swift */; };
 		E528F9E91FBC4D1000FFD02E /* MicrosoftBandKit_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E528F9E81FBC4D1000FFD02E /* MicrosoftBandKit_iOS.framework */; };
 		E535DDB31FC089FC007D6BE6 /* MBConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = E535DDB21FC089FC007D6BE6 /* MBConnection.swift */; };
@@ -43,7 +42,6 @@
 		90CAED0E1FB368E8007693CB /* affective-chat.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "affective-chat.entitlements"; sourceTree = "<group>"; };
 		D6F408E7B83AA07EA9635B3B /* Pods-affective-chat.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-affective-chat.release.xcconfig"; path = "Pods/Target Support Files/Pods-affective-chat/Pods-affective-chat.release.xcconfig"; sourceTree = "<group>"; };
 		E528F9E11FBC437E00FFD02E /* DataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataStore.swift; sourceTree = "<group>"; };
-		E528F9E41FBC458800FFD02E /* DLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DLog.swift; sourceTree = "<group>"; };
 		E528F9E61FBC46B200FFD02E /* ServerAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerAPI.swift; sourceTree = "<group>"; };
 		E528F9E81FBC4D1000FFD02E /* MicrosoftBandKit_iOS.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = MicrosoftBandKit_iOS.framework; sourceTree = "<group>"; };
 		E528F9EA1FBC4DC500FFD02E /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
@@ -209,7 +207,6 @@
 				E5F914201FC0623400367BFE /* ActivityIndicator.swift */,
 				E5FD33171FC0BF5600A3AED2 /* CompactNetworkLoggerPlugin.swift */,
 				E53F577A1FBCD7DD0013043C /* Constants.swift */,
-				E528F9E41FBC458800FFD02E /* DLog.swift */,
 			);
 			path = "Extensions & Helpers";
 			sourceTree = "<group>";
@@ -348,7 +345,6 @@
 				E528F9E71FBC46B200FFD02E /* ServerAPI.swift in Sources */,
 				E53F577B1FBCD7DD0013043C /* Constants.swift in Sources */,
 				E53F57791FBCD6E10013043C /* RegisterViewModel.swift in Sources */,
-				E528F9E51FBC458800FFD02E /* DLog.swift in Sources */,
 				E5F914211FC0623400367BFE /* ActivityIndicator.swift in Sources */,
 				E53F57701FBCA6330013043C /* RegisterViewController.swift in Sources */,
 				E53F57721FBCCE130013043C /* RegisterView.swift in Sources */,

@@ -77,7 +77,7 @@ class NotificationHandler: NSObject {
 
     private func notificationSettings() {
         UNUserNotificationCenter.current().getNotificationSettings { (settings) in
-            dlog("Notification settings: \(settings)")
+            log.info(settings)
             guard settings.authorizationStatus == .authorized else { return }
             DispatchQueue.main.async {
                 UIApplication.shared.registerForRemoteNotifications()
@@ -95,9 +95,9 @@ extension NotificationHandler: UNUserNotificationCenterDelegate {
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
 
         if response.actionIdentifier == isReceptibleActionIdentifier {
-            dlog("receptible")
+            log.debug("receptible")
         } else if response.actionIdentifier == isReceptibleActionIdentifier {
-            dlog("not receptible")
+            log.debug("not receptible")
         }
 
         completionHandler()

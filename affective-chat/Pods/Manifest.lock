@@ -31,6 +31,7 @@ PODS:
     - RxSwiftExt/Core (= 3.0.0)
   - RxSwiftExt/Core (3.0.0):
     - RxSwift (~> 4.0)
+  - SwiftyBeaver (1.4.3)
   - Zip (1.0.0)
 
 DEPENDENCIES:
@@ -42,6 +43,7 @@ DEPENDENCIES:
   - RxOptional
   - RxSwift (~> 4.0)
   - RxSwiftExt
+  - SwiftyBeaver
   - Zip (~> 1.0)
 
 SPEC CHECKSUMS:
@@ -56,8 +58,9 @@ SPEC CHECKSUMS:
   RxOptional: e5448d3e21024489e07c31f6a262f2b50c975367
   RxSwift: fd680d75283beb5e2559486f3c0ff852f0d35334
   RxSwiftExt: b06c47dff66cd33ca7683bba1e74b0c5c8e3592e
+  SwiftyBeaver: e10b1668e0512229c36c34769b97eed3dfae2ca3
   Zip: 115a122433829a1bbf33f5575fa84047438dcc12
 
-PODFILE CHECKSUM: afae3dabe4b1eabbb34e9f0fcb935a967d5d225d
+PODFILE CHECKSUM: 4e0f605648936eaf596d16e1225afa2801695c2c
 
 COCOAPODS: 1.2.0

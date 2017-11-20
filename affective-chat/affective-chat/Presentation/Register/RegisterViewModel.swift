@@ -40,13 +40,21 @@ class RegisterViewModel {
             .flatMap {
                 return apiProvider.rx
                     .request(.newDevice(username: $1, token: $0))
-                    .filterSuccessfulStatusCodes()
                     .asObservable()
+                    .filterSuccessfulStatusCodes()
                     .materialize()
                     .trackActivity(isRegistering)
             }
-            .map { $0.element != nil && $0.error == nil }
+            .flatMap { event -> Observable<Bool> in
+                if let response = event.element {
+                    log.debug(response)
+                    UserDefaults.standard.set("asdf", forKey: Constants.phoneIdKey)
+                    UserDefaults.standard.synchronize()
+                    return Observable.just(false)
+                } else {
+                    return Observable.just(false)
+                }
+            }
             .asDriver(onErrorJustReturn: false)
-
     }
 }

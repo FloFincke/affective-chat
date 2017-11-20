@@ -25,6 +25,12 @@ class MBDataStore {
         return documentsDirectory.appendingPathComponent(sensorDataZipName)
     }
 
+    private lazy var fileNameDateFormatter: DateFormatter = {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd_HH-mm-ss"
+        return dateFormatter
+    }()
+
     private let disposeBag = DisposeBag()
 
     // MARK: - Lifecycle
@@ -69,7 +75,13 @@ class MBDataStore {
             return
         }
 
-        apiProvider.rx.request(.newData(id: "123456", data: zipData))
+        let endpoint = ServerAPI.newData(
+            id: "5a132032ad5a325b17a9b364",
+            data: zipData,
+            fileName: fileNameDateFormatter.string(from: Date())
+        )
+
+        apiProvider.rx.request(endpoint)
             .subscribe()
             .disposed(by: disposeBag)
     }

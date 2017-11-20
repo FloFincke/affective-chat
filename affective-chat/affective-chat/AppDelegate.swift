@@ -8,6 +8,9 @@
 
 import UIKit
 import CoreData
+import SwiftyBeaver
+
+let log = SwiftyBeaver.self
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -28,9 +31,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
 
+        let console = ConsoleDestination()
+        console.format = "$DHH:mm:ss.SSS$d $C$L$c $N[$l] $F - $M"
+        console.minLevel = .debug
+        log.addDestination(console)
+
+        let file = FileDestination()
+        file.format = "$DHH:mm:ss.SSS$d $L $N[$l] $F - $M"
+        file.minLevel = .info
+        log.addDestination(file)
+
+        log.info(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0])
+
         if let notification = launchOptions?[.remoteNotification] as? [String: Any],
             let aps = notification["aps"] as? [String: Any] {
-            dlog("\(aps)")
+            log.debug("\(aps)")
         }
 
         notificationHandler.registerForPushNotifications()
@@ -91,7 +106,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication,
                      didFailToRegisterForRemoteNotificationsWithError error: Error) {
         
-        dlog("Failed to register: \(error)")
+        log.warning("Failed to register: \(error)")
     }
 
     func application(
@@ -100,7 +115,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
 
         guard let aps = userInfo["aps"] as? [String: Any] else { return }
-        dlog("\(aps)")
+        log.debug("\(aps)")
         // TODO: Schedule is receptible notification
     }
 

@@ -26,7 +26,7 @@ class MBDataSubscriber {
     private var heartRates = [HeartRateData]()
     private lazy var hearRateDataUpdateHandler: (MSBSensorHeartRateData?, Error?) -> Void = {
         if let error = $1 {
-            dlog("\(error)")
+            log.error(error)
         }
 
         
@@ -70,7 +70,7 @@ class MBDataSubscriber {
                 withHandler: hearRateDataUpdateHandler
             )
         } catch {
-            dlog("\(error)")
+            log.error(error)
             return false
         }
 
