@@ -70,7 +70,6 @@ extension ServerAPI: TargetType {
         return "".data(using: String.Encoding.utf8)!
     }
 
-
     var task: Task {
         switch self {
         case .newData(_, let data, let fileName):
@@ -96,7 +95,7 @@ extension ServerAPI: TargetType {
         return false
     }
 
-    var headers: [String : String]? {
+    var headers: [String: String]? {
         return nil
     }
 

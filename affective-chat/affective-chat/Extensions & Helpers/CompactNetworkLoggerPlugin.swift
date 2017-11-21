@@ -62,4 +62,3 @@ extension CompactNetworkLoggerPlugin {
         print(items, separator: seperator, terminator: terminator)
     }
 }
-

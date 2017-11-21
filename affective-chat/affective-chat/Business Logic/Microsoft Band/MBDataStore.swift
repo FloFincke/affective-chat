@@ -53,7 +53,7 @@ class MBDataStore {
 
     func compressSensorData() {
         do {
-            let _ = try Zip.quickZipFiles([sensorDataJsonUrl], fileName: sensorDataFileName)
+            _ = try Zip.quickZipFiles([sensorDataJsonUrl], fileName: sensorDataFileName)
         } catch {
             print(error)
         }

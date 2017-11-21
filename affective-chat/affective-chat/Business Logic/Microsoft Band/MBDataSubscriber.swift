@@ -29,7 +29,6 @@ class MBDataSubscriber {
             log.error(error)
         }
 
-        
         if let heartRate = $0?.heartRate {
             let heartRateData = HeartRateData(
                 heartRate: heartRate,
@@ -102,6 +101,9 @@ class MBDataSubscriber {
             completion(true)
         case .notSpecified:
             client.sensorManager.requestHRUserConsent { consent, error in
+                if let error = error {
+                    log.error(error)
+                }
                 completion(consent)
             }
         case .declined:

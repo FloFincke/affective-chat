@@ -10,9 +10,9 @@ import Foundation
 import UserNotifications
 import RxSwift
 
-fileprivate let isReceptibleActionIdentifier = "isReceptibleAction"
-fileprivate let isNotReceptibleActionIdentifier = "isNotReceptibleAction"
-fileprivate let receptibleCategoryIdentifier = "receptibleCategory"
+private let isReceptibleActionIdentifier = "isReceptibleAction"
+private let isNotReceptibleActionIdentifier = "isNotReceptibleAction"
+private let receptibleCategoryIdentifier = "receptibleCategory"
 
 class NotificationHandler: NSObject {
 
@@ -49,7 +49,12 @@ class NotificationHandler: NSObject {
         UNUserNotificationCenter
             .current()
             .requestAuthorization(options: [.alert, .sound, .badge]) { (granted, error) in
-                guard granted else { return }
+                guard granted else {
+                    if let error = error {
+                        log.error(error)
+                    }
+                    return
+                }
 
                 let isReceptibleAction = UNNotificationAction(
                     identifier: isReceptibleActionIdentifier,
@@ -98,9 +103,11 @@ extension NotificationHandler: UNUserNotificationCenterDelegate {
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
 
         if response.actionIdentifier == isReceptibleActionIdentifier {
-            log.debug("receptible")
+            log.info("user is receptible")
+            userInteractedWithPush.onNext(())
         } else if response.actionIdentifier == isReceptibleActionIdentifier {
-            log.debug("not receptible")
+            log.info("user is not receptible")
+            userInteractedWithPush.onNext(())
         }
 
         completionHandler()

@@ -55,7 +55,7 @@ class RegisterView: UIView {
     }
 
     override func updateConstraints() {
-        if(shouldSetupConstraints) {
+        if shouldSetupConstraints {
             shouldSetupConstraints = false
         }
         super.updateConstraints()

@@ -48,6 +48,7 @@ class RegisterViewModel {
             }
             .flatMap { event -> Observable<Bool> in
                 if let string = event.element {
+                    UserDefaults.standard.set(string, forKey: Constants.usernameKey)
                     UserDefaults.standard.set(string, forKey: Constants.phoneIdKey)
                     UserDefaults.standard.synchronize()
                     return Observable.just(true)
