@@ -54,11 +54,11 @@ extension MBConnection: MSBClientManagerDelegate {
 
     func clientManager(_ clientManager: MSBClientManager!,
                        clientDidDisconnect client: MSBClient!) {
-        dlog()
+        log.debug("")
     }
 
     func clientManager(_ clientManager: MSBClientManager!,
                        client: MSBClient!, didFailToConnectWithError error: Error!) {
-        dlog()
+        log.debug("")
     }
 }

@@ -8,12 +8,15 @@
 
 import Foundation
 import UserNotifications
+import RxSwift
 
-fileprivate let isReceptibleActionIdentifier = "isReceptibleAction"
-fileprivate let isNotReceptibleActionIdentifier = "isNotReceptibleAction"
-fileprivate let receptibleCategoryIdentifier = "receptibleCategory"
+private let isReceptibleActionIdentifier = "isReceptibleAction"
+private let isNotReceptibleActionIdentifier = "isNotReceptibleAction"
+private let receptibleCategoryIdentifier = "receptibleCategory"
 
 class NotificationHandler: NSObject {
+
+    var userInteractedWithPush = PublishSubject<Void>()
 
     // MARK: - Lifecycle
     
@@ -46,7 +49,12 @@ class NotificationHandler: NSObject {
         UNUserNotificationCenter
             .current()
             .requestAuthorization(options: [.alert, .sound, .badge]) { (granted, error) in
-                guard granted else { return }
+                guard granted else {
+                    if let error = error {
+                        log.error(error)
+                    }
+                    return
+                }
 
                 let isReceptibleAction = UNNotificationAction(
                     identifier: isReceptibleActionIdentifier,
@@ -77,7 +85,7 @@ class NotificationHandler: NSObject {
 
     private func notificationSettings() {
         UNUserNotificationCenter.current().getNotificationSettings { (settings) in
-            dlog("Notification settings: \(settings)")
+            log.info(settings)
             guard settings.authorizationStatus == .authorized else { return }
             DispatchQueue.main.async {
                 UIApplication.shared.registerForRemoteNotifications()
@@ -95,9 +103,11 @@ extension NotificationHandler: UNUserNotificationCenterDelegate {
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
 
         if response.actionIdentifier == isReceptibleActionIdentifier {
-            dlog("receptible")
+            log.info("user is receptible")
+            userInteractedWithPush.onNext(())
         } else if response.actionIdentifier == isReceptibleActionIdentifier {
-            dlog("not receptible")
+            log.info("user is not receptible")
+            userInteractedWithPush.onNext(())
         }
 
         completionHandler()

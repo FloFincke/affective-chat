@@ -13,7 +13,7 @@ private struct ActivityToken<E> : ObservableConvertibleType, Disposable {
     private let _source: Observable<E>
     private let _dispose: Cancelable
 
-    init(source: Observable<E>, disposeAction: @escaping () -> ()) {
+    init(source: Observable<E>, disposeAction: @escaping () -> Void) {
         _source = source
         _dispose = Disposables.create(with: disposeAction)
     }
@@ -32,7 +32,7 @@ private struct ActivityToken<E> : ObservableConvertibleType, Disposable {
  If there is at least one sequence computation in progress, `true` will be sent.
  When all activities complete `false` will be sent.
  */
-public class ActivityIndicator : SharedSequenceConvertibleType {
+public class ActivityIndicator: SharedSequenceConvertibleType {
     public typealias E = Bool
     public typealias SharingStrategy = DriverSharingStrategy
 
@@ -50,20 +50,20 @@ public class ActivityIndicator : SharedSequenceConvertibleType {
         return Observable.using({ () -> ActivityToken<O.E> in
             self.increment()
             return ActivityToken(source: source.asObservable(), disposeAction: self.decrement)
-        }) { t in
-            return t.asObservable()
+        }) { token in
+            return token.asObservable()
         }
     }
 
     private func increment() {
         _lock.lock()
-        _variable.value = _variable.value + 1
+        _variable.value += 1
         _lock.unlock()
     }
 
     private func decrement() {
         _lock.lock()
-        _variable.value = _variable.value - 1
+        _variable.value -= 1
         _lock.unlock()
     }
 

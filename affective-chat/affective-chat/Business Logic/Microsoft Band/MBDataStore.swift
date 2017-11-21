@@ -25,6 +25,12 @@ class MBDataStore {
         return documentsDirectory.appendingPathComponent(sensorDataZipName)
     }
 
+    private lazy var fileNameDateFormatter: DateFormatter = {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd_HH-mm-ss"
+        return dateFormatter
+    }()
+
     private let disposeBag = DisposeBag()
 
     // MARK: - Lifecycle
@@ -47,10 +53,27 @@ class MBDataStore {
 
     func compressSensorData() {
         do {
-            let _ = try Zip.quickZipFiles([sensorDataJsonUrl], fileName: sensorDataFileName)
+            _ = try Zip.quickZipFiles([sensorDataJsonUrl], fileName: sensorDataFileName)
         } catch {
             print(error)
         }
+    }
+
+    func sendSensorData() {
+        guard let zipData = try? Data(contentsOf: sensorDataZipUrl),
+            let phoneId = UserDefaults.standard.string(forKey: Constants.phoneIdKey) else {
+            return
+        }
+
+        let endpoint = ServerAPI.newData(
+            id: phoneId,
+            data: zipData,
+            fileName: fileNameDateFormatter.string(from: Date()) + ".zip"
+        )
+
+        apiProvider.rx.request(endpoint)
+            .subscribe()
+            .disposed(by: disposeBag)
     }
 
     // MARK: - Private Functions
@@ -64,14 +87,6 @@ class MBDataStore {
 
         try? jsonString.write(to: sensorDataJsonUrl, atomically: true, encoding: .utf8)
         compressSensorData()
-
-        guard let zipData = try? Data(contentsOf: sensorDataZipUrl) else {
-            return
-        }
-
-        apiProvider.rx.request(.newData(id: "123456", data: zipData))
-            .subscribe()
-            .disposed(by: disposeBag)
     }
 
     private func getSensorData() -> [String: Any] {

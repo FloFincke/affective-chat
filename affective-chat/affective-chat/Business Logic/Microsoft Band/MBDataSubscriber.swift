@@ -26,10 +26,9 @@ class MBDataSubscriber {
     private var heartRates = [HeartRateData]()
     private lazy var hearRateDataUpdateHandler: (MSBSensorHeartRateData?, Error?) -> Void = {
         if let error = $1 {
-            dlog("\(error)")
+            log.error(error)
         }
 
-        
         if let heartRate = $0?.heartRate {
             let heartRateData = HeartRateData(
                 heartRate: heartRate,
@@ -70,7 +69,7 @@ class MBDataSubscriber {
                 withHandler: hearRateDataUpdateHandler
             )
         } catch {
-            dlog("\(error)")
+            log.error(error)
             return false
         }
 
@@ -88,10 +87,6 @@ class MBDataSubscriber {
         self.client = client
         verifyHeartRateUserConsent { [weak self] in
             self?.heartRateUserConsentGranted = $0
-            let _ = self?.startHeartRateUpdates()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-                self?.stopHeartRateUpdates()
-            }
         }
     }
 
@@ -106,6 +101,9 @@ class MBDataSubscriber {
             completion(true)
         case .notSpecified:
             client.sensorManager.requestHRUserConsent { consent, error in
+                if let error = error {
+                    log.error(error)
+                }
                 completion(consent)
             }
         case .declined:

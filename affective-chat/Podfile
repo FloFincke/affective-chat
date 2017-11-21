@@ -15,5 +15,7 @@ target 'affective-chat' do
   pod 'Moya-ObjectMapper/RxSwift'
   pod 'PureLayout'
   pod 'Zip', '~> 1.0'
+  pod 'SwiftyBeaver'
+  pod 'SwiftLint'
 
 end

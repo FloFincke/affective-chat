@@ -9,7 +9,8 @@
 import Foundation
 import Moya
 
-private let serverUrl = "http://localhost:3000"
+private let serverUrl = "http://10.176.82.49:3000"
+//private let serverUrl = "http://10.176.82.109:3000"
 
 private let newDevicePath = "/device/new"
 private let usernameParameter = "username"
@@ -19,19 +20,18 @@ private let newDataPath = "/data/new"
 private let idParameter = "id"
 
 //let apiProvider = MoyaProvider<ServerAPI>()
-//let apiProvider = MoyaProvider<ServerAPI>(plugins: [CompactNetworkLoggerPlugin()])
-let apiProvider = MoyaProvider<ServerAPI>(plugins: [NetworkLoggerPlugin()])
+let apiProvider = MoyaProvider<ServerAPI>(plugins: [CompactNetworkLoggerPlugin()])
 
 enum ServerAPI {
     case newDevice(username: String, token: String)
-    case newData(id: String, data: Data)
+    case newData(id: String, data: Data, fileName: String)
 }
 
 extension ServerAPI: TargetType {
 
     var baseURL: URL {
         switch self {
-        case .newData(let id, _):
+        case .newData(let id, _, _):
             return URL(string: "\(serverUrl)\(newDataPath)?\(idParameter)=\(id)")!
         default:
             return URL(string: serverUrl)!
@@ -72,16 +72,22 @@ extension ServerAPI: TargetType {
 
     var task: Task {
         switch self {
-        case .newData(_, let data):
+        case .newData(_, let data, let fileName):
             let data = MultipartFormData(
                 provider: .data(data),
                 name: "watch_data",
-                fileName: "sensor-data.zip",
+                fileName: fileName,
                 mimeType: "application/zip"
             )
             return .uploadMultipart([data])
-        default:
-            return .requestPlain
+        case .newDevice(let username, let token):
+            return .requestParameters(
+                parameters: [
+                    usernameParameter: username,
+                    tokenParameter: token
+                ],
+                encoding: JSONEncoding.default
+            )
         }
     }
 
@@ -89,7 +95,7 @@ extension ServerAPI: TargetType {
         return false
     }
 
-    var headers: [String : String]? {
+    var headers: [String: String]? {
         return nil
     }
 

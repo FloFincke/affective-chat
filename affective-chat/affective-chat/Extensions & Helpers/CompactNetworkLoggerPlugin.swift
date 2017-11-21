@@ -39,24 +39,22 @@ public final class CompactNetworkLoggerPlugin: PluginType {
 //            return
 //        }
 //        outputItems(logNetworkRequest(request.request as URLRequest?))
+        if let url = request.request?.url {
+            log.info(url)
+        }
+
+        log.info(request.request?.httpBody)
     }
 
     public func didReceive(_ result: Result<Response, MoyaError>, target: TargetType) {
         if case .success(let response) = result {
-            dlog("\(response.response?.description ?? "")")
+            log.info(result)
         } else {
-            dlog("Received empty network response for \(target).")
+            log.warning("Received empty network response for \(target).")
         }
     }
-
-    fileprivate func outputItems(_ items: [String]) {
-        dlog()
-//        if verbose {
-//            items.forEach { output(separator, terminator, $0) }
-//        } else {
-//            output(separator, terminator, items)
-//        }
-    }
+ 
+    fileprivate func outputItems(_ items: [String]) { }
 }
 
 extension CompactNetworkLoggerPlugin {
@@ -64,4 +62,3 @@ extension CompactNetworkLoggerPlugin {
         print(items, separator: seperator, terminator: terminator)
     }
 }
-
