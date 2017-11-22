@@ -9,6 +9,7 @@
 import UIKit
 import CoreData
 import SwiftyBeaver
+import RxSwift
 
 let log = SwiftyBeaver.self
 
@@ -16,25 +17,27 @@ let log = SwiftyBeaver.self
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    private var dataCollectionHandler: DataCollectionFlow!
+    private let disposeBag = DisposeBag()
 
     // MARK: - Services
 
-    private var dataStore = CoreDataStack()
-    private var notificationHandler = NotificationHandler()
-
-    private var bandConnection = MBConnection()
-    private var bandDataStore = MBDataStore()
-    private var bandDataSubscriber: MBDataSubscriber?
-    private let disposeBag = DisposeBag()
+    private var dataStore: CoreDataStack!
+    private var notificationHandler: NotificationHandler!
+    private var bandConnection: MBConnection!
+    private var bandDataStore: MBDataStore!
+    private var bandDataSubscriber: MBDataSubscriber!
 
     // MARK: - UIApplicationDelegate Functions
-    
+
+    // swiftlint:disable:next line_length
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+
+        // Setup logging
 
         let console = ConsoleDestination()
         console.format = "$DHH:mm:ss.SSS$d $C$L$c $N[$l] $F - $M"
-        console.minLevel = .debug
+        console.minLevel = .verbose
         log.addDestination(console)
 
         let file = FileDestination()
@@ -42,23 +45,29 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         file.minLevel = .info
         log.addDestination(file)
 
-        log.info(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0])
+        let documentsDirectory = FileManager.default
+            .urls(for: .documentDirectory, in: .userDomainMask)
+            .first!
+        log.debug("Documents Directory: \(documentsDirectory)")
 
-        if let notification = launchOptions?[.remoteNotification] as? [String: Any],
-            let aps = notification["aps"] as? [String: Any] {
-            log.debug("\(aps)")
-        }
+        // Services
 
+        setupServices()
         notificationHandler.registerForPushNotifications()
-        notificationHandler.userInteractedWithPush
-            .subscribe(onNext: { [weak self] _ in
-                self?.bandDataSubscriber?.stopHeartRateUpdates()
-                self?.bandDataStore.sendSensorData()
-            })
-            .disposed(by: disposeBag)
+
+        dataCollectionHandler = DataCollectionFlow(
+            notificationHandler: notificationHandler,
+            bandConnection: bandConnection,
+            bandDataStore: bandDataStore,
+            bandDataSubscriber: bandDataSubscriber
+        )
+
+        // Present initial view controller
 
         let viewController: UIViewController
-        if UserDefaults.standard.value(forKey: Constants.usernameKey) != nil {
+        if let username = UserDefaults.standard.value(forKey: Constants.usernameKey),
+            let phoneId = UserDefaults.standard.value(forKey: Constants.phoneIdKey) {
+            log.info("username: \(username) phoneId: \(phoneId)")
             viewController = ListViewController()
         } else {
             let viewModel = RegisterViewModel()
@@ -68,11 +77,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window = UIWindow()
         window?.rootViewController = viewController
         window?.makeKeyAndVisible()
-
-        bandDataSubscriber = MBDataSubscriber(
-            connection: bandConnection,
-            dataStore: bandDataStore
-        )
 
         return true
     }
@@ -122,6 +126,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let token = tokenParts.joined()
         UserDefaults.standard.set(token, forKey: Constants.tokenKey)
         UserDefaults.standard.synchronize()
+        log.debug("Device Token: \(token)")
     }
 
     func application(_ application: UIApplication,
@@ -135,11 +140,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         didReceiveRemoteNotification userInfo: [AnyHashable: Any],
         fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
 
-        guard let aps = userInfo["aps"] as? [String: Any] else { return }
-        log.debug("\(aps)")
+        log.debug("\(userInfo)")
+        if let duration = userInfo["duration"] as? Double {
+            dataCollectionHandler.start(withDuration: duration)
+        }
+    }
 
-        _ = bandDataSubscriber?.startHeartRateUpdates()
-        notificationHandler.scheduleIsReceptibleNotification(inSeconds: 5)
+    // MARK: - Private Functions
+
+    private func setupServices() {
+        dataStore = CoreDataStack()
+        notificationHandler = NotificationHandler()
+
+        bandConnection = MBConnection()
+        bandDataStore = MBDataStore()
+        bandDataSubscriber = MBDataSubscriber(
+            connection: bandConnection,
+            dataStore: bandDataStore
+        )
     }
 
 }

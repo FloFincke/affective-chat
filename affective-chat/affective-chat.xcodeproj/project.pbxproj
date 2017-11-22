@@ -26,6 +26,7 @@
 		E53F57791FBCD6E10013043C /* RegisterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53F57781FBCD6E10013043C /* RegisterViewModel.swift */; };
 		E53F577B1FBCD7DD0013043C /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53F577A1FBCD7DD0013043C /* Constants.swift */; };
 		E54ABE081FBC4F820056D1ED /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E528F9EA1FBC4DC500FFD02E /* CoreBluetooth.framework */; };
+		E5D347EB1FC4324D00FAF024 /* DataCollectionFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5D347EA1FC4324D00FAF024 /* DataCollectionFlow.swift */; };
 		E5F914211FC0623400367BFE /* ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5F914201FC0623400367BFE /* ActivityIndicator.swift */; };
 		E5FD33181FC0BF5600A3AED2 /* CompactNetworkLoggerPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5FD33171FC0BF5600A3AED2 /* CompactNetworkLoggerPlugin.swift */; };
 /* End PBXBuildFile section */
@@ -56,6 +57,7 @@
 		E53F57761FBCD52B0013043C /* ListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListView.swift; sourceTree = "<group>"; };
 		E53F57781FBCD6E10013043C /* RegisterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterViewModel.swift; sourceTree = "<group>"; };
 		E53F577A1FBCD7DD0013043C /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		E5D347EA1FC4324D00FAF024 /* DataCollectionFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataCollectionFlow.swift; sourceTree = "<group>"; };
 		E5F914201FC0623400367BFE /* ActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityIndicator.swift; sourceTree = "<group>"; };
 		E5FD33171FC0BF5600A3AED2 /* CompactNetworkLoggerPlugin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CompactNetworkLoggerPlugin.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -158,6 +160,7 @@
 			children = (
 				E535DDBC1FC0930D007D6BE6 /* Microsoft Band */,
 				E528F9E11FBC437E00FFD02E /* DataStore.swift */,
+				E5D347EA1FC4324D00FAF024 /* DataCollectionFlow.swift */,
 				E535DDB81FC08DC4007D6BE6 /* NotificationHandler.swift */,
 				E528F9E61FBC46B200FFD02E /* ServerAPI.swift */,
 			);
@@ -362,6 +365,7 @@
 				E53F57791FBCD6E10013043C /* RegisterViewModel.swift in Sources */,
 				E5F914211FC0623400367BFE /* ActivityIndicator.swift in Sources */,
 				E53F57701FBCA6330013043C /* RegisterViewController.swift in Sources */,
+				E5D347EB1FC4324D00FAF024 /* DataCollectionFlow.swift in Sources */,
 				E53F57721FBCCE130013043C /* RegisterView.swift in Sources */,
 				E528F9E21FBC437E00FFD02E /* DataStore.swift in Sources */,
 				90CAECFA1FB36137007693CB /* AppDelegate.swift in Sources */,

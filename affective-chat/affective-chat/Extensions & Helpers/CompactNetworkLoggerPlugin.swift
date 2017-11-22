@@ -1,9 +1,9 @@
 //
 //  CompactNetworkLoggerPlugin.swift
-//  SSI 3.0
+//  affective-chat
 //
-//  Created by Vincent Füseschi on 11.10.17.
-//  Copyright © 2017 Codivo. All rights reserved.
+//  Created by Vincent Füseschi on 20.11.17.
+//  Copyright © 2017 Florian Fincke. All rights reserved.
 //
 
 import Foundation
@@ -34,21 +34,27 @@ public final class CompactNetworkLoggerPlugin: PluginType {
     }
 
     public func willSend(_ request: RequestType, target: TargetType) {
-//        if let request = request as? CustomDebugStringConvertible, cURL {
-//            output(separator, terminator, request.debugDescription)
-//            return
-//        }
-//        outputItems(logNetworkRequest(request.request as URLRequest?))
-        if let url = request.request?.url {
-            log.info(url)
+        guard let url = request.request?.url else {
+            return
         }
 
-        log.info(request.request?.httpBody)
+        if let data = request.request?.httpBody,
+            let json = try? JSONSerialization.jsonObject(with: data, options: []) {
+            log.info("\(url) with parameters: \(json)")
+        } else {
+            log.info(url)
+        }
     }
 
     public func didReceive(_ result: Result<Response, MoyaError>, target: TargetType) {
         if case .success(let response) = result {
-            log.info(result)
+            if let statusCode = response.response?.statusCode {
+                log.info("Success with code: \(statusCode)")
+            } else {
+                log.info("Success")
+            }
+        } else if case .failure(let error) = result {
+            log.error(error)
         } else {
             log.warning("Received empty network response for \(target).")
         }
