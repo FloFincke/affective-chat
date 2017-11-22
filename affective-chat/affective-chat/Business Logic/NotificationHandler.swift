@@ -85,7 +85,7 @@ class NotificationHandler: NSObject {
 
     private func notificationSettings() {
         UNUserNotificationCenter.current().getNotificationSettings { (settings) in
-            log.info(settings)
+            log.debug(settings)
             guard settings.authorizationStatus == .authorized else { return }
             DispatchQueue.main.async {
                 UIApplication.shared.registerForRemoteNotifications()

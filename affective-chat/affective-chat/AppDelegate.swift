@@ -78,6 +78,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window?.rootViewController = viewController
         window?.makeKeyAndVisible()
 
+        // Handle Notification
+        if let notification = launchOptions?[.remoteNotification] as? [AnyHashable: Any] {
+            handleNotification(userInfo: notification)
+        }
+
         return true
     }
 
@@ -140,9 +145,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         didReceiveRemoteNotification userInfo: [AnyHashable: Any],
         fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
 
-        log.debug("\(userInfo)")
-        if let duration = userInfo["duration"] as? Double {
-            dataCollectionHandler.start(withDuration: duration)
+        if application.applicationState == .inactive
+            || application.applicationState == .background {
+            handleNotification(userInfo: userInfo)
+        } else {
+            log.verbose("app is active")
         }
     }
 
@@ -158,6 +165,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             connection: bandConnection,
             dataStore: bandDataStore
         )
+    }
+
+    private func handleNotification(userInfo: [AnyHashable: Any]) {
+        log.debug("\(userInfo)")
+        if let duration = userInfo["duration"] as? Double {
+            dataCollectionHandler.start(withDuration: duration)
+        }
     }
 
 }
