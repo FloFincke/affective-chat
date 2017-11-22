@@ -5,6 +5,9 @@ disabled_rules: # rule identifiers to exclude from running
   - trailing_whitespace
 excluded: # paths to ignore during linting. Takes precedence over `included`.
   - Pods
+  - affective-chat/Extensions & Helpers/ActivityIndicator.swift
+  - affective-chat/Extensions & Helpers/CLLocationManager+Rx.swift
+  - affective-chat/Extensions & Helpers/RxCLLocationManagerDelegateProxy.swift
 # force_cast: warning
 # force_try: warning
 # line_length: 

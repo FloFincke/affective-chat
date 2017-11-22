@@ -13,7 +13,6 @@ import RxSwift
 private let sensorDataFileName = "sensor-data"
 private let sensorDataJsonName = "\(sensorDataFileName).json"
 private let sensorDataZipName = "\(sensorDataFileName).zip"
-private let heartRatesKey = "heartRates"
 
 class MBDataStore {
 
@@ -43,11 +42,11 @@ class MBDataStore {
 
     // MARK: - Public Functions
 
-    func saveHeartRates(_ newHeartRateData: [HeartRateData]) {
+    func saveData(_ newData: [String: Any], toKey key: String) {
         var sensorData = getSensorData()
-        let heartRateDataInFile = sensorData[heartRatesKey] as? [[String: Any]] ?? []
-        let heartRateData = heartRateDataInFile + newHeartRateData.map { $0.json }
-        sensorData[heartRatesKey] = heartRateData
+        var data = sensorData[key] as? [String: Any] ?? [:]
+        data += newData
+        sensorData[key] = data
         saveSensorData(sensorData)
     }
 
@@ -60,6 +59,7 @@ class MBDataStore {
     }
 
     func sendSensorData() {
+        compressSensorData()
         guard let zipData = try? Data(contentsOf: sensorDataZipUrl),
             let phoneId = UserDefaults.standard.string(forKey: Constants.phoneIdKey) else {
             return
@@ -81,6 +81,7 @@ class MBDataStore {
     // MARK: - Private Functions
 
     private func saveSensorData(_ sensorData: [String: Any]) {
+        log.debug(sensorData)
         guard let jsonData = try? JSONSerialization.data(withJSONObject: sensorData, options: []),
             let jsonString = String(data: jsonData, encoding: .utf8)
             else {
@@ -88,7 +89,6 @@ class MBDataStore {
         }
 
         try? jsonString.write(to: sensorDataJsonUrl, atomically: true, encoding: .utf8)
-        compressSensorData()
     }
 
     private func getSensorData() -> [String: Any] {

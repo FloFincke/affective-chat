@@ -8,6 +8,7 @@
 
 import UIKit
 import RxSwift
+import CoreLocation
 
 class RegisterViewController: UIViewController {
 
@@ -42,6 +43,10 @@ class RegisterViewController: UIViewController {
                 UIApplication.shared.keyWindow?.rootViewController = ListViewController()
             })
             .disposed(by: disposeBag)
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
     }
 
     // MARK: - Setup Functions

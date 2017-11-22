@@ -16,7 +16,7 @@ private let receptibleCategoryIdentifier = "receptibleCategory"
 
 class NotificationHandler: NSObject {
 
-    var userInteractedWithPush = PublishSubject<Void>()
+    var userReceptivity = PublishSubject<Receptivity>()
 
     // MARK: - Lifecycle
     
@@ -104,10 +104,10 @@ extension NotificationHandler: UNUserNotificationCenterDelegate {
 
         if response.actionIdentifier == isReceptibleActionIdentifier {
             log.info("user is receptible")
-            userInteractedWithPush.onNext(())
+            userReceptivity.onNext(.receptible)
         } else if response.actionIdentifier == isReceptibleActionIdentifier {
             log.info("user is not receptible")
-            userInteractedWithPush.onNext(())
+            userReceptivity.onNext(.notReceptible)
         }
 
         completionHandler()

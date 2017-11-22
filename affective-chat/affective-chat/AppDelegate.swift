@@ -24,9 +24,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     private var dataStore: CoreDataStack!
     private var notificationHandler: NotificationHandler!
+    private var geolocationService: GeolocationService!
     private var bandConnection: MBConnection!
     private var bandDataStore: MBDataStore!
-    private var bandDataSubscriber: MBDataSubscriber!
+    private var dataSubscriptionContainer: MBDataSubscriptionContainer!
 
     // MARK: - UIApplicationDelegate Functions
 
@@ -59,7 +60,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             notificationHandler: notificationHandler,
             bandConnection: bandConnection,
             bandDataStore: bandDataStore,
-            bandDataSubscriber: bandDataSubscriber
+            dataSubscriptionContainer: dataSubscriptionContainer,
+            geolocationService: geolocationService
         )
 
         // Present initial view controller
@@ -145,8 +147,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         didReceiveRemoteNotification userInfo: [AnyHashable: Any],
         fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
 
+        guard let aps = userInfo["aps"] as? [String: Any],
+            let contentAvailable = aps["content-available"] as? Int
+            else { return }
+
+        let isSilent = contentAvailable == 1
+
         if application.applicationState == .inactive
-            || application.applicationState == .background {
+            || application.applicationState == .background
+            || isSilent {
             handleNotification(userInfo: userInfo)
         } else {
             log.verbose("app is active")
@@ -158,12 +167,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private func setupServices() {
         dataStore = CoreDataStack()
         notificationHandler = NotificationHandler()
+        geolocationService = GeolocationService()
 
         bandConnection = MBConnection()
         bandDataStore = MBDataStore()
-        bandDataSubscriber = MBDataSubscriber(
+
+        let subscriberFactory = MBDataSubscriberFactory()
+        dataSubscriptionContainer = MBDataSubscriptionContainer(
             connection: bandConnection,
-            dataStore: bandDataStore
+            dataStore: bandDataStore,
+            subscriberFactory: subscriberFactory,
+            subscriptionTypes: SubscriptionType.all
         )
     }
 

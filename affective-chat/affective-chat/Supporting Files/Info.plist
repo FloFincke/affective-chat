@@ -28,6 +28,7 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>bluetooth-central</string>
+		<string>location</string>
 		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
@@ -47,5 +48,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Location services needed because of reasons</string>
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>Location services needed because of reasons</string>
 </dict>
 </plist>
