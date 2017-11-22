@@ -72,7 +72,9 @@ class MBDataStore {
         )
 
         apiProvider.rx.request(endpoint)
-            .subscribe()
+            .subscribe(onSuccess: { [weak self] _ in
+                self?.deleteSensorData()
+            })
             .disposed(by: disposeBag)
     }
 
@@ -99,5 +101,14 @@ class MBDataStore {
         }
 
         return validJson
+    }
+
+    private func deleteSensorData() {
+        do {
+            try FileManager.default.removeItem(at: sensorDataJsonUrl)
+            try FileManager.default.removeItem(at: sensorDataZipUrl)
+        } catch {
+            log.error(error)
+        }
     }
 }
