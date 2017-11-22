@@ -17,7 +17,7 @@ let log = SwiftyBeaver.self
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-    private var dataCollectionHandler: DataCollectionFlow!
+    private var dataCollectionHandler: DataCollectionCycle!
     private let disposeBag = DisposeBag()
 
     // MARK: - Services
@@ -55,7 +55,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         setupServices()
         notificationHandler.registerForPushNotifications()
 
-        dataCollectionHandler = DataCollectionFlow(
+        dataCollectionHandler = DataCollectionCycle(
             notificationHandler: notificationHandler,
             bandConnection: bandConnection,
             bandDataStore: bandDataStore,

@@ -1,5 +1,5 @@
 //
-//  DataCollectionFlow.swift
+//  DataCollectionCycle.swift
 //  affective-chat
 //
 //  Created by Vincent Füseschi on 21.11.17.
@@ -9,7 +9,7 @@
 import Foundation
 import RxSwift
 
-class DataCollectionFlow {
+class DataCollectionCycle {
 
     private var isTracking = false
     private let disposeBag = DisposeBag()
@@ -42,7 +42,7 @@ class DataCollectionFlow {
 
     func start(withDuration duration: Double) {
         guard !isTracking else {
-            log.info("Another tracking cycle is still running")
+            log.info("Another cycle is still active")
             return
         }
         isTracking = true
