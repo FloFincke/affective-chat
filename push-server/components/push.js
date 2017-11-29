@@ -5,8 +5,9 @@ const database = require('./database');
 
 /* Variables */
 
-const duration = 20 * 60; //20 min --> time of tracking
+const duration = (process.env.DURATION || 5) * 60; //5 min --> time of tracking
 const pushScheduleTime = 20;
+const timeout = (process.env.TIMEOUT || 5) * 60; //5 min --> time until a 'not in the mood' is triggered
 
 const apnOptions = {
     token: {
@@ -20,16 +21,21 @@ const apnOptions = {
 const apnProvider = new apn.Provider(apnOptions);
 
 const agenda = new Agenda();
-agenda.mongo(database.db);
 
-agenda.define('push', function(job, done) {
-    database.Phone.find({}).exec(function(err, phones) {
-        phones.forEach(function(phone) {
-            newPush(phone._id, phone.token);
+database.connection.once('open', function() {
+    agenda.mongo(database.db);
+
+    agenda.define('push', function(job, done) {
+        database.Phone.find({}).exec(function(err, phones) {
+            phones.forEach(function(phone) {
+                newPush(phone._id, phone.token);
+            });
+            done();
         });
-        done();
     });
 });
+
+
 
 agenda.on('ready', function() {
     //sends first push right away and the following in regular intervals of 25min
@@ -48,7 +54,7 @@ function newPush(phoneId, token) {
     note.sound = null;
     note.alert = null;
     note.contentAvailable = 1;
-    note.payload = { 'duration': duration };
+    note.payload = { 'duration': duration, 'timeout': timeout };
     note.topic = "de.lmu.ifi.mobile.affective-chat";
 
     apnProvider.send(note, token).then((result) => {

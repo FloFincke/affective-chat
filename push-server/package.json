@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node app-start.js"
   },
   "dependencies": {
     "agenda": "^1.0.3",

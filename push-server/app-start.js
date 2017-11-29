@@ -4,9 +4,9 @@
  * Module dependencies.
  */
 
-var app = require('../app');
-var database = require('../components/database');
-var agenda = require('../components/push');
+var app = require('./app');
+var database = require('./components/database');
+var agenda = require('./components/push');
 var debug = require('debug')('push-server:server');
 var http = require('http');
 
