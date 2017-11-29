@@ -76,14 +76,18 @@ class DataCollectionCycle {
 
         geolocationService.start()
         geolocationService.location.asObservable().take(1)
-            .subscribe(onNext: { [weak self] in
-                guard let strongSelf = self else { return }
+            .flatMap { [weak self] location -> Observable<Void> in
+                guard let strongSelf = self else { return Observable.just(()) }
                 strongSelf.geolocationService.stop()
                 strongSelf.prepareSensoreData(
                     receptivity: receptivity,
-                    location: $0
+                    location: location
                 )
-                strongSelf.bandDataStore.sendSensorData()
+
+                return strongSelf.bandDataStore.sendSensorData()
+            }
+            .subscribe(onNext: { [weak self] _ in
+                self?.isTracking = false
             })
             .disposed(by: disposeBag)
     }

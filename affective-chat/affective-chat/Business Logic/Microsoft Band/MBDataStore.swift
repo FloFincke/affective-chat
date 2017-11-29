@@ -58,11 +58,13 @@ class MBDataStore {
         }
     }
 
-    func sendSensorData() {
+    func sendSensorData() -> Observable<Void> {
+//        return Observable.create { observer -> Disposable in
+
         compressSensorData()
         guard let zipData = try? Data(contentsOf: sensorDataZipUrl),
             let phoneId = UserDefaults.standard.string(forKey: Constants.phoneIdKey) else {
-            return
+            return Observable.just(())
         }
 
         let endpoint = ServerAPI.newData(
@@ -71,11 +73,12 @@ class MBDataStore {
             fileName: fileNameDateFormatter.string(from: Date()) + ".zip"
         )
 
-        apiProvider.rx.request(endpoint)
-            .subscribe(onSuccess: { [weak self] _ in
-                self?.deleteSensorData()
-            })
-            .disposed(by: disposeBag)
+        return apiProvider.rx.request(endpoint)
+            .asObservable()
+            .map { [weak self] _ in self?.deleteSensorData() }
+
+//            return Disposable.create()
+//        }
     }
 
     // MARK: - Private Functions

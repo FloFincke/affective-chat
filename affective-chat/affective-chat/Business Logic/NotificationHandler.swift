@@ -105,7 +105,7 @@ extension NotificationHandler: UNUserNotificationCenterDelegate {
         if response.actionIdentifier == isReceptibleActionIdentifier {
             log.info("user is receptible")
             userReceptivity.onNext(.receptible)
-        } else if response.actionIdentifier == isReceptibleActionIdentifier {
+        } else if response.actionIdentifier == isNotReceptibleActionIdentifier {
             log.info("user is not receptible")
             userReceptivity.onNext(.notReceptible)
         }
