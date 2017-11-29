@@ -12,8 +12,9 @@ import RxSwift
 class MBDataSubscriptionContainer {
 
     var isConnected = false
+    var trackingUpdate = PublishSubject<Void>()
 
-    private var subscribers: [MBDataSubscriber]
+    private var subscribers: [MBDataSubscriber]!
     private let disposeBag = DisposeBag()
 
     // MARK: - Services
@@ -32,8 +33,14 @@ class MBDataSubscriptionContainer {
         self.connection = connection
         self.dataStore = dataStore
         self.subscriberFactory = subscriberFactory
-        self.subscribers = subscriptionTypes.flatMap {
-            subscriberFactory.dataSubscriber(for: $0)
+        self.subscribers = subscriptionTypes.flatMap { type -> MBDataSubscriber? in
+            let subscriber = subscriberFactory.dataSubscriber(for: type)
+            if let heartRateSubscriber = subscriber as? HeartRateSubscriber {
+                heartRateSubscriber.trackingUpdate
+                    .bind(to: trackingUpdate)
+                    .disposed(by: disposeBag)
+            }
+            return subscriber
         }
 
         self.connection.start()

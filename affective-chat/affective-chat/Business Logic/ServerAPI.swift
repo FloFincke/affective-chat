@@ -9,11 +9,14 @@
 import Foundation
 import Moya
 
+// Oettingenstr. 67
+private let serverUrl = "http://10.180.20.198:3000"
+
 // Amalienstr. 17
 //private let serverUrl = "http://10.176.82.49:3000"
 
 // Zu Hause
-private let serverUrl = "http://192.168.178.23:3000"
+//private let serverUrl = "http://192.168.178.23:3000"
 
 private let newDevicePath = "/device/new"
 private let usernameParameter = "username"

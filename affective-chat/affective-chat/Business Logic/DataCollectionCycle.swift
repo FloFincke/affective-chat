@@ -22,6 +22,7 @@ private let locationKey = "location"
 class DataCollectionCycle {
 
     private var isTracking = false
+    private var userDefaults = UserDefaults.standard
     private let disposeBag = DisposeBag()
 
     // MARK: - Services
@@ -49,6 +50,14 @@ class DataCollectionCycle {
         self.notificationHandler.userReceptivity
             .subscribe(onNext: { [weak self] in self?.stop(receptivity: $0) })
             .disposed(by: disposeBag)
+
+        self.dataSubscriptionContainer.trackingUpdate
+            .subscribe(onNext: { [weak self] _ in
+                if self?.shouldStopTracking() ?? true {
+                    self?.stop(receptivity: .unknown)
+                }
+            })
+            .disposed(by: disposeBag)
     }
     
     // MARK: - Public Functions
@@ -67,23 +76,43 @@ class DataCollectionCycle {
 
         dataSubscriptionContainer.startSubscriptions()
         notificationHandler.scheduleIsReceptibleNotification(inSeconds: duration)
+
+        let cancelTimestamp = Date().addingTimeInterval(duration + Constants.cancelTrackingSeconds)
+        UserDefaults.standard.setValue(
+            cancelTimestamp,
+            forKey: Constants.cancelTrackingTimestampKey
+        )
+        UserDefaults.standard.synchronize()
     }
 
     // MARK: - Private Functions
+
+    private func shouldStopTracking() -> Bool {
+        let dateValue = UserDefaults.standard.value(forKey: Constants.cancelTrackingTimestampKey)
+        if let date = dateValue as? Date, date.timeIntervalSinceNow < 0 {
+            return true
+        }
+
+        return false
+    }
 
     private func stop(receptivity: Receptivity) {
         dataSubscriptionContainer.stopSubscriptions()
 
         geolocationService.start()
         geolocationService.location.asObservable().take(1)
-            .subscribe(onNext: { [weak self] in
-                guard let strongSelf = self else { return }
+            .flatMap { [weak self] location -> Observable<Void> in
+                guard let strongSelf = self else { return Observable.just(()) }
                 strongSelf.geolocationService.stop()
                 strongSelf.prepareSensoreData(
                     receptivity: receptivity,
-                    location: $0
+                    location: location
                 )
-                strongSelf.bandDataStore.sendSensorData()
+
+                return strongSelf.bandDataStore.sendSensorData()
+            }
+            .subscribe(onDisposed: { [weak self] in
+                self?.isTracking = false
             })
             .disposed(by: disposeBag)
     }
