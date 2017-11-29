@@ -59,8 +59,6 @@ class MBDataStore {
     }
 
     func sendSensorData() -> Observable<Void> {
-//        return Observable.create { observer -> Disposable in
-
         compressSensorData()
         guard let zipData = try? Data(contentsOf: sensorDataZipUrl),
             let phoneId = UserDefaults.standard.string(forKey: Constants.phoneIdKey) else {
@@ -76,15 +74,11 @@ class MBDataStore {
         return apiProvider.rx.request(endpoint)
             .asObservable()
             .map { [weak self] _ in self?.deleteSensorData() }
-
-//            return Disposable.create()
-//        }
     }
 
     // MARK: - Private Functions
 
     private func saveSensorData(_ sensorData: [String: Any]) {
-        log.debug(sensorData)
         guard let jsonData = try? JSONSerialization.data(withJSONObject: sensorData, options: []),
             let jsonString = String(data: jsonData, encoding: .utf8)
             else {

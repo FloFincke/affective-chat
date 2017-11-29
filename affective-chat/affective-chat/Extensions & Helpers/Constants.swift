@@ -13,5 +13,8 @@ enum Constants {
     static let tokenKey = "token"
     static let usernameKey = "username"
     static let phoneIdKey = "phoneId"
+    static let cancelTrackingTimestampKey = "cancelTrackingTimestamp"
+
+    static let cancelTrackingSeconds: Double = 10
     
 }

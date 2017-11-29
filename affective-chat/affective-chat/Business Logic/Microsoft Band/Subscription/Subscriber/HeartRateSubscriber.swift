@@ -7,19 +7,23 @@
 //
 
 import Foundation
+import RxSwift
 
 private let heartRatesKey = "heartRates"
 
 class HeartRateSubscriber: MBDataSubscriber {
 
-    private lazy var hearRateDataUpdateHandler: (MSBSensorHeartRateData?, Error?) -> Void = {
-        if let error = $1 {
-            log.error(error)
-        }
+    var trackingUpdate = PublishSubject<Void>()
 
-        if let heartRate = $0?.heartRate {
-            self.data[Date().stringTimeIntervalSince1970InMilliseconds] = heartRate
-        }
+    private lazy var hearRateDataUpdateHandler: (MSBSensorHeartRateData?, Error?) -> Void = {
+            self.trackingUpdate.onNext(())
+            if let error = $1 {
+                log.error(error)
+            }
+
+            if let heartRate = $0?.heartRate {
+                self.data[Date().stringTimeIntervalSince1970InMilliseconds] = heartRate
+            }
     }
 
     private var heartRateUserConsentGranted = false

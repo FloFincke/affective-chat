@@ -22,6 +22,7 @@ private let locationKey = "location"
 class DataCollectionCycle {
 
     private var isTracking = false
+    private var userDefaults = UserDefaults.standard
     private let disposeBag = DisposeBag()
 
     // MARK: - Services
@@ -49,6 +50,14 @@ class DataCollectionCycle {
         self.notificationHandler.userReceptivity
             .subscribe(onNext: { [weak self] in self?.stop(receptivity: $0) })
             .disposed(by: disposeBag)
+
+        self.dataSubscriptionContainer.trackingUpdate
+            .subscribe(onNext: { [weak self] _ in
+                if self?.shouldStopTracking() ?? true {
+                    self?.stop(receptivity: .unknown)
+                }
+            })
+            .disposed(by: disposeBag)
     }
     
     // MARK: - Public Functions
@@ -67,9 +76,25 @@ class DataCollectionCycle {
 
         dataSubscriptionContainer.startSubscriptions()
         notificationHandler.scheduleIsReceptibleNotification(inSeconds: duration)
+
+        let cancelTimestamp = Date().addingTimeInterval(duration + Constants.cancelTrackingSeconds)
+        UserDefaults.standard.setValue(
+            cancelTimestamp,
+            forKey: Constants.cancelTrackingTimestampKey
+        )
+        UserDefaults.standard.synchronize()
     }
 
     // MARK: - Private Functions
+
+    private func shouldStopTracking() -> Bool {
+        let dateValue = UserDefaults.standard.value(forKey: Constants.cancelTrackingTimestampKey)
+        if let date = dateValue as? Date, date.timeIntervalSinceNow < 0 {
+            return true
+        }
+
+        return false
+    }
 
     private func stop(receptivity: Receptivity) {
         dataSubscriptionContainer.stopSubscriptions()
@@ -86,7 +111,7 @@ class DataCollectionCycle {
 
                 return strongSelf.bandDataStore.sendSensorData()
             }
-            .subscribe(onNext: { [weak self] _ in
+            .subscribe(onDisposed: { [weak self] in
                 self?.isTracking = false
             })
             .disposed(by: disposeBag)
