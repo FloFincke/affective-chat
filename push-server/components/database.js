@@ -1,9 +1,13 @@
 const mongoose = require('mongoose');
 
-const address = 'mongodb://localhost/affective';
+const address = process.env.MONGO_URL;
+
+console.log(address)
 
 const db = mongoose.connect(address, { useMongoClient: true });
 mongoose.Promise = global.Promise;
+
+const connection = mongoose.connection;
 
 const Phone = mongoose.model('Phone', { username: String, token: String, createdAt: Date });
 
@@ -18,6 +22,7 @@ module.exports = {
 	db: db,
 	Phone: Phone,
 	Log: Log,
-	MESSAGES: MESSAGES
+	MESSAGES: MESSAGES,
+	connection: connection
 };
 
