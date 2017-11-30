@@ -17,13 +17,14 @@ class SkinTemperatureSubscriber: MBDataSubscriber {
             log.error(error)
         }
 
-        if let temperature = $0?.temperature {
+        if let temperature = $0?.temperature, self.shouldWriteDate {
             self.data[Date().stringTimeIntervalSince1970InMilliseconds] = temperature
         }
     }
 
     // MARK: - MBDataSubscriber Conformance
 
+    var shouldWriteDate = true
     var client: MSBClient?
     let dataKey = skinTemperatureKey
     var data = [String: Any]()
@@ -31,6 +32,7 @@ class SkinTemperatureSubscriber: MBDataSubscriber {
     // MARK: - Public Functions
 
     func startUpdates() {
+        shouldWriteDate = true
         do {
             try client?.sensorManager.startSkinTempUpdates(
                 to: nil,

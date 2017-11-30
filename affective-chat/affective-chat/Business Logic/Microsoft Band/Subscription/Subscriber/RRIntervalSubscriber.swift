@@ -17,13 +17,14 @@ class RRIntervalSubscriber: MBDataSubscriber {
             log.error(error)
         }
 
-        if let interval = $0?.interval {
+        if let interval = $0?.interval, self.shouldWriteDate {
             self.data[Date().stringTimeIntervalSince1970InMilliseconds] = interval
         }
     }
 
     // MARK: - MBDataSubscriber Conformance
 
+    var shouldWriteDate = true
     var client: MSBClient?
     let dataKey = rrIntervalKey
     var data = [String: Any]()
@@ -31,6 +32,7 @@ class RRIntervalSubscriber: MBDataSubscriber {
     // MARK: - Public Functions
 
     func startUpdates() {
+        shouldWriteDate = true
         do {
             try client?.sensorManager.startRRIntervalUpdates(
                 to: nil,

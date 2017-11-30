@@ -21,7 +21,7 @@ class HeartRateSubscriber: MBDataSubscriber {
                 log.error(error)
             }
 
-            if let heartRate = $0?.heartRate {
+            if let heartRate = $0?.heartRate, self.shouldWriteDate {
                 self.data[Date().stringTimeIntervalSince1970InMilliseconds] = heartRate
             }
     }
@@ -30,6 +30,7 @@ class HeartRateSubscriber: MBDataSubscriber {
 
     // MARK: - MBDataSubscriber Conformance
 
+    var shouldWriteDate = true
     var client: MSBClient? {
         didSet {
             guard !heartRateUserConsentGranted else {
@@ -50,6 +51,7 @@ class HeartRateSubscriber: MBDataSubscriber {
     func startUpdates() {
         guard let client = client, heartRateUserConsentGranted else { return }
 
+        shouldWriteDate = true
         do {
             try client.sensorManager.startHeartRateUpdates(
                 to: nil,

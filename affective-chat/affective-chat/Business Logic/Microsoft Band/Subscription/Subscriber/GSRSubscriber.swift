@@ -17,13 +17,14 @@ class GSRSubscriber: MBDataSubscriber {
             log.error(error)
         }
 
-        if let resistance = $0?.resistance {
+        if let resistance = $0?.resistance, self.shouldWriteDate {
             self.data[Date().stringTimeIntervalSince1970InMilliseconds] = resistance
         }
     }
 
     // MARK: - MBDataSubscriber Conformance
 
+    var shouldWriteDate = true
     var client: MSBClient?
     let dataKey = gsrKey
     var data = [String: Any]()
@@ -31,6 +32,7 @@ class GSRSubscriber: MBDataSubscriber {
     // MARK: - Public Functions
 
     func startUpdates() {
+        shouldWriteDate = true
         do {
             try client?.sensorManager.startGSRUpdates(
                 to: nil,
