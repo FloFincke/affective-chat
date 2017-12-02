@@ -12,6 +12,7 @@ protocol MBDataSubscriber: class {
 //    associatedtype SubscriptionDataType: SubscriptionData
 //    var data: [SubscriptionDataType] { get }
 
+    var shouldWriteDate: Bool { get set }
     var client: MSBClient? { get set }
     var dataKey: String { get }
     var data: [String: Any] { get set }

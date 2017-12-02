@@ -59,6 +59,7 @@ class MBDataStore {
     }
 
     func sendSensorData() -> Observable<Void> {
+        log.info("sending sensor data")
         compressSensorData()
         guard let zipData = try? Data(contentsOf: sensorDataZipUrl),
             let phoneId = UserDefaults.standard.string(forKey: Constants.phoneIdKey) else {

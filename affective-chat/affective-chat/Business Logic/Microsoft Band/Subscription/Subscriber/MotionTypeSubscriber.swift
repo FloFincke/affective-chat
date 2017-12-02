@@ -17,13 +17,14 @@ class MotionTypeSubscriber: MBDataSubscriber {
             log.error(error)
         }
 
-        if let motionType = $0?.motionType {
+        if let motionType = $0?.motionType, self.shouldWriteDate {
             self.data[Date().stringTimeIntervalSince1970InMilliseconds] = motionType.rawValue
         }
     }
 
     // MARK: - MBDataSubscriber Conformance
 
+    var shouldWriteDate = true
     var client: MSBClient?
     let dataKey = motionTypeKey
     var data = [String: Any]()
@@ -31,6 +32,7 @@ class MotionTypeSubscriber: MBDataSubscriber {
     // MARK: - Public Functions
 
     func startUpdates() {
+        shouldWriteDate = true
         do {
             try client?.sensorManager.startDistanceUpdates(
                 to: nil,
