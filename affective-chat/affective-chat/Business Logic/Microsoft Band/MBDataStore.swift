@@ -9,10 +9,14 @@
 import Foundation
 import Zip
 import RxSwift
+import CoreLocation
 
 private let sensorDataFileName = "sensor-data"
 private let sensorDataJsonName = "\(sensorDataFileName).json"
 private let sensorDataZipName = "\(sensorDataFileName).zip"
+
+private let receptivityKey = "receptivity"
+private let locationKey = "location"
 
 class MBDataStore {
 
@@ -58,13 +62,20 @@ class MBDataStore {
         }
     }
 
-    func sendSensorData() -> Observable<Void> {
+    func sendSensorData(receptivity: Receptivity,
+                        location: CLLocationCoordinate2D) -> Observable<Void> {
+
         log.info("sending sensor data")
+
+        prepareSensoreDataForSending(receptivity: receptivity, location: location)
         compressSensorData()
+
         guard let zipData = try? Data(contentsOf: sensorDataZipUrl),
             let phoneId = UserDefaults.standard.string(forKey: Constants.phoneIdKey) else {
-            return Observable.just(())
+                log.warning("could not load zip or phoneId")
+                return Observable.just(())
         }
+
 
         let endpoint = ServerAPI.newData(
             id: phoneId,
@@ -103,6 +114,24 @@ class MBDataStore {
         }
 
         return validJson
+    }
+
+    private func prepareSensoreDataForSending(receptivity: Receptivity,
+                                              location: CLLocationCoordinate2D) {
+
+        let dateValue = UserDefaults.standard.value(forKey: Constants.trackingEndTimestampKey)
+        let date = dateValue as? Date ?? Date()
+
+        saveData(
+            [date.stringTimeIntervalSince1970InMilliseconds: receptivity.rawValue],
+            toKey: receptivityKey
+        )
+
+        let locationData = ["lat": location.latitude, "long": location.longitude]
+        saveData(
+            [date.stringTimeIntervalSince1970InMilliseconds: locationData],
+            toKey: locationKey
+        )
     }
 
     private func deleteSensorData() {

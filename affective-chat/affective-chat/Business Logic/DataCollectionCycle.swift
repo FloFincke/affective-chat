@@ -8,16 +8,12 @@
 
 import Foundation
 import RxSwift
-import CoreLocation
 
 enum Receptivity: Int {
     case unknown = -1
     case notReceptible = 0
     case receptible = 1
 }
-
-private let receptivityKey = "receptivity"
-private let locationKey = "location"
 
 class DataCollectionCycle {
 
@@ -137,13 +133,12 @@ class DataCollectionCycle {
         geolocationService.location.asObservable().take(1)
             .flatMap { [weak self] location -> Observable<Void> in
                 guard let strongSelf = self else { return Observable.just(()) }
+                
                 strongSelf.geolocationService.stop()
-                strongSelf.prepareSensoreData(
+                return strongSelf.bandDataStore.sendSensorData(
                     receptivity: receptivity,
                     location: location
                 )
-
-                return strongSelf.bandDataStore.sendSensorData()
             }
             .subscribe(onDisposed: { [weak self] in
                 self?.isReady = true
@@ -151,19 +146,5 @@ class DataCollectionCycle {
             .disposed(by: disposeBag)
     }
 
-    private func prepareSensoreData(receptivity: Receptivity, location: CLLocationCoordinate2D) {
-        let dateValue = UserDefaults.standard.value(forKey: Constants.trackingEndTimestampKey)
-        let date = dateValue as? Date ?? Date()
-
-        bandDataStore.saveData(
-            [date.stringTimeIntervalSince1970InMilliseconds: receptivity.rawValue],
-            toKey: receptivityKey
-        )
-
-        let locationData = ["lat": location.latitude, "long": location.longitude]
-        bandDataStore.saveData(
-            [date.stringTimeIntervalSince1970InMilliseconds: locationData],
-            toKey: locationKey
-        )
-    }
+    
 }
