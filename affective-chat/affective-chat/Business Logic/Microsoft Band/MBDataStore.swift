@@ -95,7 +95,11 @@ class MBDataStore {
             let json = try? JSONSerialization.jsonObject(with: jsonData, options: []),
             let validJson = json as? [String: Any]
             else {
-                return [:]
+                if let phoneId = UserDefaults.standard.string(forKey: Constants.phoneIdKey) {
+                    return ["phoneId": phoneId]
+                } else {
+                    return [:]
+                }
         }
 
         return validJson

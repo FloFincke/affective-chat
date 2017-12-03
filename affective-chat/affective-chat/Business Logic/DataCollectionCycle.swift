@@ -108,7 +108,7 @@ class DataCollectionCycle {
         let dateValue = UserDefaults.standard.value(forKey: Constants.trackingEndTimestampKey)
         if let date = dateValue as? Date {
             let timeLeft: Double = date.timeIntervalSinceNow
-            let minutes = String(format: "%.0f", timeLeft / 60)
+            let minutes = Int(timeLeft / 60)
             let seconds = String(format: "%02d",
                                  Int(timeLeft.truncatingRemainder(dividingBy: 60).rounded()))
             log.verbose("\(minutes):\(seconds)")

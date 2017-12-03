@@ -9,7 +9,7 @@
 import Foundation
 import Moya
 
-private let serverUrl = "http://affective-push-server-dev.eu-central-1.elasticbeanstalk.com/"
+private let serverUrl = "http://affective-push-server-dev.eu-central-1.elasticbeanstalk.com"
 
 // Oettingenstr. 67
 //private let serverUrl = "http://10.180.20.198:3000"

@@ -182,6 +182,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     private func handleNotification(userInfo: [AnyHashable: Any]) {
+        log.debug(userInfo)
+        
         if let duration = userInfo["duration"] as? Double,
             let timeout = userInfo["timeout"] as? Double {
             dataCollectionHandler.start(withDuration: duration, timeoutAfter: timeout)
