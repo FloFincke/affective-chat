@@ -14,7 +14,7 @@ dir_name_unzipped = os.path.join(dir, 'unzipped/')
 
 colNames = ['receptivity', 'location', 'gsr', 'rrInterval', 'motionType', 'skinTemperature', 'heartRates']
 df = pd.DataFrame([])
-df_omnidistant = pd.DataFrame(columns=['phoneId', 'location', 'heartRate', 'gsr', 'rrInterval', 'motionType', 'skinTemp', 'mean(GSR)', 'mean(HR)', 'mean(RR)', 'mean(skinTemp)', 'std(GSR)', 'std(HR)', 'std(RR)', 'std(skinTemp)'])
+df_equidistant = pd.DataFrame(columns=['phoneId', 'location', 'heartRate', 'gsr', 'rrInterval', 'motionType', 'skinTemp', 'mean(GSR)', 'mean(HR)', 'mean(RR)', 'mean(skinTemp)', 'std(GSR)', 'std(HR)', 'std(RR)', 'std(skinTemp)'])
 
 
 def download_zips():
@@ -77,7 +77,7 @@ def fill_na():
 
 
 def calc_new_columns():
-    global df, df_omnidistant
+    global df, df_equidistant
     timestep = 5000
 
     phoneIds = df.phoneId.unique() # Get all registered phoneIds
@@ -119,21 +119,21 @@ def calc_new_columns():
                 stdSkin = temp_equidist.skinTemperature.std()
 
                 # Set values in dataframe
-                df_omnidistant.set_value(customIndex, 'phoneId', temp.ix[timestamp].phoneId)
-                df_omnidistant.set_value(customIndex, 'location', temp.ix[timestamp].location)
-                df_omnidistant.set_value(customIndex, 'heartRate', HR)
-                df_omnidistant.set_value(customIndex, 'gsr', GSR)
-                df_omnidistant.set_value(customIndex, 'rrInterval', RR)
-                df_omnidistant.set_value(customIndex, 'motionType', motionType)
-                df_omnidistant.set_value(customIndex, 'skinTemp', Skin)
-                df_omnidistant.set_value(customIndex, 'mean(GSR)', mGSR)
-                df_omnidistant.set_value(customIndex, 'mean(HR)', mHR)
-                df_omnidistant.set_value(customIndex, 'mean(RR)', mRR)
-                df_omnidistant.set_value(customIndex, 'mean(skinTemp)', mSkin)
-                df_omnidistant.set_value(customIndex, 'std(GSR)', stdGSR)
-                df_omnidistant.set_value(customIndex, 'std(HR)', stdHR)
-                df_omnidistant.set_value(customIndex, 'std(RR)', stdRR)
-                df_omnidistant.set_value(customIndex, 'std(skinTemp)', stdSkin)
+                df_equidistant.set_value(customIndex, 'phoneId', temp.ix[timestamp].phoneId)
+                df_equidistant.set_value(customIndex, 'location', temp.ix[timestamp].location)
+                df_equidistant.set_value(customIndex, 'heartRate', HR)
+                df_equidistant.set_value(customIndex, 'gsr', GSR)
+                df_equidistant.set_value(customIndex, 'rrInterval', RR)
+                df_equidistant.set_value(customIndex, 'motionType', motionType)
+                df_equidistant.set_value(customIndex, 'skinTemp', Skin)
+                df_equidistant.set_value(customIndex, 'mean(GSR)', mGSR)
+                df_equidistant.set_value(customIndex, 'mean(HR)', mHR)
+                df_equidistant.set_value(customIndex, 'mean(RR)', mRR)
+                df_equidistant.set_value(customIndex, 'mean(skinTemp)', mSkin)
+                df_equidistant.set_value(customIndex, 'std(GSR)', stdGSR)
+                df_equidistant.set_value(customIndex, 'std(HR)', stdHR)
+                df_equidistant.set_value(customIndex, 'std(RR)', stdRR)
+                df_equidistant.set_value(customIndex, 'std(skinTemp)', stdSkin)
 
                 # Reset
                 temp_equidist = temp_equidist.iloc[0:0]
@@ -144,7 +144,7 @@ def calc_new_columns():
     #out = df_omnidistant.to_json(orient='records')
     #with open('export.json', 'w') as f:
     #    f.write(out)
-    print (df_omnidistant[:10])
+    print (df_equidistant[:10])
 
 
 # Calculate the Tukey interquartile range for outlier detection
