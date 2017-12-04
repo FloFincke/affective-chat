@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt #Visualization
 import seaborn as sns #Visualization
 import os, zipfile #Unzipping
 import boto3 #AWS Download
-from tabulate import tabulate
 
 # GLOBAL VARIABLES #
 dir = os.path.dirname(os.path.realpath(__file__))
