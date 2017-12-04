@@ -133,7 +133,7 @@ def calc_new_columns():
                 df_omnidistant.set_value(customIndex, 'std(GSR)', stdGSR)
                 df_omnidistant.set_value(customIndex, 'std(HR)', stdHR)
                 df_omnidistant.set_value(customIndex, 'std(RR)', stdRR)
-                df_omnidistant.set_value(customIndex, 'std(skinTemp)', mSkin)
+                df_omnidistant.set_value(customIndex, 'std(skinTemp)', stdSkin)
 
                 # Reset
                 temp_equidist = temp_equidist.iloc[0:0]
