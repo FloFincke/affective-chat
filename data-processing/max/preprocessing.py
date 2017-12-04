@@ -15,7 +15,7 @@ colNames = ['receptivity', 'location', 'gsr', 'rrInterval', 'motionType', 'skinT
 df = pd.DataFrame([])
 
 
-def downloadZips():
+def download_zips():
     BUCKET_NAME = 'affective-chat'  # replace with your bucket name
 
     s3 = boto3.resource('s3')
@@ -25,7 +25,6 @@ def downloadZips():
     objs = bucket.objects.filter(Prefix=bucket_prefix)
 
     for object in objs:
-        print(object.key.split('/'))
         if (object.key.endswith('.zip')):  # download tracking data only
 
             path, filename = os.path.split(object.key)
@@ -38,14 +37,14 @@ def downloadZips():
             bucket.download_file(object.key, object.key)
             os.chdir(dir)
 
+
 # Unzip files from folder 'zipped' to folder 'unzipped'. 'zipped' has to be in the same directory as this script
-def unzipFiles():
+def unzip_files():
     extension = ".zip"
     #os.chdir(dir_name_zipped)  # Change directory to zipped-folder
     for folder in os.listdir(dir_name_zipped):
         folder = '{0}/'.format(folder)
         for counter, item in enumerate(os.listdir(dir_name_zipped + folder)):  # loop through items in dir
-            print(item)
             if item.endswith(extension):  # check for ".zip" extension
                 file_name = os.path.abspath(folder + item)
                 zip_ref = zipfile.ZipFile(file_name)
@@ -58,7 +57,8 @@ def unzipFiles():
                 zip_ref.close()  # close file
                 # os.remove(file_name) # delete zipped file
 
-def readJSONS(directory):
+
+def read_jsons(directory):
     global df
     for file in os.listdir(directory):
         if file.endswith(".json"):
@@ -66,21 +66,43 @@ def readJSONS(directory):
             df = df.append(temp)
     df.sort_index(inplace=True) # Sort by timestamps
 
-def findMinMax():
+
+def fill_na():
     global df
+    df.fillna(method='ffill', inplace=True) # fill NaN downwards
+    df.fillna((df.mean()), inplace=True)  # fill remaining NaN upwards with mean
+    df.fillna(method='bfill', inplace=True) # fill remaining NaN upwards
+
+
+def calc_min_max():
+    global df
+
+    phoneIds = df.phoneId.unique()
+    for col in df:
+        if col != 'location' and col != 'receptivity' and col != 'motionType' and col != 'phoneId':
+            for id in phoneIds:
+                min = 0.0
+                max = 0.0
+
+
+    #phoneIds = df.phoneId.unique()
+    #for id in phoneIds:
+    #    for x in df['rrInterval'==1.028704]:
+    #        print (x)
 
 
 # Calculate the Tukey interquartile range for outlier detection
-def getIqrMinMax(columnName):
+def get_iqr(columnName):
     q75, q25 = np.percentile(df[columnName].dropna(), [75, 25])
     iqr = q75 - q25
     min = q25 - (iqr * 1.5)
     max = q75 + (iqr * 1.5)
     return min, max
 
+
 # Detect outliers in a specific column of the dataset and plot the results
 def visualize(columnName):
-    min, max = getIqrMinMax(columnName)
+    min, max = get_iqr(columnName)
 
     # Chart
     plt.figure(figsize=(10, 8))
@@ -113,13 +135,15 @@ def visualize(columnName):
 ####################################################################################################################
 
 
-downloadZips()
+download_zips()
 
-unzipFiles()
+unzip_files()
 
-readJSONS(dir_name_unzipped)
+read_jsons(dir_name_unzipped)
 
-findMinMax()
+fill_na()
+
+calc_min_max()
 
 
 #visualize(colNames[3]) # Visualize the value distribution and outliers of a given column. 1 = 'receptivity', 2 = 'location' ...
