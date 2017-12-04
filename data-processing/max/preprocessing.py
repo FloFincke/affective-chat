@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt #Visualization
 import seaborn as sns #Visualization
 import os, zipfile #Unzipping
 import boto3 #AWS Download
+from tabulate import tabulate
 
 # GLOBAL VARIABLES #
 dir = os.path.dirname(os.path.realpath(__file__))
@@ -13,6 +14,7 @@ dir_name_unzipped = os.path.join(dir, 'unzipped/')
 
 colNames = ['receptivity', 'location', 'gsr', 'rrInterval', 'motionType', 'skinTemperature', 'heartRates']
 df = pd.DataFrame([])
+df_omnidistant = pd.DataFrame(columns=['phoneId', 'location', 'heartRate', 'gsr', 'rrInterval', 'motionType', 'skinTemp', 'mean(GSR)', 'mean(HR)', 'mean(RR)', 'mean(skinTemp)', 'std(GSR)', 'std(HR)', 'std(RR)', 'std(skinTemp)'])
 
 
 def download_zips():
@@ -74,21 +76,75 @@ def fill_na():
     df.fillna(method='bfill', inplace=True) # fill remaining NaN upwards
 
 
-def calc_min_max():
-    global df
+def calc_new_columns():
+    global df, df_omnidistant
+    timestep = 5000
 
-    phoneIds = df.phoneId.unique()
-    for col in df:
-        if col != 'location' and col != 'receptivity' and col != 'motionType' and col != 'phoneId':
-            for id in phoneIds:
-                min = 0.0
-                max = 0.0
+    phoneIds = df.phoneId.unique() # Get all registered phoneIds
 
+    for id in phoneIds: # Don't mix users just yet
+        temp = df.loc[(df['phoneId'] == id)]
+        start = temp.index.values[0]
+        customIndex = 0
+        temp_equidist = pd.DataFrame([])
 
-    #phoneIds = df.phoneId.unique()
-    #for id in phoneIds:
-    #    for x in df['rrInterval'==1.028704]:
-    #        print (x)
+        # Max values for user
+        maxGSR = temp.gsr.max()
+        maxHR = temp.heartRates.max()
+        maxSkintemp = temp.skinTemperature.max()
+        maxRRInterval = temp.rrInterval.max()
+
+        for timestamp in temp.index.values:
+            if int(timestamp) <= int(start) + timestep: # Combine measurements within a n-milliseconds (= timestep) timeframe
+                temp_equidist = temp_equidist.append(temp.ix[timestamp])
+            else:
+                motionType = temp_equidist.motionType.mode()[0] # Most frequent value in time range
+
+                # Percentage of max values
+                GSR = temp_equidist.gsr.mean()/maxGSR
+                HR = temp_equidist.heartRates.mean()/maxHR
+                RR = temp_equidist.rrInterval.mean()/maxRRInterval
+                Skin = temp_equidist.skinTemperature.mean()/maxSkintemp
+
+                # Mean values
+                mGSR = temp_equidist.gsr.mean()
+                mHR = temp_equidist.heartRates.mean()
+                mRR = temp_equidist.rrInterval.mean()
+                mSkin = temp_equidist.skinTemperature.mean()
+
+                # Standard deviation
+                stdGSR = temp_equidist.gsr.std()
+                stdHR = temp_equidist.heartRates.std()
+                stdRR = temp_equidist.rrInterval.std()
+                stdSkin = temp_equidist.skinTemperature.std()
+
+                # Set values in dataframe
+                df_omnidistant.set_value(customIndex, 'phoneId', temp.ix[timestamp].phoneId)
+                df_omnidistant.set_value(customIndex, 'location', temp.ix[timestamp].location)
+                df_omnidistant.set_value(customIndex, 'heartRate', HR)
+                df_omnidistant.set_value(customIndex, 'gsr', GSR)
+                df_omnidistant.set_value(customIndex, 'rrInterval', RR)
+                df_omnidistant.set_value(customIndex, 'motionType', motionType)
+                df_omnidistant.set_value(customIndex, 'skinTemp', Skin)
+                df_omnidistant.set_value(customIndex, 'mean(GSR)', mGSR)
+                df_omnidistant.set_value(customIndex, 'mean(HR)', mHR)
+                df_omnidistant.set_value(customIndex, 'mean(RR)', mRR)
+                df_omnidistant.set_value(customIndex, 'mean(skinTemp)', mSkin)
+                df_omnidistant.set_value(customIndex, 'std(GSR)', stdGSR)
+                df_omnidistant.set_value(customIndex, 'std(HR)', stdHR)
+                df_omnidistant.set_value(customIndex, 'std(RR)', stdRR)
+                df_omnidistant.set_value(customIndex, 'std(skinTemp)', mSkin)
+
+                # Reset
+                temp_equidist = temp_equidist.iloc[0:0]
+                start = timestamp
+                customIndex += timestep # Update index
+
+    # Export omnidistant dataframe to json
+    #out = df_omnidistant.to_json(orient='records')
+    #with open('export.json', 'w') as f:
+    #    f.write(out)
+    print (df_omnidistant[:10])
 
 
 # Calculate the Tukey interquartile range for outlier detection
@@ -143,7 +199,7 @@ read_jsons(dir_name_unzipped)
 
 fill_na()
 
-calc_min_max()
+calc_new_columns()
 
 
 #visualize(colNames[3]) # Visualize the value distribution and outliers of a given column. 1 = 'receptivity', 2 = 'location' ...
