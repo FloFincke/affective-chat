@@ -199,16 +199,34 @@ def visualize(columnName):
 
     plt.show()
 
+def remove_outliers(columnName):
+    min, max = get_iqr(columnName)
+    df['Outlier'] = 0
+    df.loc[df[columnName] < min, 'Outlier'] = 1
+    df.loc[df[columnName] > max, 'Outlier'] = 1
+
+    print(len(df.index))
+
+    for key in df['Outlier'].keys():
+        if df['Outlier'][key] == 1:
+            df.drop(key, inplace=True)
+
+    print(len(df.index))
 
 ####################################################################################################################
 ####################################################################################################################
 
 
-download_zips()
+#download_zips()
 
-unzip_files()
+#unzip_files()
 
 read_jsons(dir_name_unzipped)
+
+remove_outliers('heartRates')
+remove_outliers('rrInterval')
+remove_outliers('gsr')
+remove_outliers('skinTemperature')
 
 fill_na()
 
