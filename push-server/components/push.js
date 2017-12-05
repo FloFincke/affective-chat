@@ -6,7 +6,7 @@ const database = require('./database');
 /* Variables */
 
 const duration = (process.env.DURATION || 5) * 60; //5 min --> time of tracking
-const pushScheduleTime = 20;
+const pushScheduleTime = (process.env.PUSH_SCHEDULE_TIME || 5); //5 min --> time until next push
 const timeout = (process.env.TIMEOUT || 5) * 60; //5 min --> time until a 'not in the mood' is triggered
 
 const apnOptions = {
