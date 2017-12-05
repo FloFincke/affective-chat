@@ -54,15 +54,21 @@ class MBDataSubscriptionContainer {
     // MARK: - Public Functions
 
     func startSubscriptions() {
+        log.info("starting subscriptions")
         for subscriber in subscribers {
-            log.debug("starting \(subscriber.name)")
             subscriber.startUpdates()
         }
     }
 
-    func stopSubscriptions() {
+    func stopWritingData() {
         for subscriber in subscribers {
-            log.debug("stopping \(subscriber.name)")
+            subscriber.shouldWriteDate = false
+        }
+    }
+
+    func stopSubscriptions() {
+        log.info("stopping subscriptions")
+        for subscriber in subscribers {
             subscriber.stopUpdates()
             dataStore.saveData(subscriber.data, toKey: subscriber.dataKey)
             subscriber.data = [:]

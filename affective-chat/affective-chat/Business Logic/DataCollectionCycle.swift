@@ -8,7 +8,6 @@
 
 import Foundation
 import RxSwift
-import CoreLocation
 
 enum Receptivity: Int {
     case unknown = -1
@@ -16,12 +15,10 @@ enum Receptivity: Int {
     case receptible = 1
 }
 
-private let receptivityKey = "receptivity"
-private let locationKey = "location"
-
 class DataCollectionCycle {
 
-    private var isTracking = false
+    private var trackingStopped = false
+    private var isReady = true
     private var userDefaults = UserDefaults.standard
     private let disposeBag = DisposeBag()
 
@@ -53,8 +50,13 @@ class DataCollectionCycle {
 
         self.dataSubscriptionContainer.trackingUpdate
             .subscribe(onNext: { [weak self] _ in
-                if self?.shouldStopTracking() ?? true {
-                    self?.stop(receptivity: .unknown)
+                guard let strongSelf = self else { return }
+                if !strongSelf.trackingStopped && strongSelf.shouldStopWritingData() {
+                    strongSelf.trackingStopped = true
+                    strongSelf.dataSubscriptionContainer.stopWritingData()
+                }
+                if strongSelf.shouldStopTracking() {
+                    strongSelf.stop(receptivity: .unknown)
                 }
             })
             .disposed(by: disposeBag)
@@ -62,34 +64,62 @@ class DataCollectionCycle {
     
     // MARK: - Public Functions
 
-    func start(withDuration duration: Double) {
+    func start(withDuration duration: Double, timeoutAfter timeout: Double) {
         guard dataSubscriptionContainer.isConnected else {
-            log.info("Not connected to client")
+            log.warning("Not connected to client")
             return
         }
 
-        guard !isTracking else {
-            log.info("Another cycle is still active")
+        guard isReady else {
+            log.warning("Another cycle is still active")
             return
         }
-        isTracking = true
+
+        log.info("starting cycle with duration: \(duration) and timeout: \(timeout)")
+
+        isReady = false
+        trackingStopped = false
 
         dataSubscriptionContainer.startSubscriptions()
         notificationHandler.scheduleIsReceptibleNotification(inSeconds: duration)
 
-        let cancelTimestamp = Date().addingTimeInterval(duration + Constants.cancelTrackingSeconds)
+        let trackingEndTimestamp = Date().addingTimeInterval(duration)
+        UserDefaults.standard.setValue(
+            trackingEndTimestamp,
+            forKey: Constants.trackingEndTimestampKey
+        )
+
+        let cancelTimestamp = Date().addingTimeInterval(duration + timeout)
         UserDefaults.standard.setValue(
             cancelTimestamp,
             forKey: Constants.cancelTrackingTimestampKey
         )
+
         UserDefaults.standard.synchronize()
     }
 
     // MARK: - Private Functions
 
+    private func shouldStopWritingData() -> Bool {
+        let dateValue = UserDefaults.standard.value(forKey: Constants.trackingEndTimestampKey)
+        if let date = dateValue as? Date {
+            let timeLeft: Double = date.timeIntervalSinceNow
+            let minutes = Int(timeLeft / 60)
+            let seconds = String(format: "%02d",
+                                 Int(timeLeft.truncatingRemainder(dividingBy: 60).rounded()))
+            log.verbose("\(minutes):\(seconds)")
+            
+            if timeLeft <= 0 {
+                return true
+            }
+        }
+
+        return false
+    }
+
     private func shouldStopTracking() -> Bool {
         let dateValue = UserDefaults.standard.value(forKey: Constants.cancelTrackingTimestampKey)
-        if let date = dateValue as? Date, date.timeIntervalSinceNow < 0 {
+        if let date = dateValue as? Date, date.timeIntervalSinceNow <= 0 {
             return true
         }
 
@@ -103,30 +133,18 @@ class DataCollectionCycle {
         geolocationService.location.asObservable().take(1)
             .flatMap { [weak self] location -> Observable<Void> in
                 guard let strongSelf = self else { return Observable.just(()) }
+                
                 strongSelf.geolocationService.stop()
-                strongSelf.prepareSensoreData(
+                return strongSelf.bandDataStore.sendSensorData(
                     receptivity: receptivity,
                     location: location
                 )
-
-                return strongSelf.bandDataStore.sendSensorData()
             }
             .subscribe(onDisposed: { [weak self] in
-                self?.isTracking = false
+                self?.isReady = true
             })
             .disposed(by: disposeBag)
     }
 
-    private func prepareSensoreData(receptivity: Receptivity, location: CLLocationCoordinate2D) {
-        bandDataStore.saveData(
-            [Date().stringTimeIntervalSince1970InMilliseconds: receptivity.rawValue],
-            toKey: receptivityKey
-        )
-
-        let locationData = ["lat": location.latitude, "long": location.longitude]
-        bandDataStore.saveData(
-            [Date().stringTimeIntervalSince1970InMilliseconds: locationData],
-            toKey: locationKey
-        )
-    }
+    
 }
