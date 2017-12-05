@@ -13,7 +13,7 @@ dir_name_unzipped = os.path.join(dir, 'unzipped/')
 
 colNames = ['receptivity', 'location', 'gsr', 'rrInterval', 'motionType', 'skinTemperature', 'heartRates']
 df = pd.DataFrame([])
-df_equidistant = pd.DataFrame(columns=['phoneId', 'location', 'heartRate', 'gsr', 'rrInterval', 'motionType', 'skinTemp', 'mean(GSR)', 'mean(HR)', 'mean(RR)', 'mean(skinTemp)', 'std(GSR)', 'std(HR)', 'std(RR)', 'std(skinTemp)'])
+df_equidistant = pd.DataFrame(columns=['phoneId', 'location', 'heartRate', 'gsr', 'rrInterval', 'motionType', 'skinTemp', 'mean(GSR)', 'mean(HR)', 'mean(RR)', 'mean(skinTemp)', 'std(GSR)', 'std(HR)', 'std(RR)', 'std(skinTemp)', 'receptivity'])
 
 
 def download_zips():
@@ -74,10 +74,14 @@ def fill_na():
     df.fillna((df.mean()), inplace=True)  # fill remaining NaN upwards with mean
     df.fillna(method='bfill', inplace=True) # fill remaining NaN upwards
 
+def rel(min, max, now):
+    mean = (min + max)/2
+    return (now-mean)/(max-mean)
+
 
 def calc_new_columns():
     global df, df_equidistant
-    timestep = 5000
+    timestep = 3000
 
     phoneIds = df.phoneId.unique() # Get all registered phoneIds
 
@@ -93,17 +97,25 @@ def calc_new_columns():
         maxSkintemp = temp.skinTemperature.max()
         maxRRInterval = temp.rrInterval.max()
 
+        # Min values for user
+        minGSR = temp.gsr.min()
+        minHR = temp.heartRates.min()
+        minSkintemp = temp.skinTemperature.min()
+        minRRInterval = temp.rrInterval.min()
+
+
         for timestamp in temp.index.values:
             if int(timestamp) <= int(start) + timestep: # Combine measurements within a n-milliseconds (= timestep) timeframe
                 temp_equidist = temp_equidist.append(temp.ix[timestamp])
             else:
                 motionType = temp_equidist.motionType.mode()[0] # Most frequent value in time range
+                receptivity = temp_equidist.receptivity.mode()[0] # Most frequent value in time range
 
                 # Percentage of max values
-                GSR = temp_equidist.gsr.mean()/maxGSR
-                HR = temp_equidist.heartRates.mean()/maxHR
-                RR = temp_equidist.rrInterval.mean()/maxRRInterval
-                Skin = temp_equidist.skinTemperature.mean()/maxSkintemp
+                GSR = rel(minGSR, maxGSR, temp_equidist.gsr.mean())
+                HR = rel(minHR, maxHR, temp_equidist.heartRates.mean())
+                RR = rel(minRRInterval, maxRRInterval, temp_equidist.rrInterval.mean())
+                Skin = rel(minSkintemp, maxSkintemp, temp_equidist.skinTemperature.mean())
 
                 # Mean values
                 mGSR = temp_equidist.gsr.mean()
@@ -133,6 +145,7 @@ def calc_new_columns():
                 df_equidistant.set_value(customIndex, 'std(HR)', stdHR)
                 df_equidistant.set_value(customIndex, 'std(RR)', stdRR)
                 df_equidistant.set_value(customIndex, 'std(skinTemp)', stdSkin)
+                df_equidistant.set_value(customIndex, 'receptivity', receptivity)
 
                 # Reset
                 temp_equidist = temp_equidist.iloc[0:0]
@@ -143,6 +156,7 @@ def calc_new_columns():
     #out = df_omnidistant.to_json(orient='records')
     #with open('export.json', 'w') as f:
     #    f.write(out)
+    df_equidistant.to_csv("export.csv", sep='\t', encoding='utf-8')
     print (df_equidistant[:10])
 
 
@@ -190,9 +204,9 @@ def visualize(columnName):
 ####################################################################################################################
 
 
-download_zips()
+#download_zips()
 
-unzip_files()
+#unzip_files()
 
 read_jsons(dir_name_unzipped)
 
