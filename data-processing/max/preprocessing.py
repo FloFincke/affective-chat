@@ -35,7 +35,7 @@ def download_zips():
             except:
                 pass
             os.chdir(path)
-            bucket.download_file(object.key, object.key)
+            bucket.download_file(object.key, str(object.key.split('/')[1]))
             os.chdir(dir)
 
 
@@ -47,7 +47,7 @@ def unzip_files():
         folder = '{0}/'.format(folder)
         for counter, item in enumerate(os.listdir(dir_name_zipped + folder)):  # loop through items in dir
             if item.endswith(extension):  # check for ".zip" extension
-                file_name = os.path.abspath(folder + item)
+                file_name = os.path.abspath(dir_name_zipped + folder + item)
                 zip_ref = zipfile.ZipFile(file_name)
                 zip_ref.extractall(dir_name_unzipped)
 
@@ -56,7 +56,7 @@ def unzip_files():
                 os.rename(dir_name_unzipped + str(temp), dir_name_unzipped + str(counter) + "_" + str(temp))
 
                 zip_ref.close()  # close file
-                # os.remove(file_name) # delete zipped file
+                os.remove(file_name) # delete zipped file
 
 
 def read_jsons(directory):
@@ -157,7 +157,7 @@ def calc_new_columns():
     #with open('export.json', 'w') as f:
     #    f.write(out)
     df_equidistant.to_csv("export.csv", sep='\t', encoding='utf-8')
-    print (df_equidistant[:10])
+    print (df_equidistant[:100])
 
 
 # Calculate the Tukey interquartile range for outlier detection
@@ -204,9 +204,9 @@ def visualize(columnName):
 ####################################################################################################################
 
 
-#download_zips()
+download_zips()
 
-#unzip_files()
+unzip_files()
 
 read_jsons(dir_name_unzipped)
 
