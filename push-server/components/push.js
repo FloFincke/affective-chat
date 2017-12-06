@@ -1,5 +1,6 @@
 const Agenda = require('agenda');
 const apn = require('apn');
+const moment = require('moment');
 
 const database = require('./database');
 
@@ -26,12 +27,14 @@ database.connection.once('open', function() {
     agenda.mongo(database.db);
 
     agenda.define('push', function(job, done) {
-        database.Phone.find({}).exec(function(err, phones) {
-            phones.forEach(function(phone) {
-                newPush(phone._id, phone.token);
+        if (moment().isAfter(moment(10, "HH")) && moment().isBefore(moment(22, "HH"))) {
+            database.Phone.find({}).exec(function(err, phones) {
+                phones.forEach(function(phone) {
+                    newPush(phone._id, phone.token);
+                });
+                done();
             });
-            done();
-        });
+        }
     });
 });
 
