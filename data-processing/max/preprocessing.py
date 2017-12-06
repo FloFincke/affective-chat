@@ -13,7 +13,7 @@ dir_name_unzipped = os.path.join(dir, 'unzipped/')
 
 colNames = ['receptivity', 'location', 'gsr', 'rrInterval', 'motionType', 'skinTemperature', 'heartRates']
 df = pd.DataFrame([])
-df_equidistant = pd.DataFrame(columns=['phoneId', 'location', 'heartRate', 'gsr', 'rrInterval', 'motionType', 'skinTemp', 'mean(GSR)', 'mean(HR)', 'mean(RR)', 'mean(skinTemp)', 'std(GSR)', 'std(HR)', 'std(RR)', 'std(skinTemp)', 'receptivity'])
+df_equidistant = pd.DataFrame(columns=['phoneId', 'location', 'heartRates', 'gsr', 'rrInterval', 'motionType', 'skinTemperature', 'mean(GSR)', 'mean(HR)', 'mean(RR)', 'mean(skinTemp)', 'mad(GSR)', 'mad(HR)', 'mad(RR)', 'mad(skinTemp)', 'std(GSR)', 'std(HR)', 'std(RR)', 'std(skinTemp)', 'receptivity'])
 
 
 def download_zips():
@@ -129,18 +129,28 @@ def calc_new_columns():
                 stdRR = temp_equidist.rrInterval.std()
                 stdSkin = temp_equidist.skinTemperature.std()
 
+                # Mean absolute deviation (mad)
+                madGSR = temp_equidist.gsr.mad()
+                madHR = temp_equidist.heartRates.mad()
+                madRR = temp_equidist.rrInterval.mad()
+                madSkin = temp_equidist.skinTemperature.mad()
+
                 # Set values in dataframe
                 df_equidistant.set_value(customIndex, 'phoneId', temp.ix[timestamp].phoneId)
                 df_equidistant.set_value(customIndex, 'location', temp.ix[timestamp].location)
-                df_equidistant.set_value(customIndex, 'heartRate', HR)
+                df_equidistant.set_value(customIndex, 'heartRates', HR)
                 df_equidistant.set_value(customIndex, 'gsr', GSR)
                 df_equidistant.set_value(customIndex, 'rrInterval', RR)
                 df_equidistant.set_value(customIndex, 'motionType', motionType)
-                df_equidistant.set_value(customIndex, 'skinTemp', Skin)
+                df_equidistant.set_value(customIndex, 'skinTemperature', Skin)
                 df_equidistant.set_value(customIndex, 'mean(GSR)', mGSR)
                 df_equidistant.set_value(customIndex, 'mean(HR)', mHR)
                 df_equidistant.set_value(customIndex, 'mean(RR)', mRR)
                 df_equidistant.set_value(customIndex, 'mean(skinTemp)', mSkin)
+                df_equidistant.set_value(customIndex, 'mad(GSR)', madGSR)
+                df_equidistant.set_value(customIndex, 'mad(HR)', madHR)
+                df_equidistant.set_value(customIndex, 'mad(RR)', madRR)
+                df_equidistant.set_value(customIndex, 'mad(skinTemp)', madSkin)
                 df_equidistant.set_value(customIndex, 'std(GSR)', stdGSR)
                 df_equidistant.set_value(customIndex, 'std(HR)', stdHR)
                 df_equidistant.set_value(customIndex, 'std(RR)', stdRR)
@@ -152,66 +162,55 @@ def calc_new_columns():
                 start = timestamp
                 customIndex += timestep # Update index
 
-    # Export omnidistant dataframe to json
-    #out = df_omnidistant.to_json(orient='records')
-    #with open('export.json', 'w') as f:
-    #    f.write(out)
-    df_equidistant.to_csv("export.csv", sep='\t', encoding='utf-8')
-    print (df_equidistant[:100])
+    df_equidistant.to_csv("export.csv", sep=';', encoding='utf-8')
+    print (df_equidistant[:25])
 
 
 # Calculate the Tukey interquartile range for outlier detection
-def get_iqr(columnName):
-    q75, q25 = np.percentile(df[columnName].dropna(), [75, 25])
+def get_iqr(dframe, columnName):
+    q75, q25 = np.percentile(dframe[columnName].dropna(), [75, 25])
     iqr = q75 - q25
     min = q25 - (iqr * 1.5)
     max = q75 + (iqr * 1.5)
     return min, max
 
 
-# Detect outliers in a specific column of the dataset and plot the results
-def visualize(columnName):
-    min, max = get_iqr(columnName)
+# Plot a specific column of the dataset
+def visualize(columnNames):
 
-    # Chart
-    plt.figure(figsize=(10, 8))
-    plt.subplot(211)
-    plt.xlim(df[columnName].min(), df[columnName].max() * 1.1)
-    plt.axvline(x=min)
-    plt.axvline(x=max)
-    ax = df[columnName].plot(kind='kde')
+    for name in columnNames:
+        min, max = get_iqr(df_equidistant, name)
 
-    # Boxplot
-    plt.subplot(212)
-    plt.xlim(df[columnName].min(), df[columnName].max() * 1.1)
-    sns.boxplot(x=df[columnName])
-    plt.axvline(x=min)
-    plt.axvline(x=max)
+        # Chart
+        fig = plt.figure(figsize=(10, 8))
+        plt.subplot(211)
+        plt.xlim(df_equidistant[name].min(), df_equidistant[name].max() * 1.1)
+        plt.axvline(x=min)
+        plt.axvline(x=max)
+        fig.suptitle(name)
+        ax = df_equidistant[name].plot(kind='kde')
 
-    df['Outlier'] = 0
-    df.loc[df[columnName] < min, 'Outlier'] = 1
-    df.loc[df[columnName] > max, 'Outlier'] = 1
-
-    # Print timestamps of outliers in this particular column
-    for key in df['Outlier'].keys():
-        if df['Outlier'][key] == 1:
-            print(key)
-
+        # Boxplot
+        plt.subplot(212)
+        plt.xlim(df_equidistant[name].min(), df_equidistant[name].max() * 1.1)
+        sns.boxplot(data=df_equidistant[name])
+        plt.axvline(x=min)
+        plt.axvline(x=max)
     plt.show()
 
+
 def remove_outliers(columnName):
-    min, max = get_iqr(columnName)
+    min, max = get_iqr(df, columnName)
     df['Outlier'] = 0
     df.loc[df[columnName] < min, 'Outlier'] = 1
     df.loc[df[columnName] > max, 'Outlier'] = 1
-
-    print(len(df.index))
 
     for key in df['Outlier'].keys():
         if df['Outlier'][key] == 1:
             df.drop(key, inplace=True)
 
-    print(len(df.index))
+    del df['Outlier'] # Remove outlier column
+
 
 ####################################################################################################################
 ####################################################################################################################
@@ -232,7 +231,6 @@ fill_na()
 
 calc_new_columns()
 
-
-#visualize(colNames[3]) # Visualize the value distribution and outliers of a given column. 1 = 'receptivity', 2 = 'location' ...
+visualize(['heartRates','gsr', 'mad(GSR)']) # Visualize the value distribution of a given column.
 
 #df.fillna(0, inplace=True) # Replace all "NaN" with 0
