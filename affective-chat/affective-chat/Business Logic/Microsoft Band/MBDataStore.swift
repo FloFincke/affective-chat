@@ -76,7 +76,6 @@ class MBDataStore {
                 return Observable.just(())
         }
 
-
         let endpoint = ServerAPI.newData(
             id: phoneId,
             data: zipData,
