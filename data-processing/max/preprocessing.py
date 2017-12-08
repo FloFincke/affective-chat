@@ -108,8 +108,17 @@ def calc_new_columns():
             if int(timestamp) <= int(start) + timestep: # Combine measurements within a n-milliseconds (= timestep) timeframe
                 temp_equidist = temp_equidist.append(temp.ix[timestamp])
             else:
-                motionType = temp_equidist.motionType.mode()[0] # Most frequent value in time range
-                receptivity = temp_equidist.receptivity.mode()[0] # Most frequent value in time range
+                motionType = -2
+                receptivity = -2
+                try:
+                    motionType = temp_equidist.motionType.mode()[0] # Most frequent value in time range
+                except:
+                    pass
+
+                try:
+                    receptivity = temp_equidist.receptivity.mode()[0]  # Most frequent value in time range
+                except:
+                    pass
 
                 # Percentage of max values
                 GSR = rel(minGSR, maxGSR, temp_equidist.gsr.mean())
@@ -163,7 +172,7 @@ def calc_new_columns():
                 customIndex += timestep # Update index
 
     df_equidistant.to_csv("export.csv", sep=';', encoding='utf-8')
-    print (df_equidistant[:25])
+    print (df_equidistant[:5])
 
 
 # Calculate the Tukey interquartile range for outlier detection
