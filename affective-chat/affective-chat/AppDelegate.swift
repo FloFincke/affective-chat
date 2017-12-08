@@ -176,7 +176,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         if let duration = userInfo["duration"] as? Double,
             let timeout = userInfo["timeout"] as? Double {
-            dataCollectionHandler.start(withDuration: 10, timeoutAfter: 5)
+            dataCollectionHandler.start(withDuration: duration, timeoutAfter: timeout)
         } else {
             log.warning("invalid notification received")
         }
