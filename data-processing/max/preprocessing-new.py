@@ -82,13 +82,31 @@ def fill_na_and_remove_outliers():
         measurements[key].fillna(method='ffill', inplace=True) # fill NaN downwards
         measurements[key].fillna((measurements[key].mean()), inplace=True)  # fill remaining NaN upwards with mean
         measurements[key].fillna(method='bfill', inplace=True) # fill remaining NaN upwards
+        measurements[key].fillna(value=-1, inplace=True)  # fill columns with no numerical value at all in it with -1
         measurements[key] = remove_outliers(measurements[key])
 
 
 def calc_features():
     global measurements, results
 
-    results = pd.DataFrame(columns=['name', 'location', 'motionType', 'mean(GSR)', 'mean(HR)', 'mean(RR)', 'mean(skinTemp)', 'mad(GSR)', 'mad(HR)', 'mad(RR)', 'mad(skinTemp)', 'std(GSR)', 'std(HR)', 'std(RR)', 'std(skinTemp)', 'receptivity'])
+    results = pd.DataFrame(columns=[
+        'name',
+        'location',
+        'motionType',
+        'mean(GSR)',
+        'mean(HR)',
+        'mean(RR)',
+        'mean(skinTemp)',
+        'mad(GSR)',
+        'mad(HR)',
+        'mad(RR)',
+        'mad(skinTemp)',
+        'std(GSR)',
+        'std(HR)',
+        'std(RR)',
+        'std(skinTemp)',
+        'receptivity'
+    ])
 
     for key in measurements:
         measurement = measurements[key]
@@ -122,7 +140,7 @@ def calc_features():
         madGSR = measurement.gsr.mad()
         madHR = measurement.heartRates.mad()
         madRR = measurement.rrInterval.mad()
-        madSkin = measurement.skinTemperature.mad()  
+        madSkin = measurement.skinTemperature.mad()
 
         #Physiological calc
 
@@ -130,12 +148,16 @@ def calc_features():
         location = measurement['location'][0] #TODO: Should be cloustered and therefore just have an ENUM or so
         motionType = measurement['motionType'][0] #TODO: Should be also just one value for the whole session. Maybe we can guess this somehow?
         receptivity = measurement['receptivity'][0]
+        id = measurement['phoneId'][0]
 
-        results.loc[-1] = [key, location, motionType, mGSR, mHR, mRR, mSkin, madGSR, madHR, madRR, madSkin, stdGSR, stdHR, stdRR, stdSkin, receptivity]
+        results.loc[-1] = [id, location, motionType, mGSR, mHR, mRR, mSkin, madGSR, madHR, madRR, madSkin, stdGSR, stdHR, stdRR, stdSkin, receptivity]
         results.index = results.index + 1  # shifting index
         results = results.sort_index()  # sorting by index
 
-    results.to_csv("export-new.csv", sep=';', encoding='utf-8')
+    ids = results.name.unique()
+    for id in ids:
+        results.loc[results.name == id].to_csv(str(id) + "_export", sep=";", encoding="utf-8")
+
 
 # Calculate the Tukey interquartile range for outlier detection
 def get_iqr(dframe, columnName):
@@ -146,27 +168,29 @@ def get_iqr(dframe, columnName):
     return min, max
 
 def remove_outliers(dframe):
+    tFrame = dframe
     global outlierColumns
+    print (tFrame)
     for column in outlierColumns:
-        min, max = get_iqr(dframe, column)
-        dframe['Outlier'] = 0
-        dframe.loc[dframe[column] < min, 'Outlier'] = 1
-        dframe.loc[dframe[column] > max, 'Outlier'] = 1
+        min, max = get_iqr(tFrame, column)
+        tFrame['Outlier'] = 0
+        tFrame.loc[dframe[column] < min, 'Outlier'] = 1
+        tFrame.loc[dframe[column] > max, 'Outlier'] = 1
 
-        for key in dframe['Outlier'].keys():
-            if dframe['Outlier'][key] == 1:
-                dframe.drop(key, inplace=True)
+        for key in tFrame['Outlier'].keys():
+            if tFrame['Outlier'][key] == 1:
+                tFrame.drop(key, inplace=True)
 
-        del dframe['Outlier'] # Remove outlier column
-    return dframe
+        del tFrame['Outlier'] # Remove outlier column
+    return tFrame
 
 ####################################################################################################################
 ####################################################################################################################
 
 
-#download_zips()
+download_zips()
 
-#unzip_files()
+unzip_files()
 
 read_jsons(dir_name_unzipped)
 fill_na_and_remove_outliers()

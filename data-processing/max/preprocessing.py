@@ -215,7 +215,7 @@ def remove_outliers(columnName):
     df.loc[df[columnName] > max, 'Outlier'] = 1
 
     for key in df['Outlier'].keys():
-        if df['Outlier'][key] == 1:
+        if (df['Outlier'][key].any() == 1):
             df.drop(key, inplace=True)
 
     del df['Outlier'] # Remove outlier column
@@ -225,9 +225,9 @@ def remove_outliers(columnName):
 ####################################################################################################################
 
 
-#download_zips()
+download_zips()
 
-#unzip_files()
+unzip_files()
 
 read_jsons(dir_name_unzipped)
 
