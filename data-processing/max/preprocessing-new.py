@@ -5,13 +5,13 @@ import matplotlib.pyplot as plt #Visualization
 import seaborn as sns #Visualization
 import os, zipfile #Unzipping
 import boto3 #AWS Download
+import physi_calc #Physiological calculaction
 
 # GLOBAL VARIABLES #
 dir = os.path.dirname(os.path.realpath(__file__))
 dir_name_zipped = os.path.join(dir, 'zipped/')
 dir_name_unzipped = os.path.join(dir, 'unzipped/')
 
-colNames = ['receptivity', 'location', 'gsr', 'rrInterval', 'motionType', 'skinTemperature', 'heartRates']
 measurements = {}
 results = []
 outlierColumns = ['heartRates', 'gsr', 'rrInterval', 'skinTemperature']
@@ -90,59 +90,65 @@ def calc_features():
     global measurements, results
 
     results = pd.DataFrame(columns=[
-        'name',
+        'phoneId',
         'location',
         'motionType',
-        'mean(GSR)',
+        'mean(SCL)',
+        'mean(SCR)',
         'mean(HR)',
         'mean(RR)',
         'mean(skinTemp)',
-        'mad(GSR)',
+        'mad(SCL)',
+        'mad(SCR)',
         'mad(HR)',
         'mad(RR)',
         'mad(skinTemp)',
-        'std(GSR)',
+        'std(SCL)',
+        'std(SCR)',
         'std(HR)',
         'std(RR)',
         'std(skinTemp)',
+        'RMSSD',
+        'SDNN',
+        'NN50',
+        'PNN50',
         'receptivity'
     ])
 
     for key in measurements:
-        measurement = measurements[key]
+        measurement = clean(measurements[key])
+        print(measurement.location)
 
-
-        # Max values for user TODO: Do we need them anymore?
-        maxGSR = measurement.gsr.max()
-        maxHR = measurement.heartRates.max()
-        maxSkintemp = measurement.skinTemperature.max()
-        maxRRInterval = measurement.rrInterval.max()
-
-        # Min values for user TODO: Do we need them anymore?
-        minGSR = measurement.gsr.min()
-        minHR = measurement.heartRates.min()
-        minSkintemp = measurement.skinTemperature.min()
-        minRRInterval = measurement.rrInterval.min() 
+        SCL = pd.DataFrame(physi_calc.scl(measurement.gsr.tolist()))
+        SCR = pd.DataFrame(physi_calc.scr(measurement.gsr.tolist()))
 
         # Mean values
-        mGSR = measurement.gsr.mean()
+        mSCL = SCL[0].mean()
+        mSCR = SCR[0].mean()
         mHR = measurement.heartRates.mean()
         mRR = measurement.rrInterval.mean()
         mSkin = measurement.skinTemperature.mean()
 
         # Standard deviation
-        stdGSR = measurement.gsr.std()
+        stdSCL = SCL[0].std()
+        stdSCR = SCR[0].std()
         stdHR = measurement.heartRates.std()
         stdRR = measurement.rrInterval.std()
         stdSkin = measurement.skinTemperature.std()
 
         # Mean absolute deviation (mad)
-        madGSR = measurement.gsr.mad()
+        madSCL = SCL[0].mad()
+        madSCR = SCR[0].mad()        
         madHR = measurement.heartRates.mad()
         madRR = measurement.rrInterval.mad()
         madSkin = measurement.skinTemperature.mad()
 
-        #Physiological calc
+        #RR calc
+        rr_values = physi_calc.rr_calc(measurement.rrInterval.tolist())
+        RMSSD = rr_values['rmssd']
+        SDNN = rr_values['sdnn']
+        NN50 = rr_values['nn50']
+        PNN50 = rr_values['pnn50']
 
         #Other params
         location = measurement['location'][0] #TODO: Should be cloustered and therefore just have an ENUM or so
@@ -150,13 +156,13 @@ def calc_features():
         receptivity = measurement['receptivity'][0]
         id = measurement['phoneId'][0]
 
-        results.loc[-1] = [id, location, motionType, mGSR, mHR, mRR, mSkin, madGSR, madHR, madRR, madSkin, stdGSR, stdHR, stdRR, stdSkin, receptivity]
+        results.loc[-1] = [id, location, motionType, mSCL, mSCR, mHR, mRR, mSkin, madSCL, madSCR, madHR, madRR, madSkin, stdSCL, stdSCR, stdHR, stdRR, stdSkin, RMSSD, SDNN, NN50, PNN50, receptivity]
         results.index = results.index + 1  # shifting index
         results = results.sort_index()  # sorting by index
 
-    ids = results.name.unique()
+    ids = results.phoneId.unique()
     for id in ids:
-        results.loc[results.name == id].to_csv(str(id) + "_export", sep=";", encoding="utf-8")
+        results.loc[results.phoneId == id].to_csv(str(id) + "_export.csv", sep=";", encoding="utf-8")
 
 
 # Calculate the Tukey interquartile range for outlier detection
@@ -167,31 +173,33 @@ def get_iqr(dframe, columnName):
     max = q75 + (iqr * 1.5)
     return min, max
 
-def remove_outliers(dframe):
-    tFrame = dframe
-    global outlierColumns
-    print (tFrame)
-    for column in outlierColumns:
-        min, max = get_iqr(tFrame, column)
-        tFrame['Outlier'] = 0
-        tFrame.loc[dframe[column] < min, 'Outlier'] = 1
-        tFrame.loc[dframe[column] > max, 'Outlier'] = 1
+def clean(dframe):
+    dframe.fillna(method='ffill', inplace=True) # fill NaN downwards
+#    dframe.fillna((dframe.mean()), inplace=True)  # fill remaining NaN upwards with mean
+    dframe.fillna(method='bfill', inplace=True) # fill remaining NaN upwards
+    dframe.fillna(value=-1, inplace=True)  # fill columns with no numerical value at all in it with -1
+    for column in dframe:        
+        if (column in outlierColumns):    
+            min, max = get_iqr(dframe, column)
+            dframe['Outlier'] = 0
+            dframe.loc[dframe[column] < min, 'Outlier'] = 1
+            dframe.loc[dframe[column] > max, 'Outlier'] = 1
 
-        for key in tFrame['Outlier'].keys():
-            if tFrame['Outlier'][key] == 1:
-                tFrame.drop(key, inplace=True)
+            for key in dframe['Outlier'].keys():
+                if dframe['Outlier'][key] == 1:
+                    dframe.drop(key, inplace=True)
 
-        del tFrame['Outlier'] # Remove outlier column
-    return tFrame
+            del dframe['Outlier'] # Remove outlier column
+
+    return dframe
 
 ####################################################################################################################
 ####################################################################################################################
 
 
-download_zips()
+#download_zips()
 
-unzip_files()
+#unzip_files()
 
 read_jsons(dir_name_unzipped)
-fill_na_and_remove_outliers()
 calc_features()
