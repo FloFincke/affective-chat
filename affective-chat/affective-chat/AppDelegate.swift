@@ -81,6 +81,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window?.makeKeyAndVisible()
 
         // Handle Notification
+        log.debug(launchOptions?[.remoteNotification])
         if let notification = launchOptions?[.remoteNotification] as? [AnyHashable: Any] {
             handleNotification(userInfo: notification)
         }
@@ -147,19 +148,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         didReceiveRemoteNotification userInfo: [AnyHashable: Any],
         fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
 
-        guard let aps = userInfo["aps"] as? [String: Any],
-            let contentAvailable = aps["content-available"] as? Int
-            else { return }
-
-        let isSilent = contentAvailable == 1
-
-        if application.applicationState == .inactive
-            || application.applicationState == .background
-            || isSilent {
-            handleNotification(userInfo: userInfo)
-        } else {
-            log.verbose("app is active")
-        }
+        guard let aps = userInfo["aps"] as? [String: Any] else { return }
+        handleNotification(userInfo: userInfo)
     }
 
     // MARK: - Private Functions
