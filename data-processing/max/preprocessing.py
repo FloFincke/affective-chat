@@ -11,9 +11,9 @@ dir = os.path.dirname(os.path.realpath(__file__))
 dir_name_zipped = os.path.join(dir, 'zipped/')
 dir_name_unzipped = os.path.join(dir, 'unzipped/')
 
-colNames = ['receptivity', 'location', 'gsr', 'rrInterval', 'motionType', 'skinTemperature', 'heartRates']
+cols = ['phoneId', 'location', 'heartRates', 'gsr', 'rrInterval', 'motionType', 'skinTemperature', 'mean(GSR)', 'mean(HR)', 'mean(RR)', 'mean(skinTemp)', 'mad(GSR)', 'mad(HR)', 'mad(RR)', 'mad(skinTemp)', 'std(GSR)', 'std(HR)', 'std(RR)', 'std(skinTemp)', 'receptivity']
 df = pd.DataFrame([])
-df_equidistant = pd.DataFrame(columns=['phoneId', 'location', 'heartRates', 'gsr', 'rrInterval', 'motionType', 'skinTemperature', 'mean(GSR)', 'mean(HR)', 'mean(RR)', 'mean(skinTemp)', 'mad(GSR)', 'mad(HR)', 'mad(RR)', 'mad(skinTemp)', 'std(GSR)', 'std(HR)', 'std(RR)', 'std(skinTemp)', 'receptivity'])
+df_equidistant = pd.DataFrame(columns=cols)
 
 
 def download_zips():
