@@ -11,6 +11,8 @@ import UIKit
 class ListView: UIView {
 
     let label = UILabel()
+    let testTrackingButton = UIButton()
+
     private var shouldSetupConstraints = true
 
     // MARK: - Lifecycle
@@ -18,7 +20,12 @@ class ListView: UIView {
     init() {
         super.init(frame: CGRect.zero)
         backgroundColor = UIColor.white
+
         addSubview(label)
+
+        testTrackingButton.setTitleColor(UIColor.red, for: .normal)
+        testTrackingButton.setTitle("Start Tracking", for: .normal)
+        addSubview(testTrackingButton)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -32,5 +39,9 @@ class ListView: UIView {
         super.updateConstraints()
 
         label.autoCenterInSuperview()
+
+        testTrackingButton.autoSetDimensions(to: CGSize(width: 200, height: 54))
+        testTrackingButton.autoAlignAxis(toSuperviewAxis: .vertical)
+        testTrackingButton.autoPinEdge(.top, to: .bottom, of: label)
     }
 }

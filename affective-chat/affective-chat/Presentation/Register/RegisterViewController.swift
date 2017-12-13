@@ -40,7 +40,9 @@ class RegisterViewController: UIViewController {
         viewModel.isRegistered
             .filter { $0 }
             .drive(onNext: { _ in
-                UIApplication.shared.keyWindow?.rootViewController = ListViewController()
+                if let appDelegate = UIApplication.shared.delegate as? AppDelegate {
+                    appDelegate.presentList()
+                }
             })
             .disposed(by: disposeBag)
     }

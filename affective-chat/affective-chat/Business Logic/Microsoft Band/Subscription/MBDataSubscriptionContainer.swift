@@ -7,12 +7,17 @@
 //
 
 import Foundation
+import RxCocoa
 import RxSwift
 
 class MBDataSubscriptionContainer {
 
     var isConnected = false
     var trackingUpdate = PublishSubject<Void>()
+    var trackingCancelled: Observable<Void>
+
+    private var bandHasNoContact = Variable(false)
+    private var gsrTooHigh = Variable(false)
 
     private var subscribers: [MBDataSubscriber]!
     private let disposeBag = DisposeBag()
@@ -30,6 +35,11 @@ class MBDataSubscriptionContainer {
          subscriberFactory: MBDataSubscriberFactory,
          subscriptionTypes: [SubscriptionType]) {
 
+        self.trackingCancelled = Observable
+            .combineLatest(bandHasNoContact.asObservable(), gsrTooHigh.asObservable()) { $0 || $1 }
+            .filter { $0 }
+            .map { _ in }
+
         self.connection = connection
         self.dataStore = dataStore
         self.subscriberFactory = subscriberFactory
@@ -38,6 +48,14 @@ class MBDataSubscriptionContainer {
             if let heartRateSubscriber = subscriber as? HeartRateSubscriber {
                 heartRateSubscriber.trackingUpdate
                     .bind(to: trackingUpdate)
+                    .disposed(by: disposeBag)
+            } else if let bandContactSubscriber = subscriber as? BandContactSubscriber {
+                bandContactSubscriber.bandHasNoContact.map { _ in true }
+                    .bind(to: bandHasNoContact)
+                    .disposed(by: disposeBag)
+            } else if let gsrSubscriber = subscriber as? GSRSubscriber {
+                gsrSubscriber.gsrTooHigh.map { _ in true }
+                    .bind(to: gsrTooHigh)
                     .disposed(by: disposeBag)
             }
             return subscriber

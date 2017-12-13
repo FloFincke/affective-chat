@@ -14,9 +14,10 @@ enum SubscriptionType {
     case skinTemperature
     case rrInterval
     case motionType
+    case bandContact
 
     static var all: [SubscriptionType] {
-        return [heartRate, gsr, skinTemperature, rrInterval, motionType]
+        return [heartRate, gsr, skinTemperature, rrInterval, motionType, bandContact]
     }
 }
 
@@ -40,6 +41,9 @@ class MBDataSubscriberFactory {
 
         case .motionType:
             return MotionTypeSubscriber()
+
+        case .bandContact:
+            return BandContactSubscriber()
         }
     }
 }

@@ -45,7 +45,12 @@ class NotificationHandler: NSObject {
         UNUserNotificationCenter.current().add(request)
     }
 
-    func registerForPushNotifications() {
+    func cancelIsReceptibleNotification() {
+        log.info("cancelling isReceptible notification")
+        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+    }
+
+    func registerForPushNotifications() {w
         UNUserNotificationCenter
             .current()
             .requestAuthorization(options: [.alert, .sound, .badge]) { (granted, error) in
