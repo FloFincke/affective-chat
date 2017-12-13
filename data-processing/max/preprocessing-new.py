@@ -197,9 +197,9 @@ def clean(dframe):
 ####################################################################################################################
 
 
-#download_zips()
+download_zips()
 
-#unzip_files()
+unzip_files()
 
 read_jsons(dir_name_unzipped)
 calc_features()
