@@ -19,19 +19,23 @@ const apnOptions = {
     production: false
 };
 
-const apnProvider = new apn.Provider(apnOptions);
-
 const agenda = new Agenda();
+
+let apnProvider;
+let pushesLeft = 0;
 
 database.connection.once('open', function() {
     agenda.mongo(database.db);
 
     agenda.define('push', function(job, done) {
         if (moment().isAfter(moment(10, "HH")) && moment().isBefore(moment(22, "HH"))) {
+            apnProvider = new apn.Provider(apnOptions);
             database.Phone.find({}).exec(function(err, phones) {
+                pushesLeft = phones.length;
                 phones.forEach(function(phone) {
                     newPush(phone._id, phone.token);
                 });
+                apnProvider.shutdown();
                 done();
             });
         }
@@ -61,6 +65,12 @@ function newPush(phoneId, token) {
     note.topic = "de.lmu.ifi.mobile.affective-chat";
 
     apnProvider.send(note, token).then((result) => {
+
+        pushesLeft--;
+
+        if(pushesLeft == 0) {
+            apnProvider.shutdown();
+        }
 
         //TODO: check for errors
         console.log(new Date() + "-- pushed to :" + token);
