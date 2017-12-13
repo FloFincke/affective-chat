@@ -7,10 +7,14 @@
 //
 
 import Foundation
+import RxSwift
 
 private let gsrKey = "gsr"
+private let gsrThreshold = 15000
 
 class GSRSubscriber: MBDataSubscriber {
+
+    var gsrTooHigh = PublishSubject<Void>()
 
     private lazy var gsrUpdateHandler: (MSBSensorGSRData?, Error?) -> Void = {
         if let error = $1 {
@@ -18,7 +22,11 @@ class GSRSubscriber: MBDataSubscriber {
         }
 
         if let resistance = $0?.resistance, self.shouldWriteDate {
-            self.data[Date().stringTimeIntervalSince1970InMilliseconds] = resistance
+            if resistance > gsrThreshold {
+                self.gsrTooHigh.onNext(())
+            } else {
+                self.data[Date().stringTimeIntervalSince1970InMilliseconds] = resistance
+            }
         }
     }
 
@@ -44,7 +52,11 @@ class GSRSubscriber: MBDataSubscriber {
     }
 
     func stopUpdates() {
-        try? client?.sensorManager.stopGSRUpdatesErrorRef()
+        do {
+            try client?.sensorManager.stopGSRUpdatesErrorRef()
+        } catch {
+            log.error(error)
+        }
     }
 
 }

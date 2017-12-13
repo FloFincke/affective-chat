@@ -54,14 +54,6 @@ class MBDataStore {
         saveSensorData(sensorData)
     }
 
-    func compressSensorData() {
-        do {
-            _ = try Zip.quickZipFiles([sensorDataJsonUrl], fileName: sensorDataFileName)
-        } catch {
-            print(error)
-        }
-    }
-
     func sendSensorData(receptivity: Receptivity,
                         location: CLLocationCoordinate2D) -> Observable<Void> {
 
@@ -85,6 +77,19 @@ class MBDataStore {
         return apiProvider.rx.request(endpoint)
             .asObservable()
             .map { [weak self] _ in self?.deleteSensorData() }
+    }
+
+    func deleteSensorData() {
+        do {
+            if FileManager.default.fileExists(atPath: sensorDataJsonUrl.path) {
+                try FileManager.default.removeItem(at: sensorDataJsonUrl)
+            }
+            if FileManager.default.fileExists(atPath: sensorDataZipUrl.path) {
+                try FileManager.default.removeItem(at: sensorDataZipUrl)
+            }
+        } catch {
+            log.error(error)
+        }
     }
 
     // MARK: - Private Functions
@@ -133,12 +138,12 @@ class MBDataStore {
         )
     }
 
-    private func deleteSensorData() {
+    private func compressSensorData() {
         do {
-            try FileManager.default.removeItem(at: sensorDataJsonUrl)
-            try FileManager.default.removeItem(at: sensorDataZipUrl)
+            _ = try Zip.quickZipFiles([sensorDataJsonUrl], fileName: sensorDataFileName)
         } catch {
-            log.error(error)
+            print(error)
         }
     }
+
 }

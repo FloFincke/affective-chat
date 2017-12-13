@@ -16,14 +16,14 @@ class HeartRateSubscriber: MBDataSubscriber {
     var trackingUpdate = PublishSubject<Void>()
 
     private lazy var hearRateDataUpdateHandler: (MSBSensorHeartRateData?, Error?) -> Void = {
-            self.trackingUpdate.onNext(())
-            if let error = $1 {
-                log.error(error)
-            }
+        self.trackingUpdate.onNext(())
+        if let error = $1 {
+            log.error(error)
+        }
 
-            if let heartRate = $0?.heartRate, self.shouldWriteDate {
-                self.data[Date().stringTimeIntervalSince1970InMilliseconds] = heartRate
-            }
+        if let heartRate = $0?.heartRate, self.shouldWriteDate {
+            self.data[Date().stringTimeIntervalSince1970InMilliseconds] = heartRate
+        }
     }
 
     private var heartRateUserConsentGranted = false
@@ -63,7 +63,11 @@ class HeartRateSubscriber: MBDataSubscriber {
     }
 
     func stopUpdates() {
-        try? client?.sensorManager.stopHeartRateUpdatesErrorRef()
+        do {
+            try client?.sensorManager.stopHeartRateUpdatesErrorRef()
+        } catch {
+            log.error(error)
+        }
     }
 
     // MARK: - Private Functions

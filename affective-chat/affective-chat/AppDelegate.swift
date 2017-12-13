@@ -17,7 +17,7 @@ let log = SwiftyBeaver.self
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-    private var dataCollectionHandler: DataCollectionCycle!
+    private var dataCollectionCycle: DataCollectionCycle!
     private let disposeBag = DisposeBag()
 
     // MARK: - Services
@@ -56,7 +56,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         setupServices()
         notificationHandler.registerForPushNotifications()
 
-        dataCollectionHandler = DataCollectionCycle(
+        dataCollectionCycle = DataCollectionCycle(
             notificationHandler: notificationHandler,
             bandConnection: bandConnection,
             bandDataStore: bandDataStore,
@@ -70,7 +70,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if let username = UserDefaults.standard.value(forKey: Constants.usernameKey),
             let phoneId = UserDefaults.standard.value(forKey: Constants.phoneIdKey) {
             log.info("username: \(username) phoneId: \(phoneId)")
-            viewController = ListViewController()
+
+            let viewModel = ListViewModel(dataCollectionCycle: dataCollectionCycle)
+            viewController = ListViewController(viewModel: viewModel)
         } else {
             let viewModel = RegisterViewModel()
             viewController = RegisterViewController(viewModel: viewModel)
@@ -152,6 +154,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         handleNotification(userInfo: userInfo)
     }
 
+    // MARK: - Public Functions
+
+    func presentList() {
+        let viewModel = ListViewModel(dataCollectionCycle: dataCollectionCycle)
+        let viewController = ListViewController(viewModel: viewModel)
+        window?.rootViewController = viewController
+    }
+
     // MARK: - Private Functions
 
     private func setupServices() {
@@ -176,7 +186,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         if let duration = userInfo["duration"] as? Double,
             let timeout = userInfo["timeout"] as? Double {
-            dataCollectionHandler.start(withDuration: duration, timeoutAfter: timeout)
+            dataCollectionCycle.start(withDuration: duration, timeoutAfter: timeout)
         } else {
             log.warning("invalid notification received")
         }

@@ -11,26 +11,26 @@ import Foundation
 private let motionTypeKey = "motionType"
 
 class MotionTypeSubscriber: MBDataSubscriber {
-
+    
     private lazy var motionTypeUpdateHandler: (MSBSensorDistanceData?, Error?) -> Void = {
         if let error = $1 {
             log.error(error)
         }
-
+        
         if let motionType = $0?.motionType, self.shouldWriteDate {
             self.data[Date().stringTimeIntervalSince1970InMilliseconds] = motionType.rawValue
         }
     }
-
+    
     // MARK: - MBDataSubscriber Conformance
-
+    
     var shouldWriteDate = true
     var client: MSBClient?
     let dataKey = motionTypeKey
     var data = [String: Any]()
-
+    
     // MARK: - Public Functions
-
+    
     func startUpdates() {
         shouldWriteDate = true
         do {
@@ -42,9 +42,13 @@ class MotionTypeSubscriber: MBDataSubscriber {
             log.error(error)
         }
     }
-
+    
     func stopUpdates() {
-        try? client?.sensorManager.stopDistanceUpdatesErrorRef()
+        do {
+            try client?.sensorManager.stopDistanceUpdatesErrorRef()
+        } catch {
+            log.error(error)
+        }
     }
-
+    
 }

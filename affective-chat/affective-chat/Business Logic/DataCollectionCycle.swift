@@ -60,6 +60,13 @@ class DataCollectionCycle {
                 }
             })
             .disposed(by: disposeBag)
+
+        self.dataSubscriptionContainer.trackingCancelled
+            .subscribe(onNext: { [weak self] _ in
+                guard let strongSelf = self else { return }
+                strongSelf.cancel()
+            })
+            .disposed(by: disposeBag)
     }
     
     // MARK: - Public Functions
@@ -146,5 +153,12 @@ class DataCollectionCycle {
             .disposed(by: disposeBag)
     }
 
+    private func cancel() {
+        notificationHandler.cancelIsReceptibleNotification()
+        dataSubscriptionContainer.stopWritingData()
+        dataSubscriptionContainer.stopSubscriptions()
+        bandDataStore.deleteSensorData()
+        isReady = true
+    }
     
 }
