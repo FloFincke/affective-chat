@@ -28,17 +28,14 @@ database.connection.once('open', function() {
     agenda.mongo(database.db);
 
     agenda.define('push', function(job, done) {
-        if (moment().isAfter(moment(10, "HH")) && moment().isBefore(moment(22, "HH"))) {
-            apnProvider = new apn.Provider(apnOptions);
-            database.Phone.find({}).exec(function(err, phones) {
-                pushesLeft = phones.length;
-                phones.forEach(function(phone) {
-                    newPush(phone._id, phone.token);
-                });
-                apnProvider.shutdown();
-                done();
+        apnProvider = new apn.Provider(apnOptions);
+        database.Phone.find({}).exec(function(err, phones) {
+            pushesLeft = phones.length;
+            phones.forEach(function(phone) {
+                newPush(phone._id, phone.token);
             });
-        }
+            done();
+        });
     });
 });
 
