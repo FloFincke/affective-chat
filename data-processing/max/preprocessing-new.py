@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt #Visualization
 import seaborn as sns #Visualization
 import os, zipfile #Unzipping
 import boto3 #AWS Download
-import 'helper/physi_calc' #Physiological calculaction
+import physi_calc #Physiological calculaction
 
 # GLOBAL VARIABLES #
 dir = os.path.dirname(os.path.realpath(__file__))
@@ -99,6 +99,9 @@ def calc_features():
         'std(RR)',
         'std(skinTemp)',
         'RMSSD',
+        'LF',
+        'HF',
+        'LF/HF',
         'receptivity'
     ])
 
@@ -130,8 +133,12 @@ def calc_features():
         madSkin = measurement.skinTemperature.mad()
 
         #RR calc
-        rr_values = physi_calc.rr_calc(measurement.rrInterval.tolist())
-        RMSSD = rr_values['rmssd']
+        rri = measurement.rrInterval.tolist()
+        RMSSD = physi_calc.rmssd(rri)
+        freq = physi_calc.freq(rri)
+        LF = freq['lf']
+        HF = freq['hf']
+        LFHF = freq['lf_hf']
 
         #Other params
         location = measurement.location[measurement.location.first_valid_index()] #TODO: Should be cloustered and therefore just have an ENUM or so
@@ -141,7 +148,8 @@ def calc_features():
             receptivity = -1
         id = measurement['phoneId'][0]
 
-        results.loc[-1] = [id, location, motionType, mSCL, mSCR, mHR, mRR, mSkin, madSCL, madSCR, madHR, madRR, madSkin, stdSCL, stdSCR, stdHR, stdRR, stdSkin, RMSSD, receptivity]
+        results.loc[-1] = [id, location, motionType, mSCL, mSCR, mHR, mRR, mSkin, madSCL, madSCR, madHR, madRR, madSkin, 
+            stdSCL, stdSCR, stdHR, stdRR, stdSkin, RMSSD, LF, HF, LFHF, receptivity]
         results.index = results.index + 1  # shifting index
         results = results.sort_index()  # sorting by index
 
@@ -160,7 +168,7 @@ def get_iqr(dframe, columnName):
 
 def clean(dframe):
     for column in dframe:        
-        if (column in outlierColumns):
+        if (column in calcColumns):
             dframe.fillna(method='ffill', inplace=True) # fill NaN downwards
         #    dframe.fillna((dframe.mean()), inplace=True)  # fill remaining NaN upwards with mean
             dframe.fillna(method='bfill', inplace=True) # fill remaining NaN upwards

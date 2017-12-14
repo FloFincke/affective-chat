@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import numpy as np
+from hrv.classical import frequency_domain
 
 def scl(gsr):
 	scl = []
@@ -42,7 +43,7 @@ def rmssd(rr):
 		sum += (rr[i - 1] - rr[i]) * (rr[i - 1] - rr[i])
 	
 	return np.sqrt(sum / (len(rr) - 1))
-
+	
 def baevsky(rr):
 	mode = 0
 	maxCount = 0
@@ -72,4 +73,11 @@ def baevsky(rr):
 			
 	return amplitudeMode / (2 * mode * mxdmn)
 
-def 
+def freq(rr):
+	return frequency_domain(
+	    rri=rr,
+	    fs=1.0,
+	    method='welch',
+	    interp_method='cubic',
+	    detrend='linear'
+	)
