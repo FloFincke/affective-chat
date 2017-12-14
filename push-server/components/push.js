@@ -63,14 +63,14 @@ function newPush(phoneId, token) {
 
     apnProvider.send(note, token).then((result) => {
 
+        //TODO: check for errors
+        console.log(new Date() + " -- " + JSON.stringify(result));
+
         pushesLeft--;
 
         if(pushesLeft == 0) {
             apnProvider.shutdown();
         }
-
-        //TODO: check for errors
-        console.log(new Date() + "-- pushed to :" + token);
 
         const log = new database.Log({
             id: phoneId,

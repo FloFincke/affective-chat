@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-from hrv.classical import time_domain
 import numpy as np
-import math
 
 def scl(gsr):
 	scl = []
@@ -37,7 +35,41 @@ def scr(gsr):
 
 	return(scr)		
 
+def rmssd(rr):
+	sum = 0;
 
-def rr_calc(rr):
-	results = time_domain(rr)
-	return(results)
+	for i in range(1, len(rr)-1):
+		sum += (rr[i - 1] - rr[i]) * (rr[i - 1] - rr[i])
+	
+	return np.sqrt(sum / (len(rr) - 1))
+
+def baevsky(rr):
+	mode = 0
+	maxCount = 0
+
+	for anA in rr:
+		count = 0
+		for anA1 in rr:
+
+			# Because the elements are of floating point precision they are
+			# almost never the same.
+			# Therefore they have to be in a certain range.
+			if (not ((anA1 > anA * 1.05) or (anA1 < anA * 0.95))):
+				count += 1
+		
+		if count > maxCount:
+			maxCount = count
+			mode = anA
+
+	counter = 0
+	for aRrinterval in rr:
+		if (not ((aRrinterval > mode * 1.05) or (aRrinterval < mode * 0.95))):
+			counter += 1
+			
+	amplitudeMode = counter / len(rr)
+	
+	mxdmn = max(rr) - min(rr)
+			
+	return amplitudeMode / (2 * mode * mxdmn)
+
+def 

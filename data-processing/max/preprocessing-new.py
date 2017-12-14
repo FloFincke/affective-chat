@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt #Visualization
 import seaborn as sns #Visualization
 import os, zipfile #Unzipping
 import boto3 #AWS Download
-import physi_calc #Physiological calculaction
+import 'helper/physi_calc' #Physiological calculaction
 
 # GLOBAL VARIABLES #
 dir = os.path.dirname(os.path.realpath(__file__))
@@ -14,7 +14,7 @@ dir_name_unzipped = os.path.join(dir, 'unzipped/')
 
 measurements = {}
 results = []
-outlierColumns = ['heartRates', 'gsr', 'rrInterval', 'skinTemperature']
+calcColumns = ['heartRates', 'gsr', 'rrInterval', 'skinTemperature']
 
 def download_zips():
     BUCKET_NAME = 'affective-chat'  # replace with your bucket name
@@ -76,16 +76,6 @@ def read_jsons(directory):
             temp.sort_index(inplace=True)
             measurements[file] = temp
 
-def fill_na_and_remove_outliers():
-    global measurements
-    for key in measurements: # TODO: doesn't need to happen for all columns
-        measurements[key].fillna(method='ffill', inplace=True) # fill NaN downwards
-        measurements[key].fillna((measurements[key].mean()), inplace=True)  # fill remaining NaN upwards with mean
-        measurements[key].fillna(method='bfill', inplace=True) # fill remaining NaN upwards
-        measurements[key].fillna(value=-1, inplace=True)  # fill columns with no numerical value at all in it with -1
-        measurements[key] = remove_outliers(measurements[key])
-
-
 def calc_features():
     global measurements, results
 
@@ -109,15 +99,11 @@ def calc_features():
         'std(RR)',
         'std(skinTemp)',
         'RMSSD',
-        'SDNN',
-        'NN50',
-        'PNN50',
         'receptivity'
     ])
 
     for key in measurements:
         measurement = clean(measurements[key])
-        print(measurement.location)
 
         SCL = pd.DataFrame(physi_calc.scl(measurement.gsr.tolist()))
         SCR = pd.DataFrame(physi_calc.scr(measurement.gsr.tolist()))
@@ -146,17 +132,16 @@ def calc_features():
         #RR calc
         rr_values = physi_calc.rr_calc(measurement.rrInterval.tolist())
         RMSSD = rr_values['rmssd']
-        SDNN = rr_values['sdnn']
-        NN50 = rr_values['nn50']
-        PNN50 = rr_values['pnn50']
 
         #Other params
-        location = measurement['location'][0] #TODO: Should be cloustered and therefore just have an ENUM or so
-        motionType = measurement['motionType'][0] #TODO: Should be also just one value for the whole session. Maybe we can guess this somehow?
-        receptivity = measurement['receptivity'][0]
+        location = measurement.location[measurement.location.first_valid_index()] #TODO: Should be cloustered and therefore just have an ENUM or so
+        motionType = measurement.motionType.median() # is this enough?
+        receptivity = measurement.receptivity[measurement.receptivity.first_valid_index()] 
+        if(receptivity == 0):
+            receptivity = -1
         id = measurement['phoneId'][0]
 
-        results.loc[-1] = [id, location, motionType, mSCL, mSCR, mHR, mRR, mSkin, madSCL, madSCR, madHR, madRR, madSkin, stdSCL, stdSCR, stdHR, stdRR, stdSkin, RMSSD, SDNN, NN50, PNN50, receptivity]
+        results.loc[-1] = [id, location, motionType, mSCL, mSCR, mHR, mRR, mSkin, madSCL, madSCR, madHR, madRR, madSkin, stdSCL, stdSCR, stdHR, stdRR, stdSkin, RMSSD, receptivity]
         results.index = results.index + 1  # shifting index
         results = results.sort_index()  # sorting by index
 
@@ -174,12 +159,12 @@ def get_iqr(dframe, columnName):
     return min, max
 
 def clean(dframe):
-    dframe.fillna(method='ffill', inplace=True) # fill NaN downwards
-#    dframe.fillna((dframe.mean()), inplace=True)  # fill remaining NaN upwards with mean
-    dframe.fillna(method='bfill', inplace=True) # fill remaining NaN upwards
-    dframe.fillna(value=-1, inplace=True)  # fill columns with no numerical value at all in it with -1
     for column in dframe:        
-        if (column in outlierColumns):    
+        if (column in outlierColumns):
+            dframe.fillna(method='ffill', inplace=True) # fill NaN downwards
+        #    dframe.fillna((dframe.mean()), inplace=True)  # fill remaining NaN upwards with mean
+            dframe.fillna(method='bfill', inplace=True) # fill remaining NaN upwards
+            dframe.fillna(value=-1, inplace=True)  # fill columns with no numerical value at all in it with -1
             min, max = get_iqr(dframe, column)
             dframe['Outlier'] = 0
             dframe.loc[dframe[column] < min, 'Outlier'] = 1
@@ -197,9 +182,9 @@ def clean(dframe):
 ####################################################################################################################
 
 
-download_zips()
+#download_zips()
 
-unzip_files()
+#unzip_files()
 
 read_jsons(dir_name_unzipped)
 calc_features()
