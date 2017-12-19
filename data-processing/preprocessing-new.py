@@ -109,29 +109,33 @@ def calc_features():
     for key in measurements:
         measurement = clean(measurements[key])
 
+        #normalized base values
         SCL = pd.DataFrame(physi_calc.scl(measurement.gsr.tolist()))
         SCR = pd.DataFrame(physi_calc.scr(measurement.gsr.tolist()))
+        HR = pd.DataFrame(physi_calc.normalizeList(measurement.heartRates.tolist()))
+        RR = pd.DataFrame(physi_calc.normalizeList(measurement.rrInterval.tolist()))
+        Skin = pd.DataFrame(physi_calc.normalizeList(measurement.skinTemperature.tolist()))
 
         # Mean values
         mSCL = SCL[0].mean()
         mSCR = SCR[0].mean()
-        mHR = measurement.heartRates.mean()
-        mRR = measurement.rrInterval.mean()
-        mSkin = measurement.skinTemperature.mean()
+        mHR = HR.mean().item()
+        mRR = RR.mean().item()
+        mSkin = Skin.mean().item()
 
         # Standard deviation
         stdSCL = SCL[0].std()
         stdSCR = SCR[0].std()
-        stdHR = measurement.heartRates.std()
-        stdRR = measurement.rrInterval.std()
-        stdSkin = measurement.skinTemperature.std()
+        stdHR = HR.std().item()
+        stdRR = RR.std().item()
+        stdSkin = Skin.std().item()
 
         # Mean absolute deviation (mad)
         madSCL = SCL[0].mad()
         madSCR = SCR[0].mad()        
-        madHR = measurement.heartRates.mad()
-        madRR = measurement.rrInterval.mad()
-        madSkin = measurement.skinTemperature.mad()
+        madHR = HR.mad().item()
+        madRR = RR.mad().item()
+        madSkin = Skin.mad().item()
 
         #RR calc
         rri = measurement.rrInterval.tolist()
