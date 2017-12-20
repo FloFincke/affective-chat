@@ -13,6 +13,12 @@ enum Constants {
     static let tokenKey = "token"
     static let usernameKey = "username"
     static let phoneIdKey = "phoneId"
+    static let lastSilentPushKey = "lastSilentPush"
+    static let notConnectedKey = "notConnected"
+    static let alreadyTrackingKey = "alreadyTracking"
+    static let lastDataSentKey = "lastDataSent"
+    static let lastDataSentSuccessfulKey = "lastDataSentSuccessful"
+    static let lastCancelledKey = "lastCancelled"
     static let trackingEndTimestampKey = "trackingEndTimestampKey"
     static let cancelTrackingTimestampKey = "cancelTrackingTimestamp"
 

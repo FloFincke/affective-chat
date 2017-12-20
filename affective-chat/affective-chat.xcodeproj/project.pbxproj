@@ -42,6 +42,7 @@
 		E5D347FF1FC5E56000FAF024 /* GeolocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5D347FE1FC5E56000FAF024 /* GeolocationService.swift */; };
 		E5D348011FC5E62F00FAF024 /* CLLocationManager+Rx.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5D348001FC5E62F00FAF024 /* CLLocationManager+Rx.swift */; };
 		E5D348031FC5E6F900FAF024 /* RxCLLocationManagerDelegateProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5D348021FC5E6F900FAF024 /* RxCLLocationManagerDelegateProxy.swift */; };
+		E5D65FCB1FE91A3A001BED45 /* ObservableType.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5D65FCA1FE91A3A001BED45 /* ObservableType.swift */; };
 		E5F914211FC0623400367BFE /* ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5F914201FC0623400367BFE /* ActivityIndicator.swift */; };
 		E5FD33181FC0BF5600A3AED2 /* CompactNetworkLoggerPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5FD33171FC0BF5600A3AED2 /* CompactNetworkLoggerPlugin.swift */; };
 /* End PBXBuildFile section */
@@ -88,6 +89,7 @@
 		E5D347FE1FC5E56000FAF024 /* GeolocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeolocationService.swift; sourceTree = "<group>"; };
 		E5D348001FC5E62F00FAF024 /* CLLocationManager+Rx.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CLLocationManager+Rx.swift"; sourceTree = "<group>"; };
 		E5D348021FC5E6F900FAF024 /* RxCLLocationManagerDelegateProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RxCLLocationManagerDelegateProxy.swift; sourceTree = "<group>"; };
+		E5D65FCA1FE91A3A001BED45 /* ObservableType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservableType.swift; sourceTree = "<group>"; };
 		E5F914201FC0623400367BFE /* ActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityIndicator.swift; sourceTree = "<group>"; };
 		E5FD33171FC0BF5600A3AED2 /* CompactNetworkLoggerPlugin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CompactNetworkLoggerPlugin.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -265,6 +267,7 @@
 			isa = PBXGroup;
 			children = (
 				E5F914201FC0623400367BFE /* ActivityIndicator.swift */,
+				E5D65FCA1FE91A3A001BED45 /* ObservableType.swift */,
 				E5D348001FC5E62F00FAF024 /* CLLocationManager+Rx.swift */,
 				E5FD33171FC0BF5600A3AED2 /* CompactNetworkLoggerPlugin.swift */,
 				E53F577A1FBCD7DD0013043C /* Constants.swift */,
@@ -452,6 +455,7 @@
 				E5D347FB1FC5E05D00FAF024 /* RRIntervalSubscriber.swift in Sources */,
 				E5D347F31FC5D55300FAF024 /* HeartRateSubscriber.swift in Sources */,
 				E535DDBE1FC09358007D6BE6 /* MBDataSubscriber.swift in Sources */,
+				E5D65FCB1FE91A3A001BED45 /* ObservableType.swift in Sources */,
 				E59FCB561FC62FB20013E420 /* Dictionary+Helpers.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

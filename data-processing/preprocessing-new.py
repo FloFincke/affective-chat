@@ -15,6 +15,7 @@ dir_name_unzipped = os.path.join(dir, 'unzipped/')
 measurements = {}
 results = []
 calcColumns = ['heartRates', 'gsr', 'rrInterval', 'skinTemperature']
+normalizeColumns = ['mSCL', 'mSCR', 'mHR', 'mRR', 'mSkin', 'madSCL', 'madSCR', 'madHR', 'madRR', 'madSkin', 'stdSCL', 'stdSCR', 'stdHR', 'stdRR', 'stdSkin', 'RMSSD', 'Baevsky', 'LF', 'HF', 'LFHF']
 
 def download_zips():
     BUCKET_NAME = 'affective-chat'  # replace with your bucket name
@@ -72,9 +73,10 @@ def read_jsons(directory):
     global measurements
     for i, file in enumerate(os.listdir(directory)):
         if file.endswith(".json"):
-            temp = pd.read_json(directory + file, convert_dates=False, convert_axes=False, date_unit='ms')
-            temp.sort_index(inplace=True)
-            measurements[file] = temp
+            temp = pd.read_json(directory + file)
+            tempSec = temp.resample('1S').mean()
+            tempSec.sort_index(inplace=True)
+            measurements[file] = tempSec
 
 def calc_features():
     global measurements, results
@@ -147,22 +149,25 @@ def calc_features():
             LFHF = freq['lf_hf']
 
             #Other params
-            location = window.location[window.location.first_valid_index()] #TODO: Should be cloustered and therefore just have an ENUM or so
-            motionType = window.motionType.median() # is this enough?
-            receptivity = window.receptivity[window.receptivity.first_valid_index()] 
+            location = measurement.location[measurement.location.first_valid_index()] #TODO: Should be cloustered and therefore just have an ENUM or so
+            motionType = measurement.motionType.median() # is this enough?
+            receptivity = measurement.receptivity[measurement.receptivity.first_valid_index()] 
             if(receptivity == 0):
                 receptivity = -1
-            id = window['phoneId'][0]
+            id = measurement['phoneId'][0]
 
             results.loc[-1] = [id, location, motionType, mSCL, mSCR, mHR, mRR, mSkin, madSCL, madSCR, madHR, madRR, madSkin, 
                 stdSCL, stdSCR, stdHR, stdRR, stdSkin, RMSSD, Baevsky, LF, HF, LFHF, receptivity]
             results.index = results.index + 1  # shifting index
             results = results.sort_index()  # sorting by index
-    
+
+def outputCSV(results):
     ids = results.phoneId.unique()
     for id in ids:
-        results.loc[results.phoneId == id].to_csv(str(id) + "_export.csv", sep=";", encoding="utf-8")
-
+        output = results.loc[results.phoneId == id]
+        for column in normalizeColumns:
+            output[column] = pd.DataFrame(normalizeList(output[column].tolist()))
+        output.to_csv(str(id) + "_export.csv", sep=";", encoding="utf-8")
 
 # Calculate the Tukey interquartile range for outlier detection
 def get_iqr(dframe, columnName):
