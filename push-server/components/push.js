@@ -19,22 +19,23 @@ const apnOptions = {
     production: false
 };
 
-const apnProvider = new apn.Provider(apnOptions);
-
 const agenda = new Agenda();
+
+let apnProvider;
+let pushesLeft = 0;
 
 database.connection.once('open', function() {
     agenda.mongo(database.db);
 
     agenda.define('push', function(job, done) {
-        if (moment().isAfter(moment(10, "HH")) && moment().isBefore(moment(22, "HH"))) {
-            database.Phone.find({}).exec(function(err, phones) {
-                phones.forEach(function(phone) {
-                    newPush(phone._id, phone.token);
-                });
-                done();
+        apnProvider = new apn.Provider(apnOptions);
+        database.Phone.find({}).exec(function(err, phones) {
+            pushesLeft = phones.length;
+            phones.forEach(function(phone) {
+                newPush(phone._id, phone.token);
             });
-        }
+            done();
+        });
     });
 });
 
@@ -63,7 +64,13 @@ function newPush(phoneId, token) {
     apnProvider.send(note, token).then((result) => {
 
         //TODO: check for errors
-        console.log(new Date() + "-- pushed to :" + token);
+        console.log(new Date() + " -- " + JSON.stringify(result));
+
+        pushesLeft--;
+
+        if(pushesLeft == 0) {
+            apnProvider.shutdown();
+        }
 
         const log = new database.Log({
             id: phoneId,
