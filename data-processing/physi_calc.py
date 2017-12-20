@@ -20,8 +20,7 @@ def scl(gsr):
 		mean = np.mean([meanList])
 		scl.append(mean)
 
-	nSCL = normalizeList(scl)
-	return(nSCL)
+	return(scl)
 
 def scr(gsr):
 	scr = []
@@ -38,8 +37,7 @@ def scr(gsr):
 		scrVal = np.sqrt((gsr[i]-mean)**2)
 		scr.append(scrVal)
 
-	nSCR = normalizeList(scr)
-	return(nSCR)
+	return(scr)
 
 def rmssd(rr):
 	sum = 0;

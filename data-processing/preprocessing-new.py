@@ -109,56 +109,56 @@ def calc_features():
     for key in measurements:
         measurement = clean(measurements[key])
 
-        #normalized base values
-        SCL = pd.DataFrame(physi_calc.scl(measurement.gsr.tolist()))
-        SCR = pd.DataFrame(physi_calc.scr(measurement.gsr.tolist()))
-        HR = pd.DataFrame(physi_calc.normalizeList(measurement.heartRates.tolist()))
-        RR = pd.DataFrame(physi_calc.normalizeList(measurement.rrInterval.tolist()))
-        Skin = pd.DataFrame(physi_calc.normalizeList(measurement.skinTemperature.tolist()))
+        for i in range(0, len(measurement.index)):
+            window = measurement.iloc[i:i+4]
 
-        # Mean values
-        mSCL = SCL[0].mean()
-        mSCR = SCR[0].mean()
-        mHR = HR.mean().item()
-        mRR = RR.mean().item()
-        mSkin = Skin.mean().item()
+            #normalized base values
+            SCL = pd.DataFrame(physi_calc.scl(window.gsr.tolist()))
+            SCR = pd.DataFrame(physi_calc.scr(window.gsr.tolist()))
 
-        # Standard deviation
-        stdSCL = SCL[0].std()
-        stdSCR = SCR[0].std()
-        stdHR = HR.std().item()
-        stdRR = RR.std().item()
-        stdSkin = Skin.std().item()
+            # Mean values
+            mSCL = SCL[0].mean()
+            mSCR = SCR[0].mean()
+            mHR = window.heartRates.mean().item()
+            mRR = window.rrInterval.mean().item()
+            mSkin = window.skinTemperature.mean().item()
 
-        # Mean absolute deviation (mad)
-        madSCL = SCL[0].mad()
-        madSCR = SCR[0].mad()        
-        madHR = HR.mad().item()
-        madRR = RR.mad().item()
-        madSkin = Skin.mad().item()
+            # Standard deviation
+            stdSCL = SCL[0].std()
+            stdSCR = SCR[0].std()
+            stdHR = window.heartRates.std().item()
+            stdRR = window.rrInterval.std().item()
+            stdSkin = window.skinTemperature.std().item()
 
-        #RR calc
-        rri = measurement.rrInterval.tolist()
-        RMSSD = physi_calc.rmssd(rri)
-        Baevsky = physi_calc.baevsky(rri)
-        freq = physi_calc.freq(rri)
-        LF = freq['lf']
-        HF = freq['hf']
-        LFHF = freq['lf_hf']
+            # Mean absolute deviation (mad)
+            madSCL = SCL[0].mad()
+            madSCR = SCR[0].mad()        
+            madHR = window.heartRates.mad().item()
+            madRR = window.rrInterval.mad().item()
+            madSkin = window.skinTemperature.mad().item()
 
-        #Other params
-        location = measurement.location[measurement.location.first_valid_index()] #TODO: Should be cloustered and therefore just have an ENUM or so
-        motionType = measurement.motionType.median() # is this enough?
-        receptivity = measurement.receptivity[measurement.receptivity.first_valid_index()] 
-        if(receptivity == 0):
-            receptivity = -1
-        id = measurement['phoneId'][0]
+            #RR calc
+            rri = window.rrInterval.tolist()
+            RMSSD = physi_calc.rmssd(rri)
+            Baevsky = physi_calc.baevsky(rri)
+            freq = physi_calc.freq(rri)
+            LF = freq['lf']
+            HF = freq['hf']
+            LFHF = freq['lf_hf']
 
-        results.loc[-1] = [id, location, motionType, mSCL, mSCR, mHR, mRR, mSkin, madSCL, madSCR, madHR, madRR, madSkin, 
-            stdSCL, stdSCR, stdHR, stdRR, stdSkin, RMSSD, Baevsky, LF, HF, LFHF, receptivity]
-        results.index = results.index + 1  # shifting index
-        results = results.sort_index()  # sorting by index
+            #Other params
+            location = window.location[window.location.first_valid_index()] #TODO: Should be cloustered and therefore just have an ENUM or so
+            motionType = window.motionType.median() # is this enough?
+            receptivity = window.receptivity[window.receptivity.first_valid_index()] 
+            if(receptivity == 0):
+                receptivity = -1
+            id = window['phoneId'][0]
 
+            results.loc[-1] = [id, location, motionType, mSCL, mSCR, mHR, mRR, mSkin, madSCL, madSCR, madHR, madRR, madSkin, 
+                stdSCL, stdSCR, stdHR, stdRR, stdSkin, RMSSD, Baevsky, LF, HF, LFHF, receptivity]
+            results.index = results.index + 1  # shifting index
+            results = results.sort_index()  # sorting by index
+    
     ids = results.phoneId.unique()
     for id in ids:
         results.loc[results.phoneId == id].to_csv(str(id) + "_export.csv", sep=";", encoding="utf-8")
