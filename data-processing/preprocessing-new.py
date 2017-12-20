@@ -74,9 +74,10 @@ def read_jsons(directory):
     for i, file in enumerate(os.listdir(directory)):
         if file.endswith(".json"):
             temp = pd.read_json(directory + file)
-            tempSec = temp.resample('1S').mean()
-            tempSec.sort_index(inplace=True)
-            measurements[file] = tempSec
+            if temp['gsr'].count() > 100:
+                tempSec = temp.resample('1S').mean()
+                tempSec.sort_index(inplace=True)
+                measurements[file] = tempSec
 
 def calc_features():
     global measurements, results
