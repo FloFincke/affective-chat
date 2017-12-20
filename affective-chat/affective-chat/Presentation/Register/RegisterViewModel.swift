@@ -52,7 +52,6 @@ class RegisterViewModel {
                     log.info("Phone ID: \(string)")
                     UserDefaults.standard.set(username, forKey: Constants.usernameKey)
                     UserDefaults.standard.set(string, forKey: Constants.phoneIdKey)
-                    UserDefaults.standard.synchronize()
                     return Observable.just(true)
                 } else {
                     return Observable.just(false)

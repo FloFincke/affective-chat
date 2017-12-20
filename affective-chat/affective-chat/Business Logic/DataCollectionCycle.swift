@@ -74,11 +74,13 @@ class DataCollectionCycle {
     func start(withDuration duration: Double, timeoutAfter timeout: Double) {
         guard dataSubscriptionContainer.isConnected else {
             log.warning("Not connected to client")
+            UserDefaults.standard.setValue(Date(), forKey: Constants.notConnectedKey)
             return
         }
 
         guard isReady else {
             log.warning("Another cycle is still active")
+            UserDefaults.standard.setValue(Date(), forKey: Constants.alreadyTrackingKey)
             return
         }
 
@@ -101,8 +103,6 @@ class DataCollectionCycle {
             cancelTimestamp,
             forKey: Constants.cancelTrackingTimestampKey
         )
-
-        UserDefaults.standard.synchronize()
     }
 
     // MARK: - Private Functions
@@ -138,26 +138,32 @@ class DataCollectionCycle {
 
         geolocationService.start()
         geolocationService.location.asObservable().take(1)
-            .flatMap { [weak self] location -> Observable<Void> in
-                guard let strongSelf = self else { return Observable.just(()) }
-                
+            .flatMap(weak: self) { strongSelf, location -> Observable<Void> in
                 strongSelf.geolocationService.stop()
-                return strongSelf.bandDataStore.sendSensorData(
-                    receptivity: receptivity,
-                    location: location
+                return strongSelf.bandDataStore.uploadSensorData(
+                    withReceptivity: receptivity,
+                    atLocation: location
                 )
             }
-            .subscribe(onDisposed: { [weak self] in
+            .subscribe(onNext: {
+                UserDefaults.standard.set(true, forKey: Constants.lastDataSentSuccessfulKey)
+            }, onError: {
+                log.error($0)
+                UserDefaults.standard.set(false, forKey: Constants.lastDataSentSuccessfulKey)
+            }, onDisposed: { [weak self] in
                 self?.isReady = true
+                UserDefaults.standard.setValue(Date(), forKey: Constants.lastDataSentKey)
             })
             .disposed(by: disposeBag)
     }
 
     private func cancel() {
+        UserDefaults.standard.setValue(Date(), forKey: Constants.lastCancelledKey)
+
         notificationHandler.cancelIsReceptibleNotification()
         dataSubscriptionContainer.stopWritingData()
         dataSubscriptionContainer.stopSubscriptions()
-        bandDataStore.deleteSensorData()
+        bandDataStore.deleteSensorDataJson()
         isReady = true
     }
     

@@ -13,10 +13,17 @@ import CoreLocation
 
 private let sensorDataFileName = "sensor-data"
 private let sensorDataJsonName = "\(sensorDataFileName).json"
-private let sensorDataZipName = "\(sensorDataFileName).zip"
+private let zip = "zip"
+private let sensorDataZipName = "\(sensorDataFileName).\(zip)"
 
 private let receptivityKey = "receptivity"
 private let locationKey = "location"
+
+enum UploadError: Error {
+    case instanceGone
+    case missingZip
+    case missingPhoneId
+}
 
 class MBDataStore {
 
@@ -26,6 +33,10 @@ class MBDataStore {
     }
     private var sensorDataZipUrl: URL! {
         return documentsDirectory.appendingPathComponent(sensorDataZipName)
+    }
+    private var sensorDataTempZipUrl: URL! {
+        let timestamp = Int(Date().timeIntervalSince1970)
+        return documentsDirectory.appendingPathComponent("\(sensorDataFileName)-\(timestamp).\(zip)")
     }
 
     private lazy var fileNameDateFormatter: DateFormatter = {
@@ -54,38 +65,22 @@ class MBDataStore {
         saveSensorData(sensorData)
     }
 
-    func sendSensorData(receptivity: Receptivity,
-                        location: CLLocationCoordinate2D) -> Observable<Void> {
+    func uploadSensorData(withReceptivity receptivity: Receptivity,
+                          atLocation location: CLLocationCoordinate2D) -> Observable<Void> {
 
         log.info("sending sensor data")
 
         prepareSensoreDataForSending(receptivity: receptivity, location: location)
         compressSensorData()
+        deleteSensorDataJson()
 
-        guard let zipData = try? Data(contentsOf: sensorDataZipUrl),
-            let phoneId = UserDefaults.standard.string(forKey: Constants.phoneIdKey) else {
-                log.warning("could not load zip or phoneId")
-                return Observable.just(())
-        }
-
-        let endpoint = ServerAPI.newData(
-            id: phoneId,
-            data: zipData,
-            fileName: fileNameDateFormatter.string(from: Date()) + ".zip"
-        )
-
-        return apiProvider.rx.request(endpoint)
-            .asObservable()
-            .map { [weak self] _ in self?.deleteSensorData() }
+        return uploadData()
     }
 
-    func deleteSensorData() {
+    func deleteSensorDataJson() {
         do {
             if FileManager.default.fileExists(atPath: sensorDataJsonUrl.path) {
                 try FileManager.default.removeItem(at: sensorDataJsonUrl)
-            }
-            if FileManager.default.fileExists(atPath: sensorDataZipUrl.path) {
-                try FileManager.default.removeItem(at: sensorDataZipUrl)
             }
         } catch {
             log.error(error)
@@ -143,6 +138,105 @@ class MBDataStore {
             _ = try Zip.quickZipFiles([sensorDataJsonUrl], fileName: sensorDataFileName)
         } catch {
             print(error)
+        }
+    }
+
+    private func uploadData() -> Observable<Void> {
+        return Observable.create { [weak self] observer in
+            guard let strongSelf = self else {
+                observer.onError(UploadError.instanceGone)
+                return Disposables.create()
+            }
+
+            guard FileManager.default.fileExists(atPath: strongSelf.sensorDataZipUrl.path) else {
+                observer.onNext(())
+                observer.onCompleted()
+                return Disposables.create()
+            }
+
+            guard let zipData = try? Data(contentsOf: strongSelf.sensorDataZipUrl) else {
+                observer.onError(UploadError.missingZip)
+                return Disposables.create()
+            }
+
+            guard let phoneId = UserDefaults.standard.string(forKey: Constants.phoneIdKey) else {
+                observer.onError(UploadError.missingPhoneId)
+                return Disposables.create()
+            }
+
+            let endpoint = ServerAPI.newData(
+                id: phoneId,
+                data: zipData,
+                fileName: strongSelf.fileNameDateFormatter.string(from: Date()) + ".zip"
+            )
+
+            let uploadDisposable = apiProvider.rx.request(endpoint)
+                .asObservable()
+                .filterSuccessfulStatusCodes()
+                .map { [weak self] _ in
+                    self?.deleteSensorDataZip()
+                }
+                .flatMap { [weak self] _ -> Observable<Void> in
+                    guard let strongSelf = self else {
+                        return Observable.error(UploadError.instanceGone)
+                    }
+                    strongSelf.renameTempZipToCurrent()
+                    return strongSelf.uploadData()
+                }
+                .subscribe(onNext: { _ in
+                    observer.onNext(())
+                    observer.onCompleted()
+                }, onError: { [weak self] in
+                    guard let strongSelf = self else {
+                        observer.onError(UploadError.instanceGone)
+                        return
+                    }
+
+                    strongSelf.renameCurrentZipToTemp()
+                    observer.onError($0)
+                })
+
+            return Disposables.create {
+                return uploadDisposable.dispose()
+            }
+        }
+    }
+
+    private func renameCurrentZipToTemp() {
+        do {
+            try FileManager.default.moveItem(at: sensorDataZipUrl, to: sensorDataTempZipUrl)
+        } catch {
+            log.error(error)
+        }
+    }
+
+    private func renameTempZipToCurrent() {
+        do {
+            let files = try FileManager.default.contentsOfDirectory(atPath: documentsDirectory.path)
+            var tempZip: URL?
+            for file in files {
+                if file.components(separatedBy: ".").last == zip {
+                    tempZip = documentsDirectory.appendingPathComponent(file)
+                    break
+                }
+            }
+
+            if let tempZip = tempZip {
+                try FileManager.default.moveItem(at: tempZip, to: sensorDataZipUrl)
+            }
+
+        } catch {
+            log.error(error)
+        }
+    }
+
+    func deleteSensorDataZip() {
+        do {
+            if FileManager.default.fileExists(atPath: sensorDataZipUrl.path) {
+                try FileManager.default.removeItem(at: sensorDataZipUrl)
+            }
+        } catch {
+            log.error(error)
         }
     }
 

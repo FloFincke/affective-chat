@@ -135,7 +135,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let tokenParts = deviceToken.map { String(format: "%02.2hhx", $0) }
         let token = tokenParts.joined()
         UserDefaults.standard.set(token, forKey: Constants.tokenKey)
-        UserDefaults.standard.synchronize()
         log.debug("Device Token: \(token)")
     }
 
@@ -183,6 +182,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     private func handleNotification(userInfo: [AnyHashable: Any]) {
         log.debug(userInfo)
+        
+        UserDefaults.standard.setValue(Date(), forKey: Constants.lastSilentPushKey)
         
         if let duration = userInfo["duration"] as? Double,
             let timeout = userInfo["timeout"] as? Double {
