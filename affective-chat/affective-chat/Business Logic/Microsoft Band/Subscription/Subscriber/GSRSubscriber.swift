@@ -23,7 +23,7 @@ class GSRSubscriber: MBDataSubscriber {
 
         if let resistance = $0?.resistance, self.shouldWriteDate {
             if resistance > gsrThreshold {
-                self.gsrTooHigh.onNext(())
+//                self.gsrTooHigh.onNext(())
             } else {
                 self.data[Date().stringTimeIntervalSince1970InMilliseconds] = resistance
             }
