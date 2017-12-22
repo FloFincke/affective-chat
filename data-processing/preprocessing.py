@@ -6,7 +6,7 @@ import seaborn as sns #Visualization
 import os, zipfile #Unzipping
 import boto3 #AWS Download
 import physi_calc #Physiological calculaction
-
+import loc_clustering
 # GLOBAL VARIABLES #
 dir = os.path.dirname(os.path.realpath(__file__))
 dir_name_zipped = os.path.join(dir, 'zipped/')
@@ -14,8 +14,7 @@ dir_name_unzipped = os.path.join(dir, 'unzipped/')
 
 measurements = {}
 results = []
-calcColumns = ['heartRates', 'gsr', 'rrInterval', 'skinTemperature']
-normalizeColumns = ['mSCL', 'mSCR', 'mHR', 'mRR', 'mSkin', 'madSCL', 'madSCR', 'madHR', 'madRR', 'madSkin', 'stdSCL', 'stdSCR', 'stdHR', 'stdRR', 'stdSkin', 'RMSSD', 'Baevsky', 'LF', 'HF', 'LFHF']
+normalizeColumns = ['mSCL', 'mSCR', 'mHR', 'mRR', 'mSkin', 'madSCL', 'madSCR', 'madHR', 'madRR', 'madSkin', 'stdSCL', 'stdSCR', 'stdHR', 'stdRR', 'stdSkin', 'RMSSD', 'LF', 'HF', 'LFHF']
 
 def download_zips():
     BUCKET_NAME = 'affective-chat'  # replace with your bucket name
@@ -74,10 +73,16 @@ def read_jsons(directory):
     for i, file in enumerate(os.listdir(directory)):
         if file.endswith(".json"):
             temp = pd.read_json(directory + file)
-            if temp['gsr'].count() > 100:
-                tempSec = temp.resample('1S').mean()
+            measurements[file] = {
+                'phoneId': temp['phoneId'][temp['phoneId'].first_valid_index()],
+                'location': temp['location'][temp['location'].first_valid_index()],
+                'receptivity': temp['receptivity'][temp['receptivity'].first_valid_index()],
+                'data': temp.drop('receptivity', 1)
+            }
+            if measurements[file]['data']['gsr'].count() > 100:
+                tempSec = measurements[file]['data'].resample('1S').mean()
                 tempSec.sort_index(inplace=True)
-                measurements[file] = tempSec
+                measurements[file]['data'] = tempSec
 
 def calc_features():
     global measurements, results
@@ -102,7 +107,6 @@ def calc_features():
         'std(RR)',
         'std(skinTemp)',
         'RMSSD',
-        'Baevsky',
         'LF',
         'HF',
         'LF/HF',
@@ -110,57 +114,64 @@ def calc_features():
     ])
 
     for key in measurements:
-        measurement = clean(measurements[key])
+        measurement = clean(measurements[key]['data'])
 
         for i in range(0, len(measurement.index)):
-            window = measurement.iloc[i:i+4]
+            if i + 30 <= len(measurement.index):
+                window = measurement.iloc[i:i+30]
 
-            #normalized base values
-            SCL = pd.DataFrame(physi_calc.scl(window.gsr.tolist()))
-            SCR = pd.DataFrame(physi_calc.scr(window.gsr.tolist()))
+                #normalized base values
+                SCL = pd.DataFrame(physi_calc.scl(window.gsr.tolist()))
+                SCR = pd.DataFrame(physi_calc.scr(window.gsr.tolist()))
 
-            # Mean values
-            mSCL = SCL[0].mean()
-            mSCR = SCR[0].mean()
-            mHR = window.heartRates.mean().item()
-            mRR = window.rrInterval.mean().item()
-            mSkin = window.skinTemperature.mean().item()
+                # Mean values
+                mSCL = SCL[0].mean()
+                mSCR = SCR[0].mean()
+                mHR = window.heartRates.mean().item()
+                mRR = window.rrInterval.mean().item()
+                mSkin = window.skinTemperature.mean().item()
 
-            # Standard deviation
-            stdSCL = SCL[0].std()
-            stdSCR = SCR[0].std()
-            stdHR = window.heartRates.std().item()
-            stdRR = window.rrInterval.std().item()
-            stdSkin = window.skinTemperature.std().item()
+                # Standard deviation
+                stdSCL = SCL[0].std()
+                stdSCR = SCR[0].std()
+                stdHR = window.heartRates.std().item()
+                stdRR = window.rrInterval.std().item()
+                stdSkin = window.skinTemperature.std().item()
 
-            # Mean absolute deviation (mad)
-            madSCL = SCL[0].mad()
-            madSCR = SCR[0].mad()        
-            madHR = window.heartRates.mad().item()
-            madRR = window.rrInterval.mad().item()
-            madSkin = window.skinTemperature.mad().item()
+                # Mean absolute deviation (mad)
+                madSCL = SCL[0].mad()
+                madSCR = SCR[0].mad()        
+                madHR = window.heartRates.mad().item()
+                madRR = window.rrInterval.mad().item()
+                madSkin = window.skinTemperature.mad().item()
 
-            #RR calc
-            rri = window.rrInterval.tolist()
-            RMSSD = physi_calc.rmssd(rri)
-            Baevsky = physi_calc.baevsky(rri)
-            freq = physi_calc.freq(rri)
-            LF = freq['lf']
-            HF = freq['hf']
-            LFHF = freq['lf_hf']
+                #RR calc
+                rri = window.rrInterval.tolist()
+                RMSSD = physi_calc.rmssd(rri)
+                freq = physi_calc.freq(rri)
+                LF = freq['lf']
+                HF = freq['hf']
+                LFHF = freq['lf_hf']
 
-            #Other params
-            location = measurement.location[measurement.location.first_valid_index()] #TODO: Should be cloustered and therefore just have an ENUM or so
-            motionType = measurement.motionType.median() # is this enough?
-            receptivity = measurement.receptivity[measurement.receptivity.first_valid_index()] 
-            if(receptivity == 0):
-                receptivity = -1
-            id = measurement['phoneId'][0]
+                #Other params
+                id = measurements[key]['phoneId']
 
-            results.loc[-1] = [id, location, motionType, mSCL, mSCR, mHR, mRR, mSkin, madSCL, madSCR, madHR, madRR, madSkin, 
-                stdSCL, stdSCR, stdHR, stdRR, stdSkin, RMSSD, Baevsky, LF, HF, LFHF, receptivity]
-            results.index = results.index + 1  # shifting index
-            results = results.sort_index()  # sorting by index
+                location = measurements[key]['location']
+                location = loc_clustering.where(id, (location['lat'], location['long']))
+
+                motionType = measurement.motionType.median() # is this enough?
+
+                receptivity = measurements[key]['receptivity']
+                if(receptivity == 0):
+                    receptivity = -1
+
+                results.loc[-1] = [id, location, motionType, mSCL, mSCR, mHR, mRR, mSkin, madSCL, madSCR, madHR, madRR, madSkin, 
+                    stdSCL, stdSCR, stdHR, stdRR, stdSkin, RMSSD, LF, HF, LFHF, receptivity]
+                results.index = results.index + 1  # shifting index
+                print('.', sep=' ', end='', flush=True)
+
+    results = results.sort_index()  # sorting by index
+    outputCSV(results)
 
 def outputCSV(results):
     ids = results.phoneId.unique()
@@ -180,23 +191,33 @@ def get_iqr(dframe, columnName):
 
 def clean(dframe):
     for column in dframe:        
-        if (column in calcColumns):
-            dframe.fillna(method='ffill', inplace=True) # fill NaN downwards
-        #    dframe.fillna((dframe.mean()), inplace=True)  # fill remaining NaN upwards with mean
-            dframe.fillna(method='bfill', inplace=True) # fill remaining NaN upwards
-            dframe.fillna(value=-1, inplace=True)  # fill columns with no numerical value at all in it with -1
-            min, max = get_iqr(dframe, column)
-            dframe['Outlier'] = 0
-            dframe.loc[dframe[column] < min, 'Outlier'] = 1
-            dframe.loc[dframe[column] > max, 'Outlier'] = 1
+        dframe.fillna(method='ffill', inplace=True) # fill NaN downwards
+    #    dframe.fillna((dframe.mean()), inplace=True)  # fill remaining NaN upwards with mean
+        dframe.fillna(method='bfill', inplace=True) # fill remaining NaN upwards
+        dframe.fillna(value=-1, inplace=True)  # fill columns with no numerical value at all in it with -1
+        min, max = get_iqr(dframe, column)
+        dframe['Outlier'] = 0
+        dframe.loc[dframe[column] < min, 'Outlier'] = 1
+        dframe.loc[dframe[column] > max, 'Outlier'] = 1
 
-            for key in dframe['Outlier'].keys():
-                if dframe['Outlier'][key] == 1:
-                    dframe.drop(key, inplace=True)
+        for key in dframe['Outlier'].keys():
+            if dframe['Outlier'][key] == 1:
+                dframe.drop(key, inplace=True)
 
-            del dframe['Outlier'] # Remove outlier column
+        del dframe['Outlier'] # Remove outlier column
 
     return dframe
+
+def normalizeList(inputList):
+    nlist = []
+    maxList = max(inputList)
+    minList = min(inputList)
+    meanList = np.mean([maxList,minList])
+
+    for i in range(0, len(inputList)-1):
+        nlist.append((inputList[i]-meanList)/meanList)
+
+    return nlist
 
 ####################################################################################################################
 ####################################################################################################################

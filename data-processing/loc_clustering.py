@@ -30,8 +30,3 @@ def where(id, location):
 			return locationsOrder[i]
 
 	return Locations.OUTSIDE
-
-
-
-
-print(where("5a26ff32b07e944d86d30c6b", (48.149347, 11.575511)))
