@@ -292,6 +292,7 @@
 				7D423892096F685C18B4D198 /* [CP] Embed Pods Frameworks */,
 				E85718DE56DAE24C5BD20122 /* [CP] Copy Pods Resources */,
 				E5D347E81FC428CB00FAF024 /* SwiftLint */,
+				E56931E21FEAB77100A7ACD9 /* Fabric */,
 			);
 			buildRules = (
 			);
@@ -387,6 +388,20 @@
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
+		};
+		E56931E21FEAB77100A7ACD9 /* Fabric */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = Fabric;
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Fabric/run\" a346a0dadc0c20165d238f47ca6c6da42c7ac2a7 76c30e27de401f0d8fa73803e5d7de27a96d12f424fcff3525ea01055488b867";
 		};
 		E5D347E81FC428CB00FAF024 /* SwiftLint */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -591,6 +606,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = C7PLUFBAM2;
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -618,6 +634,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = C7PLUFBAM2;
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",

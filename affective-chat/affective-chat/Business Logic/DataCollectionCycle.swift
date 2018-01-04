@@ -75,12 +75,14 @@ class DataCollectionCycle {
         guard dataSubscriptionContainer.isConnected else {
             log.warning("Not connected to client")
             UserDefaults.standard.setValue(Date(), forKey: Constants.notConnectedKey)
+            NotificationCenter.default.post(Notification(name: Constants.labelsUpdatedNotification))
             return
         }
 
         guard isReady else {
             log.warning("Another cycle is still active")
             UserDefaults.standard.setValue(Date(), forKey: Constants.alreadyTrackingKey)
+            NotificationCenter.default.post(Notification(name: Constants.labelsUpdatedNotification))
             return
         }
 
@@ -147,18 +149,26 @@ class DataCollectionCycle {
             }
             .subscribe(onNext: {
                 UserDefaults.standard.set(true, forKey: Constants.lastDataSentSuccessfulKey)
+                NotificationCenter.default
+                    .post(Notification(name: Constants.labelsUpdatedNotification))
             }, onError: {
                 log.error($0)
                 UserDefaults.standard.set(false, forKey: Constants.lastDataSentSuccessfulKey)
+                NotificationCenter.default
+                    .post(Notification(name: Constants.labelsUpdatedNotification))
             }, onDisposed: { [weak self] in
                 self?.isReady = true
                 UserDefaults.standard.setValue(Date(), forKey: Constants.lastDataSentKey)
+                NotificationCenter.default
+                    .post(Notification(name: Constants.labelsUpdatedNotification))
             })
             .disposed(by: disposeBag)
     }
 
     private func cancel() {
         UserDefaults.standard.setValue(Date(), forKey: Constants.lastCancelledKey)
+        NotificationCenter.default
+            .post(Notification(name: Constants.labelsUpdatedNotification))
 
         notificationHandler.cancelIsReceptibleNotification()
         dataSubscriptionContainer.stopWritingData()

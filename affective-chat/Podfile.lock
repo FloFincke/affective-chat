@@ -1,5 +1,8 @@
 PODS:
   - Alamofire (4.5.1)
+  - Crashlytics (3.9.3):
+    - Fabric (~> 1.7.2)
+  - Fabric (1.7.2)
   - Moya (10.0.0):
     - Moya/Core (= 10.0.0)
   - Moya-ObjectMapper/Core (2.5):
@@ -36,6 +39,8 @@ PODS:
   - Zip (1.0.0)
 
 DEPENDENCIES:
+  - Crashlytics
+  - Fabric
   - Moya-ObjectMapper/RxSwift
   - Moya/RxSwift
   - PureLayout
@@ -50,6 +55,8 @@ DEPENDENCIES:
 
 SPEC CHECKSUMS:
   Alamofire: 2d95912bf4c34f164fdfc335872e8c312acaea4a
+  Crashlytics: dbb07d01876c171c5ccbdf7826410380189e452c
+  Fabric: 9cd6a848efcf1b8b07497e0b6a2e7d336353ba15
   Moya: adb58b0f4e58430db43cc6e2f6ebab1836501186
   Moya-ObjectMapper: 167adf69db0298bf3a19ea05cb9a16ee117c8ef5
   ObjectMapper: 92230db59bf8f341a5c3a3cf0b9fbdde3cf0d87f
@@ -64,6 +71,6 @@ SPEC CHECKSUMS:
   SwiftyBeaver: e10b1668e0512229c36c34769b97eed3dfae2ca3
   Zip: 115a122433829a1bbf33f5575fa84047438dcc12
 
-PODFILE CHECKSUM: fdd1c882a2dfe8453c900a002032a09803db8271
+PODFILE CHECKSUM: 6813be209845fd37c04242865f90b819027be07c
 
 COCOAPODS: 1.2.0
