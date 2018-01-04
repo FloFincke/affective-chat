@@ -62,9 +62,6 @@ def calc_features(measurements):
         'std(RR)',
         'std(skinTemp)',
         'RMSSD',
-        'LF',
-        'HF',
-        'LF/HF',
         'receptivity'
     ])
 
@@ -103,10 +100,6 @@ def calc_features(measurements):
                 #RR calc
                 rri = window.rrInterval.tolist()
                 RMSSD = physi_calc.rmssd(rri)
-                freq = physi_calc.freq(rri)
-                LF = freq['lf']
-                HF = freq['hf']
-                LFHF = freq['lf_hf']
 
                 #Other params
                 id = measurements[key]['phoneId']
@@ -121,7 +114,7 @@ def calc_features(measurements):
                     receptivity = -1
 
                 results.loc[-1] = [id, location, motionType, mSCL, mSCR, mHR, mRR, mSkin, madSCL, madSCR, madHR, madRR, madSkin, 
-                    stdSCL, stdSCR, stdHR, stdRR, stdSkin, RMSSD, LF, HF, LFHF, receptivity]
+                    stdSCL, stdSCR, stdHR, stdRR, stdSkin, RMSSD, receptivity]
                 results.index = results.index + 1  # shifting index
                 print('.', sep=' ', end='', flush=True)
 
