@@ -8,7 +8,7 @@ from classifiers.data_set import produce_data_set
 BATCH_SIZE = 128
 HIDDEN_DIM = 128
 NB_EPOCH = 100
-PATH = "../data-processing/max/*.csv"
+PATH = "../data-processing/*.csv"
 
 seed = 155
 np.random.seed(seed)
