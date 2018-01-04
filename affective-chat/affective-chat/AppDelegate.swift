@@ -8,8 +8,10 @@
 
 import UIKit
 import CoreData
-import SwiftyBeaver
 import RxSwift
+import SwiftyBeaver
+import Fabric
+import Crashlytics
 
 let log = SwiftyBeaver.self
 
@@ -33,6 +35,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // swiftlint:disable:next line_length
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+
+        Fabric.with([Crashlytics.self])
 
         // Setup logging
 

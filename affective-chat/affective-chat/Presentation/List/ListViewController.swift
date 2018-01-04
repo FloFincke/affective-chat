@@ -43,10 +43,13 @@ class ListViewController: UIViewController {
             .disposed(by: disposeBag)
 
         NotificationCenter.default.rx
+            .notification(Constants.labelsUpdatedNotification)
+            .subscribe(onNext: { [weak self] _ in self?.updateLabels() })
+            .disposed(by: disposeBag)
+
+        NotificationCenter.default.rx
             .notification(NSNotification.Name.UIApplicationDidBecomeActive)
-            .subscribe(onNext: { [weak self] _ in
-                self?.updateLabels()
-            })
+            .subscribe(onNext: { [weak self] _ in self?.updateLabels() })
             .disposed(by: disposeBag)
 
         view.addSubview(listView)

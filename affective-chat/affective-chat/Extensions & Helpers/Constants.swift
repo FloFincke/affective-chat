@@ -21,6 +21,7 @@ enum Constants {
     static let lastCancelledKey = "lastCancelled"
     static let trackingEndTimestampKey = "trackingEndTimestampKey"
     static let cancelTrackingTimestampKey = "cancelTrackingTimestamp"
+    static let labelsUpdatedNotification = Notification.Name("LabelsUpdated")
 
     static let cancelTrackingSeconds: Double = 10
     
