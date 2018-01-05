@@ -1,5 +1,5 @@
 //
-//  ListView.swift
+//  TrackingInfoView.swift
 //  affective-chat
 //
 //  Created by Vincent Füseschi on 15.11.17.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ListView: UIView {
+class TrackingInfoView: UIView {
 
     private let stackView = UIStackView()
     let phoneIdLabel = UILabel()

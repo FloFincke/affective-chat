@@ -34,7 +34,7 @@ class RegisterViewModel {
             .filter { !$0.isEmpty }
 
         isRegistered = registerTap
-            .map { UserDefaults.standard.value(forKey: Constants.tokenKey) as? String }
+            .map { UserDefaults.standard.value(forKey: Constants.UserDefaults.tokenKey) as? String }
             .filterNil()
             .withLatestFrom(validUsername) { ($0, $1) }
             .flatMap { token, username -> Observable<(Event<String>, String)> in
@@ -50,8 +50,8 @@ class RegisterViewModel {
             .flatMap { (event, username) -> Observable<Bool> in
                 if let string = event.element {
                     log.info("Phone ID: \(string)")
-                    UserDefaults.standard.set(username, forKey: Constants.usernameKey)
-                    UserDefaults.standard.set(string, forKey: Constants.phoneIdKey)
+                    UserDefaults.standard.set(username, forKey: Constants.UserDefaults.usernameKey)
+                    UserDefaults.standard.set(string, forKey: Constants.UserDefaults.phoneIdKey)
                     return Observable.just(true)
                 } else {
                     return Observable.just(false)

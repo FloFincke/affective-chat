@@ -24,7 +24,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // MARK: - Services
 
-    private var dataStore: CoreDataStack!
     private var notificationHandler: NotificationHandler!
     private var geolocationService: GeolocationService!
     private var bandConnection: MBConnection!
@@ -68,22 +67,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             geolocationService: geolocationService
         )
 
-        // Present initial view controller
+        // Testing
 
-        let viewController: UIViewController
-        if let username = UserDefaults.standard.value(forKey: Constants.usernameKey),
-            let phoneId = UserDefaults.standard.value(forKey: Constants.phoneIdKey) {
+
+        // Present initial view controller
+        window = UIWindow()
+
+        if let username = UserDefaults.standard.value(forKey: Constants.UserDefaults.usernameKey),
+            let phoneId = UserDefaults.standard.value(forKey: Constants.UserDefaults.phoneIdKey) {
             log.info("username: \(username) phoneId: \(phoneId)")
 
-            let viewModel = ListViewModel(dataCollectionCycle: dataCollectionCycle)
-            viewController = ListViewController(viewModel: viewModel)
+            setupInitialContent()
+            presentList()
+
         } else {
             let viewModel = RegisterViewModel()
-            viewController = RegisterViewController(viewModel: viewModel)
+            let viewController = RegisterViewController(viewModel: viewModel)
+            window?.rootViewController = viewController
         }
 
-        window = UIWindow()
-        window?.rootViewController = viewController
         window?.makeKeyAndVisible()
 
         // Handle Notification
@@ -128,7 +130,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // applicationDidEnterBackground:.
         // Saves changes in the application's managed object context before the application
         // terminates.
-        try? dataStore.save()
     }
 
     // MARK: - Notifications
@@ -138,7 +139,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         let tokenParts = deviceToken.map { String(format: "%02.2hhx", $0) }
         let token = tokenParts.joined()
-        UserDefaults.standard.set(token, forKey: Constants.tokenKey)
+        UserDefaults.standard.set(token, forKey: Constants.UserDefaults.tokenKey)
         log.debug("Device Token: \(token)")
     }
 
@@ -160,15 +161,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // MARK: - Public Functions
 
     func presentList() {
-        let viewModel = ListViewModel(dataCollectionCycle: dataCollectionCycle)
+        let viewModel = ListViewModel(moc: DataController.shared.mainMoc)
         let viewController = ListViewController(viewModel: viewModel)
-        window?.rootViewController = viewController
+        window?.rootViewController = UINavigationController(rootViewController: viewController)
     }
 
     // MARK: - Private Functions
 
     private func setupServices() {
-        dataStore = CoreDataStack()
         notificationHandler = NotificationHandler()
         geolocationService = GeolocationService()
 
@@ -184,10 +184,49 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         )
     }
 
+    private func setupInitialContent() {
+        guard !UserDefaults.standard.bool(forKey: Constants.UserDefaults.initialContentCreatedKey)
+            else {
+                return
+        }
+
+        let moc = DataController.shared.mainMoc
+
+        let conversationOne: Conversation = moc.insertNewObject()
+        conversationOne.title = "Emma"
+        conversationOne.messages = testMessages(sender: "Emma", count: 5, in: moc)
+
+        let conversationTwo: Conversation = moc.insertNewObject()
+        conversationTwo.title = "Chris"
+        conversationTwo.messages = testMessages(sender: "Chris", count: 20, in: moc)
+
+        try? moc.save()
+        UserDefaults.standard.set(true, forKey: Constants.UserDefaults.initialContentCreatedKey)
+    }
+
+    private func testMessages(
+        sender: String, count: Int, in moc: NSManagedObjectContext) -> NSOrderedSet {
+
+        let user = UserDefaults.standard.string(forKey: Constants.UserDefaults.usernameKey) ?? ""
+
+        var messages = [Message]()
+        for i in 0..<count {
+            let message: Message = moc.insertNewObject()
+            let timeInterval = Double(-(count - i) * 60)
+            message.timestamp = Date().addingTimeInterval(timeInterval)
+            message.sender = i % 2 == 0 ? sender : user
+            message.text = "Message \(i + 1)"
+
+            messages.append(message)
+        }
+
+        return NSOrderedSet(array: messages)
+    }
+
     private func handleNotification(userInfo: [AnyHashable: Any]) {
         log.debug(userInfo)
         
-        UserDefaults.standard.setValue(Date(), forKey: Constants.lastSilentPushKey)
+        UserDefaults.standard.setValue(Date(), forKey: Constants.TrackingInfos.lastSilentPushKey)
         
         if let duration = userInfo["duration"] as? Double,
             let timeout = userInfo["timeout"] as? Double {

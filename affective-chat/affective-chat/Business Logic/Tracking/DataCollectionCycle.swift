@@ -74,15 +74,21 @@ class DataCollectionCycle {
     func start(withDuration duration: Double, timeoutAfter timeout: Double) {
         guard dataSubscriptionContainer.isConnected else {
             log.warning("Not connected to client")
-            UserDefaults.standard.setValue(Date(), forKey: Constants.notConnectedKey)
-            NotificationCenter.default.post(Notification(name: Constants.labelsUpdatedNotification))
+            UserDefaults.standard.setValue(
+                Date(),
+                forKey: Constants.TrackingInfos.notConnectedKey)
+            NotificationCenter.default.post(
+                Notification(name: Constants.Notifications.labelsUpdatedNotification))
             return
         }
 
         guard isReady else {
             log.warning("Another cycle is still active")
-            UserDefaults.standard.setValue(Date(), forKey: Constants.alreadyTrackingKey)
-            NotificationCenter.default.post(Notification(name: Constants.labelsUpdatedNotification))
+            UserDefaults.standard.setValue(
+                Date(),
+                forKey: Constants.TrackingInfos.alreadyTrackingKey)
+            NotificationCenter.default.post(
+                Notification(name: Constants.Notifications.labelsUpdatedNotification))
             return
         }
 
@@ -97,20 +103,21 @@ class DataCollectionCycle {
         let trackingEndTimestamp = Date().addingTimeInterval(duration)
         UserDefaults.standard.setValue(
             trackingEndTimestamp,
-            forKey: Constants.trackingEndTimestampKey
+            forKey: Constants.TrackingInfos.trackingEndTimestampKey
         )
 
         let cancelTimestamp = Date().addingTimeInterval(duration + timeout)
         UserDefaults.standard.setValue(
             cancelTimestamp,
-            forKey: Constants.cancelTrackingTimestampKey
+            forKey: Constants.TrackingInfos.cancelTrackingTimestampKey
         )
     }
 
     // MARK: - Private Functions
 
     private func shouldStopWritingData() -> Bool {
-        let dateValue = UserDefaults.standard.value(forKey: Constants.trackingEndTimestampKey)
+        let dateValue = UserDefaults.standard.value(
+            forKey: Constants.TrackingInfos.trackingEndTimestampKey)
         if let date = dateValue as? Date {
             let timeLeft: Double = date.timeIntervalSinceNow
             let minutes = Int(timeLeft / 60)
@@ -127,7 +134,8 @@ class DataCollectionCycle {
     }
 
     private func shouldStopTracking() -> Bool {
-        let dateValue = UserDefaults.standard.value(forKey: Constants.cancelTrackingTimestampKey)
+        let dateValue = UserDefaults.standard.value(
+            forKey: Constants.TrackingInfos.cancelTrackingTimestampKey)
         if let date = dateValue as? Date, date.timeIntervalSinceNow <= 0 {
             return true
         }
@@ -148,27 +156,35 @@ class DataCollectionCycle {
                 )
             }
             .subscribe(onNext: {
-                UserDefaults.standard.set(true, forKey: Constants.lastDataSentSuccessfulKey)
-                NotificationCenter.default
-                    .post(Notification(name: Constants.labelsUpdatedNotification))
+                UserDefaults.standard.set(
+                    true,
+                    forKey: Constants.TrackingInfos.lastDataSentSuccessfulKey)
+                NotificationCenter.default.post(
+                    Notification(name: Constants.Notifications.labelsUpdatedNotification))
             }, onError: {
                 log.error($0)
-                UserDefaults.standard.set(false, forKey: Constants.lastDataSentSuccessfulKey)
-                NotificationCenter.default
-                    .post(Notification(name: Constants.labelsUpdatedNotification))
+                UserDefaults.standard.set(
+                    false,
+                    forKey: Constants.TrackingInfos.lastDataSentSuccessfulKey)
+                NotificationCenter.default.post(
+                    Notification(name: Constants.Notifications.labelsUpdatedNotification))
             }, onDisposed: { [weak self] in
                 self?.isReady = true
-                UserDefaults.standard.setValue(Date(), forKey: Constants.lastDataSentKey)
-                NotificationCenter.default
-                    .post(Notification(name: Constants.labelsUpdatedNotification))
+                UserDefaults.standard.setValue(
+                    Date(),
+                    forKey: Constants.TrackingInfos.lastDataSentKey)
+                NotificationCenter.default.post(
+                    Notification(name: Constants.Notifications.labelsUpdatedNotification))
             })
             .disposed(by: disposeBag)
     }
 
     private func cancel() {
-        UserDefaults.standard.setValue(Date(), forKey: Constants.lastCancelledKey)
-        NotificationCenter.default
-            .post(Notification(name: Constants.labelsUpdatedNotification))
+        UserDefaults.standard.setValue(
+            Date(),
+            forKey: Constants.TrackingInfos.lastCancelledKey)
+        NotificationCenter.default.post(
+            Notification(name: Constants.Notifications.labelsUpdatedNotification))
 
         notificationHandler.cancelIsReceptibleNotification()
         dataSubscriptionContainer.stopWritingData()
