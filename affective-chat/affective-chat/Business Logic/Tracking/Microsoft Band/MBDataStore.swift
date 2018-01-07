@@ -105,7 +105,8 @@ class MBDataStore {
             let json = try? JSONSerialization.jsonObject(with: jsonData, options: []),
             let validJson = json as? [String: Any]
             else {
-                if let phoneId = UserDefaults.standard.string(forKey: Constants.phoneIdKey) {
+                if let phoneId = UserDefaults.standard.string(
+                    forKey: Constants.UserDefaults.phoneIdKey) {
                     return ["phoneId": phoneId]
                 } else {
                     return [:]
@@ -118,7 +119,8 @@ class MBDataStore {
     private func prepareSensoreDataForSending(receptivity: Receptivity,
                                               location: CLLocationCoordinate2D) {
 
-        let dateValue = UserDefaults.standard.value(forKey: Constants.trackingEndTimestampKey)
+        let dateValue = UserDefaults.standard.value(
+            forKey: Constants.TrackingInfos.trackingEndTimestampKey)
         let date = dateValue as? Date ?? Date()
 
         saveData(
@@ -159,7 +161,8 @@ class MBDataStore {
                 return Disposables.create()
             }
 
-            guard let phoneId = UserDefaults.standard.string(forKey: Constants.phoneIdKey) else {
+            guard let phoneId = UserDefaults.standard.string(
+                forKey: Constants.UserDefaults.phoneIdKey) else {
                 observer.onError(UploadError.missingPhoneId)
                 return Disposables.create()
             }

@@ -1,5 +1,5 @@
 //
-//  ListViewModel.swift
+//  TrackingInfoViewModel.swift
 //  affective-chat
 //
 //  Created by Vincent Füseschi on 13.12.17.
@@ -9,7 +9,7 @@
 import Foundation
 import RxSwift
 
-class ListViewModel {
+class TrackingInfoViewModel {
 
     let trackTap = PublishSubject<Void>()
     private let disposeBag = DisposeBag()

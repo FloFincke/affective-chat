@@ -11,6 +11,8 @@ target 'affective-chat' do
   pod 'RxSwiftExt'
   pod 'RxOptional'
   pod 'RxGesture'
+  pod 'RxDataSources'
+  pod 'RxKeyboard'
   pod 'Moya/RxSwift'
   pod 'Moya-ObjectMapper/RxSwift'
   pod 'PureLayout'
