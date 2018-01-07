@@ -5,7 +5,7 @@ import keras
 from classifiers.baselines import Classifier
 from classifiers.data_set import produce_data_set
 
-BATCH_SIZE = 128
+BATCH_SIZE = 64
 HIDDEN_DIM = 128
 NB_EPOCH = 100
 PATH = "../max.csv"
@@ -14,6 +14,11 @@ seed = 155
 np.random.seed(seed)
 
 X_train, X_test, Y_train, Y_test = produce_data_set(PATH)
+
+
+print(X_train[0])
+print(Y_train[0])
+
 
 scaler = StandardScaler()
 
