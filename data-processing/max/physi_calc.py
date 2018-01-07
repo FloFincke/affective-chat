@@ -4,40 +4,42 @@ from hrv.classical import time_domain
 import numpy as np
 import math
 
+
 def scl(gsr):
-	scl = []
-	
-	for i in range(0, len(gsr)):
-		meanList = []
+    scl = []
 
-		#avoid null pointer
-		for j in range(-2,3):
-			if i+j>=0 and i+j<=len(gsr)-1:
-				meanList.append(gsr[i+j])
-				
-		mean = np.mean([meanList])
-		scl.append(mean)
+    for i in range(0, len(gsr)):
+        meanList = []
 
-	return(scl)
+        # avoid null pointer
+        for j in range(-2, 3):
+            if 0 <= i + j <= len(gsr) - 1:
+                meanList.append(gsr[i + j])
+
+        mean = np.mean([meanList])
+        scl.append(mean)
+
+    return scl
+
 
 def scr(gsr):
-	scr = []
-	
-	for i in range(0, len(gsr)):
-		meanList = []
+    scr = []
 
-		#avoid null pointer
-		for j in range(-2,3):
-			if i+j>=0 and i+j<=len(gsr)-1:
-				meanList.append(gsr[i+j])
-				
-		mean = np.mean([meanList])
-		scrVal = np.sqrt((gsr[i]-mean)**2)
-		scr.append(scrVal)
+    for i in range(0, len(gsr)):
+        meanList = []
 
-	return(scr)		
+        # avoid null pointer
+        for j in range(-2, 3):
+            if 0 <= i + j <= len(gsr) - 1:
+                meanList.append(gsr[i + j])
+
+        mean = np.mean([meanList])
+        scrVal = np.sqrt((gsr[i] - mean) ** 2)
+        scr.append(scrVal)
+
+    return (scr)
 
 
 def rr_calc(rr):
-	results = time_domain(rr)
-	return(results)
+    results = time_domain(rr)
+    return results
