@@ -10,10 +10,11 @@ from sklearn.preprocessing import StandardScaler
 from classifiers.baselines import Classifier
 from classifiers.data_set import produce_data_set
 
-BATCH_SIZE = 128
+BATCH_SIZE = 64
 HIDDEN_DIM = 128
-NB_EPOCH = 2
-PATH = "../data-processing/max/*.csv"
+
+NB_EPOCH = 100
+PATH = "../max.csv"
 
 seed = 155
 np.random.seed(seed)

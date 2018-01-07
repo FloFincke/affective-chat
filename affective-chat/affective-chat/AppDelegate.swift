@@ -8,8 +8,10 @@
 
 import UIKit
 import CoreData
-import SwiftyBeaver
 import RxSwift
+import SwiftyBeaver
+import Fabric
+import Crashlytics
 
 let log = SwiftyBeaver.self
 
@@ -33,6 +35,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // swiftlint:disable:next line_length
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+
+        Fabric.with([Crashlytics.self])
 
         // Setup logging
 
@@ -135,7 +139,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let tokenParts = deviceToken.map { String(format: "%02.2hhx", $0) }
         let token = tokenParts.joined()
         UserDefaults.standard.set(token, forKey: Constants.tokenKey)
-        UserDefaults.standard.synchronize()
         log.debug("Device Token: \(token)")
     }
 
@@ -183,6 +186,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     private func handleNotification(userInfo: [AnyHashable: Any]) {
         log.debug(userInfo)
+        
+        UserDefaults.standard.setValue(Date(), forKey: Constants.lastSilentPushKey)
         
         if let duration = userInfo["duration"] as? Double,
             let timeout = userInfo["timeout"] as? Double {

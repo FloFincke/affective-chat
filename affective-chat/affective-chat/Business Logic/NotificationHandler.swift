@@ -50,7 +50,7 @@ class NotificationHandler: NSObject {
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
     }
 
-    func registerForPushNotifications() {w
+    func registerForPushNotifications() {
         UNUserNotificationCenter
             .current()
             .requestAuthorization(options: [.alert, .sound, .badge]) { (granted, error) in
