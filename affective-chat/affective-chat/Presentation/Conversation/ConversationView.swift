@@ -13,7 +13,11 @@ import RxGesture
 
 class ConversationView: UIView {
 
+    let nameConainerView = UIView()
+    let nameTextField = TextField()
+
     let tableView = UITableView()
+
     let typingContainerView = UIView()
     let typingStackView = UIStackView()
     let textField = TextField()
@@ -36,6 +40,13 @@ class ConversationView: UIView {
 
         addSubview(tableView)
 
+        nameConainerView.backgroundColor = UIColor.lightGray
+        addSubview(nameConainerView)
+
+        nameTextField.backgroundColor = .white
+        nameTextField.placeholder = "Recipient"
+        nameConainerView.addSubview(nameTextField)
+
         typingContainerView.backgroundColor = UIColor.lightGray
         addSubview(typingContainerView)
 
@@ -46,6 +57,7 @@ class ConversationView: UIView {
 
         textField.layer.cornerRadius = 4
         textField.backgroundColor = .white
+        textField.placeholder = "Message"
         typingStackView.addArrangedSubview(textField)
 
         sendButton.setTitleColor(.blue, for: .normal)
@@ -62,6 +74,16 @@ class ConversationView: UIView {
             shouldSetupConstraints = false
         }
         super.updateConstraints()
+
+        nameConainerView.autoSetDimension(.height, toSize: 44)
+        nameConainerView.autoPinEdge(toSuperviewEdge: .top)
+        nameConainerView.autoPinEdge(toSuperviewEdge: .left)
+        nameConainerView.autoPinEdge(toSuperviewEdge: .right)
+
+        nameTextField.autoSetDimension(.height, toSize: 30)
+        nameTextField.autoPinEdge(toSuperviewEdge: .left, withInset: 16)
+        nameTextField.autoAlignAxis(toSuperviewAxis: .vertical)
+        nameTextField.autoAlignAxis(toSuperviewAxis: .horizontal)
 
         tableView.autoPinEdge(toSuperviewEdge: .top)
         tableView.autoPinEdge(toSuperviewEdge: .left)

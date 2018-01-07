@@ -16,8 +16,12 @@ class ConversationViewModel {
     let title: String?
     let messages: Driver<[Message]>
     private let messagesVar = Variable<[Message]>([])
-    let sendTap = PublishSubject<Void>()
+    let senderText = Variable<String?>(nil)
     let messageText = Variable<String?>(nil)
+    let sendTap = PublishSubject<Void>()
+
+    let hideNameTextField: Driver<Bool>
+    private let isNew: Variable<Bool>
 
     private let conversation: Conversation
     private let moc: NSManagedObjectContext
@@ -25,11 +29,19 @@ class ConversationViewModel {
 
     // MARK: - Lifecycle
 
-    init(conversation: Conversation/*? = nil*/, moc: NSManagedObjectContext) {
-        self.conversation = conversation
+    init(conversation: Conversation? = nil, moc: NSManagedObjectContext) {
+        self.isNew = Variable(conversation?.title == nil)
+        self.hideNameTextField = isNew.asDriver().map { !$0 }
         self.moc = moc
 
-        title = conversation.title
+        if let conversation = conversation {
+            self.conversation = conversation
+        } else {
+            self.conversation = self.moc.insertNewObject()
+            try? self.moc.save()
+        }
+
+        title = self.conversation.title ?? "New conversation"
         messages = messagesVar.asDriver()
 
         sendTap.asObservable()
@@ -57,8 +69,20 @@ class ConversationViewModel {
     // MARK: - Private Functions
 
     private func addMessage() {
-        guard let messageText = messageText.value else {
+        guard conversation.title?.isNotEmpty ?? false
+            || senderText.value?.isNotEmpty ?? false
+            else {
+                return
+        }
+
+        guard let messageText = messageText.value, messageText.isNotEmpty else {
             return
+        }
+
+        if isNew.value {
+            conversation.title = senderText.value
+            try? moc.save()
+            isNew.value = false
         }
 
         let user = UserDefaults.standard.string(forKey: Constants.UserDefaults.usernameKey) ?? ""

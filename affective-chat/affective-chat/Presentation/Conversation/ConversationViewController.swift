@@ -41,7 +41,12 @@ class ConversationViewController: UIViewController {
         view.backgroundColor = UIColor.white
 
         view.addSubview(conversationView)
+        conversationView.autoPin(toTopLayoutGuideOf: self, withInset: 0)
+        conversationView.autoPinEdge(toSuperviewEdge: .left)
+        conversationView.autoPin(toBottomLayoutGuideOf: self, withInset: 0)
+        conversationView.autoPinEdge(toSuperviewEdge: .right)
 
+        setupNameTextField()
         setupTextField()
         setupTableView()
         setupSendButton()
@@ -50,6 +55,16 @@ class ConversationViewController: UIViewController {
     }
 
     // MARK: - Setup Functions
+
+    private func setupNameTextField() {
+        viewModel.hideNameTextField
+            .drive(conversationView.nameConainerView.rx.isHidden)
+            .disposed(by: disposeBag)
+
+        conversationView.nameTextField.rx.text
+            .bind(to: viewModel.senderText)
+            .disposed(by: disposeBag)
+    }
 
     private func setupTableView() {
         conversationView.tableView.estimatedRowHeight = 44
@@ -71,7 +86,6 @@ class ConversationViewController: UIViewController {
     }
 
     private func setupTextField() {
-        conversationView.autoPinEdgesToSuperviewEdges()
         let bottomConstraint = conversationView.typingStackView.autoPin(
             toBottomLayoutGuideOf: self,
             withInset: 0)

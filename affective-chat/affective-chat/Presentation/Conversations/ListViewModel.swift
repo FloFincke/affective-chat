@@ -16,7 +16,7 @@ class ListViewModel {
     let conversations: Driver<[Conversation]>
     private let conversationsVar = Variable<[Conversation]>([])
 
-    let selectedConversation = PublishSubject<Conversation>()
+    let selectedConversation = PublishSubject<Conversation?>()
     let selectedConversationViewModel: Observable<ConversationViewModel?>
 
     private let moc: NSManagedObjectContext

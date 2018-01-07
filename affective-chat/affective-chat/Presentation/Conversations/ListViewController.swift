@@ -53,9 +53,10 @@ class ListViewController: UIViewController {
         let composeButton = UIBarButtonItem(barButtonSystemItem: .compose, target: nil, action: nil)
         navigationItem.rightBarButtonItem = composeButton
 
-//        composeButton.rx.tap
-//            .subscribeNext(weak: self, ListViewController.composeButtonTapped)
-//            .disposed(by: disposeBag)
+        composeButton.rx.tap
+            .map { _ in nil }
+            .bind(to: viewModel.selectedConversation)
+            .disposed(by: disposeBag)
     }
 
     private func setupTableView() {
