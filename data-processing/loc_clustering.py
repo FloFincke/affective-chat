@@ -9,7 +9,7 @@ class Locations(Enum):
 	GIRLFRIEND = 5
 	OUTSIDE = 6
 
-locationsOrder = [Locations.HOME, Locations.WORK, Locations.UNI, Locations.UNI2, Locations.GIRLFRIEND]
+locationsOrder = [1, 2, 3, 4, 5]
 
 homes = {
 	# Vince
@@ -29,4 +29,4 @@ def where(id, location):
 		if(vincenty(location, loc).km < 1.0):
 			return locationsOrder[i]
 
-	return Locations.OUTSIDE
+	return 6
