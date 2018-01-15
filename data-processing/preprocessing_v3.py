@@ -123,9 +123,6 @@ def calc_features(measurements):
     print(' saved ' + results['phoneId'][0] + '! ')
 
 def outputCSV(results):
-    for column in results:
-        if column not in ['phoneId', 'location', 'motionType', 'receptivity']:
-            results[column] = pd.DataFrame(normalizeList(results[column].tolist()))
     results.to_csv(results['phoneId'][0] + "_export.csv", sep=";", encoding="utf-8")
 
 # Calculate the Tukey interquartile range for outlier detection
@@ -154,17 +151,6 @@ def clean(dframe):
         del dframe['Outlier'] # Remove outlier column
 
     return dframe
-
-def normalizeList(inputList):
-    nlist = []
-    maxList = max(inputList)
-    minList = min(inputList)
-    meanList = np.mean([maxList,minList])
-
-    for i in range(0, len(inputList)-1):
-        nlist.append((inputList[i]-meanList)/meanList)
-
-    return nlist
 
 ####################################################################################################################
 ####################################################################################################################
