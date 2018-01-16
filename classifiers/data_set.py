@@ -11,6 +11,6 @@ def produce_data_set(path):
     x_train, x_test, y_train, y_test = train_test_split(
         data_set[:, 2:-1],
         data_set[:, -1],
-        test_size=0.2, random_state=87)
+        test_size=0.33, random_state=42)
 
     return x_train, x_test, y_train, y_test
