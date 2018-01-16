@@ -130,7 +130,7 @@ def outputCSV(results):
 
     for column in results:
         if column not in ['phoneId', 'date', 'location', 'motionType', 'receptivity']:
-            results[column] = pd.DataFrame(normalizeList(results[column].tolist()))
+            results[column] = pd.DataFrame(results[column].tolist())
 
     results.to_csv(results['phoneId'][0] + "_export.csv", sep=";", encoding="utf-8")
 
