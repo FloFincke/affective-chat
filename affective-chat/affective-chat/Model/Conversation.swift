@@ -14,18 +14,13 @@ import CoreData
 public class Conversation: NSManagedObject {
 
     var firstMessageTimestamp: Date {
-        guard let lastMessage = messages?.lastObject as? Message,
-            let timestamp = lastMessage.timestamp
-            else {
-                return creationDate ?? Date.distantPast
-        }
-
-        return timestamp
+        return lastMessage?.timestamp ?? Date.distantPast
     }
 
     // MARK: - Public Functions
 
     public override func awakeFromInsert() {
+        id = UUID().uuidString
         creationDate = Date()
     }
 
@@ -33,4 +28,8 @@ public class Conversation: NSManagedObject {
 
 func > (lhs: Conversation, rhs: Conversation) -> Bool {
     return lhs.firstMessageTimestamp > rhs.firstMessageTimestamp
+}
+
+func > (lhs: Message, rhs: Message) -> Bool {
+    return lhs.timestamp ?? Date.distantPast > rhs.timestamp ?? Date.distantPast
 }

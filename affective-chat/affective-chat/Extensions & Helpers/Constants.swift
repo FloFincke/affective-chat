@@ -34,5 +34,12 @@ enum Constants {
     enum Notifications {
         static let labelsUpdatedNotification = Notification.Name("LabelsUpdated")
     }
+
+    enum DateFormat {
+        static let messageTimestamp = "yyyy-MM-dd HH:mm:ss"
+        static let fileTimestamp = "yyyy-MM-dd_HH-mm-ss"
+        static let messageCell = "yyyy/MM/dd HH:mm"
+        static let trackingInfo = "HH:mm dd.MM.yyyy"
+    }
     
 }
