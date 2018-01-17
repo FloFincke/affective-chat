@@ -2,8 +2,11 @@ import numpy as np
 from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import StandardScaler
 
-from classifiers.baselines import Classifier
-from classifiers.data_set import produce_data_set
+#from classifiers.baselines import Classifier
+#from classifiers.data_set import produce_data_set
+
+from baselines import Classifier
+from data_set import produce_data_set
 
 PATH = "../vince_with_dates.csv"
 

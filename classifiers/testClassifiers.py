@@ -17,6 +17,7 @@ data_set = (pd.concat((pd.read_csv(f, sep=';', header=0) for f in data_sets_file
 
 df = pd.DataFrame(data_set)
 unique_dates = df[2].unique()
+print(unique_dates)
 
 for i in range(len(unique_dates)):
     train, test = np.split(data_set, np.where(data_set[:, 2] != unique_dates[i])[0][1:]), np.split(data_set, np.where(
