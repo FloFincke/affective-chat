@@ -11,18 +11,34 @@ import CoreData
 import RxSwift
 
 extension NSManagedObjectContext {
-
+    
     func insertNewObject<T: NSManagedObject>() -> T {
         return NSEntityDescription.insertNewObject(
             forEntityName: String(describing: T.self),
             // swiftlint:disable:next force_cast
             into: self) as! T
     }
-
+    
 }
 
 extension Reactive where Base: NSManagedObjectContext {
 
+    func fetchEntity<E>(for request: NSFetchRequest<E>) -> Observable<E?> {
+        return Observable.create { observer in
+            self.base.perform {
+                do {
+                    let result = try self.base.fetch(request)
+                    observer.onNext(result.first)
+                    observer.onCompleted()
+                } catch let error {
+                    observer.onError(error)
+                }
+            }
+
+            return Disposables.create()
+        }
+    }
+    
     func fetchEntities<E>(for request: NSFetchRequest<E>) -> Observable<[E]> {
         return Observable.create { observer in
             self.base.perform {
@@ -34,11 +50,11 @@ extension Reactive where Base: NSManagedObjectContext {
                     observer.onError(error)
                 }
             }
-
+            
             return Disposables.create()
-            }.observeOn(MainScheduler.instance)
+        }
     }
-
+    
     func object<T: NSManagedObject>(withId objectID: NSManagedObjectID) -> Observable<T?> {
         return Observable.create { observer in
             self.base.perform {
@@ -50,11 +66,11 @@ extension Reactive where Base: NSManagedObjectContext {
                     observer.onError(error)
                 }
             }
-
+            
             return Disposables.create()
         }
     }
-
+    
     func save() -> Observable<Void> {
         return Observable.create { observer in
             guard self.base.hasChanges else {
@@ -62,7 +78,7 @@ extension Reactive where Base: NSManagedObjectContext {
                 observer.onCompleted()
                 return Disposables.create()
             }
-
+            
             self.base.perform {
                 do {
                     try self.base.save()
@@ -72,20 +88,20 @@ extension Reactive where Base: NSManagedObjectContext {
                     observer.onError(error)
                 }
             }
-
+            
             return Disposables.create()
         }
     }
-
+    
     func recursiveSave() -> Observable<Void> {
         return save().flatMapLatest { _ -> Observable<Void> in
             if let parent = self.base.parent {
                 return parent.rx.recursiveSave()
             }
-
+            
             return Observable.just(())
         }
     }
-
+    
 }
 

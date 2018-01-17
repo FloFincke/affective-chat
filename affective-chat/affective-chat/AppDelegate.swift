@@ -26,9 +26,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     private var notificationHandler: NotificationHandler!
     private var geolocationService: GeolocationService!
+
     private var bandConnection: MBConnection!
     private var bandDataStore: MBDataStore!
     private var dataSubscriptionContainer: MBDataSubscriptionContainer!
+
+    private var socketConnection: SocketConnection!
+    private var messagesInbox: MessagesInbox!
 
     // MARK: - UIApplicationDelegate Functions
 
@@ -76,12 +80,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if let username = UserDefaults.standard.value(forKey: Constants.UserDefaults.usernameKey),
             let phoneId = UserDefaults.standard.value(forKey: Constants.UserDefaults.phoneIdKey) {
             log.info("username: \(username) phoneId: \(phoneId)")
-
-            setupInitialContent()
             presentList()
 
         } else {
-            let viewModel = RegisterViewModel()
+            let viewModel = RegisterViewModel(socketConnection: socketConnection)
             let viewController = RegisterViewController(viewModel: viewModel)
             window?.rootViewController = viewController
         }
@@ -112,6 +114,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // case it is terminated later.
         // If your application supports background execution, this method is called instead of
         // applicationWillTerminate: when the user quits.
+        socketConnection.stop()
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
@@ -123,6 +126,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Restart any tasks that were paused (or not yet started) while the application was
         // inactive. If the application was previously in the background, optionally refresh the
         // user interface.
+        socketConnection.start()
     }
 
     func applicationWillTerminate(_ application: UIApplication) {
@@ -161,7 +165,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // MARK: - Public Functions
 
     func presentList() {
-        let viewModel = ListViewModel(moc: DataController.shared.mainMoc)
+        let viewModel = ListViewModel(
+            socketConnection: socketConnection,
+            moc: DataController.shared.mainMoc)
         let viewController = ListViewController(viewModel: viewModel)
         window?.rootViewController = UINavigationController(rootViewController: viewController)
     }
@@ -182,27 +188,32 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             subscriberFactory: subscriberFactory,
             subscriptionTypes: SubscriptionType.all
         )
+
+        socketConnection = SocketConnection.shared
+        messagesInbox = MessagesInbox(
+            connection: socketConnection,
+            moc: DataController.shared.mainMoc)
     }
 
-    private func setupInitialContent() {
-        guard !UserDefaults.standard.bool(forKey: Constants.UserDefaults.initialContentCreatedKey)
-            else {
-                return
-        }
-
-        let moc = DataController.shared.mainMoc
-
-        let conversationOne: Conversation = moc.insertNewObject()
-        conversationOne.title = "Emma"
-        conversationOne.messages = testMessages(sender: "Emma", count: 5, in: moc)
-
-        let conversationTwo: Conversation = moc.insertNewObject()
-        conversationTwo.title = "Chris"
-        conversationTwo.messages = testMessages(sender: "Chris", count: 20, in: moc)
-
-        try? moc.save()
-        UserDefaults.standard.set(true, forKey: Constants.UserDefaults.initialContentCreatedKey)
-    }
+//    private func setupInitialContent() {
+//        guard !UserDefaults.standard.bool(forKey: Constants.UserDefaults.initialContentCreatedKey)
+//            else {
+//                return
+//        }
+//
+//        let moc = DataController.shared.mainMoc
+//
+//        let conversationOne: Conversation = moc.insertNewObject()
+//        conversationOne.title = "Emma"
+//        conversationOne.messages = testMessages(sender: "Emma", count: 5, in: moc)
+//
+//        let conversationTwo: Conversation = moc.insertNewObject()
+//        conversationTwo.title = "Chris"
+//        conversationTwo.messages = testMessages(sender: "Chris", count: 20, in: moc)
+//
+//        try? moc.save()
+//        UserDefaults.standard.set(true, forKey: Constants.UserDefaults.initialContentCreatedKey)
+//    }
 
     private func testMessages(
         sender: String, count: Int, in moc: NSManagedObjectContext) -> NSOrderedSet {

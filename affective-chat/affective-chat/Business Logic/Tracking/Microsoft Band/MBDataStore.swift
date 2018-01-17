@@ -39,12 +39,7 @@ class MBDataStore {
         return documentsDirectory.appendingPathComponent("\(sensorDataFileName)-\(timestamp).\(zip)")
     }
 
-    private lazy var fileNameDateFormatter: DateFormatter = {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd_HH-mm-ss"
-        return dateFormatter
-    }()
-
+    private let fileNameDateFormatter = DateFormatter(dateFormat: Constants.DateFormat.fileTimestamp)
     private let disposeBag = DisposeBag()
 
     // MARK: - Lifecycle

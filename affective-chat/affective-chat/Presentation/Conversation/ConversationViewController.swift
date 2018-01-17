@@ -17,11 +17,7 @@ class ConversationViewController: UIViewController {
     var conversationView = ConversationView()
 
     private let viewModel: ConversationViewModel
-    private lazy var dateFormatter: DateFormatter = {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy/MM/dd HH:mm"
-        return dateFormatter
-    }()
+    private let dateFormatter = DateFormatter(dateFormat: Constants.DateFormat.messageCell)
     private let disposeBag = DisposeBag()
 
     // MARK: - Lifecycle

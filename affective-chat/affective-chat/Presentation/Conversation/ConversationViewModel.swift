@@ -24,14 +24,16 @@ class ConversationViewModel {
     private let isNew: Variable<Bool>
 
     private let conversation: Conversation
+    private let socketConnection: SocketConnection
     private let moc: NSManagedObjectContext
     private let disposeBag = DisposeBag()
 
     // MARK: - Lifecycle
 
-    init(conversation: Conversation? = nil, moc: NSManagedObjectContext) {
+    init(conversation: Conversation? = nil, socketConnection: SocketConnection, moc: NSManagedObjectContext) {
         self.isNew = Variable(conversation?.title == nil)
         self.hideNameTextField = isNew.asDriver().map { !$0 }
+        self.socketConnection = socketConnection
         self.moc = moc
 
         if let conversation = conversation {
@@ -58,24 +60,32 @@ class ConversationViewModel {
     // MARK: - Public Functions
 
     func update() {
-        guard let conversationMessages = conversation.messages,
-            let validMessages = Array(conversationMessages) as? [Message] else {
-                return
+        guard let conversationId = conversation.id else {
+            return
         }
 
-        messagesVar.value = validMessages
+        let fetchRequest: NSFetchRequest<Message> = Message.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "conversationId == %@", conversationId)
+        moc.rx.fetchEntities(for: fetchRequest)
+            .map { $0.sorted(by: >) }
+            .bind(to: messagesVar)
+            .disposed(by: disposeBag)
     }
 
     // MARK: - Private Functions
 
     private func addMessage() {
+        guard let conversationId = conversation.id else {
+            return
+        }
+
         guard conversation.title?.isNotEmpty ?? false
             || senderText.value?.isNotEmpty ?? false
             else {
                 return
         }
 
-        guard let messageText = messageText.value, messageText.isNotEmpty else {
+        guard let body = messageText.value, body.isNotEmpty else {
             return
         }
 
@@ -85,14 +95,22 @@ class ConversationViewModel {
             isNew.value = false
         }
 
+        let timestamp = Date()
         let user = UserDefaults.standard.string(forKey: Constants.UserDefaults.usernameKey) ?? ""
         let message: Message = moc.insertNewObject()
-        message.timestamp = Date()
+        message.conversationId = conversationId
+        message.timestamp = timestamp
         message.sender = user
-        message.text = messageText
+        message.text = body
+        
+        conversation.lastMessage = message
 
-        conversation.addToMessages(message)
         try? moc.save()
+        socketConnection.sendMessageInConversation(
+            withId: conversationId,
+            message: body,
+            recipient: conversation.title ?? "",
+            timestamp: timestamp)
     }
 
     private func handleContextSave(notifiaction: Notification) {
