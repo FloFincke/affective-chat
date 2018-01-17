@@ -15,11 +15,7 @@ class TrackingInfoViewController: UIViewController {
     private let viewModel: TrackingInfoViewModel
     private let disposeBag = DisposeBag()
 
-    private lazy var dateFormatter: DateFormatter = {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "HH:mm dd.MM.yyyy"
-        return dateFormatter
-    }()
+    private let dateFormatter = DateFormatter(dateFormat: Constants.DateFormat.trackingInfo)
 
     // MARK: - Lifecycle
 

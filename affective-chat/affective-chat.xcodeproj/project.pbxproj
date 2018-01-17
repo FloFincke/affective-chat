@@ -24,6 +24,8 @@
 		E535DDB91FC08DC4007D6BE6 /* NotificationHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E535DDB81FC08DC4007D6BE6 /* NotificationHandler.swift */; };
 		E535DDBB1FC08FFB007D6BE6 /* MBDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E535DDBA1FC08FFB007D6BE6 /* MBDataStore.swift */; };
 		E535DDBE1FC09358007D6BE6 /* MBDataSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = E535DDBD1FC09358007D6BE6 /* MBDataSubscriber.swift */; };
+		E53E5316200F47A5003B6A82 /* DateFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53E5315200F47A5003B6A82 /* DateFormatter.swift */; };
+		E53E5318200F5504003B6A82 /* MessagesInbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53E5317200F5504003B6A82 /* MessagesInbox.swift */; };
 		E53F57701FBCA6330013043C /* RegisterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53F576F1FBCA6330013043C /* RegisterViewController.swift */; };
 		E53F57721FBCCE130013043C /* RegisterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53F57711FBCCE130013043C /* RegisterView.swift */; };
 		E53F57751FBCD51C0013043C /* TrackingInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53F57741FBCD51C0013043C /* TrackingInfoViewController.swift */; };
@@ -31,6 +33,8 @@
 		E53F57791FBCD6E10013043C /* RegisterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53F57781FBCD6E10013043C /* RegisterViewModel.swift */; };
 		E53F577B1FBCD7DD0013043C /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53F577A1FBCD7DD0013043C /* Constants.swift */; };
 		E54ABE081FBC4F820056D1ED /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E528F9EA1FBC4DC500FFD02E /* CoreBluetooth.framework */; };
+		E59ECA2E200DFF8000E7FFE4 /* SocketConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = E59ECA2D200DFF8000E7FFE4 /* SocketConnection.swift */; };
+		E59ECA32200E297B00E7FFE4 /* SocketIOClient+Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = E59ECA31200E297B00E7FFE4 /* SocketIOClient+Helper.swift */; };
 		E59FCB541FC62CB70013E420 /* Date+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = E59FCB531FC62CB70013E420 /* Date+Helpers.swift */; };
 		E59FCB561FC62FB20013E420 /* Dictionary+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = E59FCB551FC62FB20013E420 /* Dictionary+Helpers.swift */; };
 		E5B562DD1FFF61580067632A /* NSManagedObjectContext+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5B562DC1FFF61580067632A /* NSManagedObjectContext+Helpers.swift */; };
@@ -81,12 +85,16 @@
 		E535DDB81FC08DC4007D6BE6 /* NotificationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHandler.swift; sourceTree = "<group>"; };
 		E535DDBA1FC08FFB007D6BE6 /* MBDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MBDataStore.swift; sourceTree = "<group>"; };
 		E535DDBD1FC09358007D6BE6 /* MBDataSubscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MBDataSubscriber.swift; sourceTree = "<group>"; };
+		E53E5315200F47A5003B6A82 /* DateFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateFormatter.swift; sourceTree = "<group>"; };
+		E53E5317200F5504003B6A82 /* MessagesInbox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesInbox.swift; sourceTree = "<group>"; };
 		E53F576F1FBCA6330013043C /* RegisterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterViewController.swift; sourceTree = "<group>"; };
 		E53F57711FBCCE130013043C /* RegisterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterView.swift; sourceTree = "<group>"; };
 		E53F57741FBCD51C0013043C /* TrackingInfoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackingInfoViewController.swift; sourceTree = "<group>"; };
 		E53F57761FBCD52B0013043C /* TrackingInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackingInfoView.swift; sourceTree = "<group>"; };
 		E53F57781FBCD6E10013043C /* RegisterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterViewModel.swift; sourceTree = "<group>"; };
 		E53F577A1FBCD7DD0013043C /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		E59ECA2D200DFF8000E7FFE4 /* SocketConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocketConnection.swift; sourceTree = "<group>"; };
+		E59ECA31200E297B00E7FFE4 /* SocketIOClient+Helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SocketIOClient+Helper.swift"; sourceTree = "<group>"; };
 		E59FCB531FC62CB70013E420 /* Date+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Helpers.swift"; sourceTree = "<group>"; };
 		E59FCB551FC62FB20013E420 /* Dictionary+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Dictionary+Helpers.swift"; sourceTree = "<group>"; };
 		E5B562DC1FFF61580067632A /* NSManagedObjectContext+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSManagedObjectContext+Helpers.swift"; sourceTree = "<group>"; };
@@ -230,6 +238,7 @@
 		E528F9DF1FBC436000FFD02E /* Business Logic */ = {
 			isa = PBXGroup;
 			children = (
+				E59ECA2C200DFF6300E7FFE4 /* Socket IO */,
 				E5B562D81FFF5CC40067632A /* Tracking */,
 				E528F9E11FBC437E00FFD02E /* DataController.swift */,
 				E535DDB81FC08DC4007D6BE6 /* NotificationHandler.swift */,
@@ -276,6 +285,15 @@
 				E53F57761FBCD52B0013043C /* TrackingInfoView.swift */,
 			);
 			path = "Tracking Info";
+			sourceTree = "<group>";
+		};
+		E59ECA2C200DFF6300E7FFE4 /* Socket IO */ = {
+			isa = PBXGroup;
+			children = (
+				E59ECA2D200DFF8000E7FFE4 /* SocketConnection.swift */,
+				E53E5317200F5504003B6A82 /* MessagesInbox.swift */,
+			);
+			path = "Socket IO";
 			sourceTree = "<group>";
 		};
 		E5B562D81FFF5CC40067632A /* Tracking */ = {
@@ -327,12 +345,14 @@
 				E5D65FCA1FE91A3A001BED45 /* ObservableType.swift */,
 				E5D348001FC5E62F00FAF024 /* CLLocationManager+Rx.swift */,
 				E5FD33171FC0BF5600A3AED2 /* CompactNetworkLoggerPlugin.swift */,
+				E53E5315200F47A5003B6A82 /* DateFormatter.swift */,
 				E5B562DC1FFF61580067632A /* NSManagedObjectContext+Helpers.swift */,
 				E53F577A1FBCD7DD0013043C /* Constants.swift */,
 				E59FCB531FC62CB70013E420 /* Date+Helpers.swift */,
 				E59FCB551FC62FB20013E420 /* Dictionary+Helpers.swift */,
 				E5D348021FC5E6F900FAF024 /* RxCLLocationManagerDelegateProxy.swift */,
 				E51145CF1FFE5EE20000AFB5 /* SectionType.swift */,
+				E59ECA31200E297B00E7FFE4 /* SocketIOClient+Helper.swift */,
 			);
 			path = "Extensions & Helpers";
 			sourceTree = "<group>";
@@ -523,10 +543,14 @@
 				E51145CA1FFE55E90000AFB5 /* ListViewModel.swift in Sources */,
 				E5B562DD1FFF61580067632A /* NSManagedObjectContext+Helpers.swift in Sources */,
 				E5D347FD1FC5E1AC00FAF024 /* MotionTypeSubscriber.swift in Sources */,
+				E53E5316200F47A5003B6A82 /* DateFormatter.swift in Sources */,
+				E59ECA2E200DFF8000E7FFE4 /* SocketConnection.swift in Sources */,
 				E5D348011FC5E62F00FAF024 /* CLLocationManager+Rx.swift in Sources */,
 				E502982A1FE07B73001C3075 /* BandContactSubscriber.swift in Sources */,
 				E5D347F11FC5D52C00FAF024 /* SubscriptionData.swift in Sources */,
+				E59ECA32200E297B00E7FFE4 /* SocketIOClient+Helper.swift in Sources */,
 				E53F57751FBCD51C0013043C /* TrackingInfoViewController.swift in Sources */,
+				E53E5318200F5504003B6A82 /* MessagesInbox.swift in Sources */,
 				E5FD33181FC0BF5600A3AED2 /* CompactNetworkLoggerPlugin.swift in Sources */,
 				E5B562E71FFF73340067632A /* Conversation.swift in Sources */,
 				E502982C1FE141DB001C3075 /* TrackingInfoViewModel.swift in Sources */,

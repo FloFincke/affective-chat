@@ -19,15 +19,21 @@ class ListViewModel {
     let selectedConversation = PublishSubject<Conversation?>()
     let selectedConversationViewModel: Observable<ConversationViewModel?>
 
+    private let socketConnection: SocketConnection
     private let moc: NSManagedObjectContext
     private let disposeBag = DisposeBag()
 
-    init(moc: NSManagedObjectContext) {
+    init(socketConnection: SocketConnection, moc: NSManagedObjectContext) {
+        self.socketConnection = socketConnection
         self.moc = moc
         conversations = conversationsVar.asDriver()
 
-        selectedConversationViewModel = selectedConversation
-            .map { ConversationViewModel(conversation: $0, moc: moc) }
+        selectedConversationViewModel = selectedConversation.map {
+            ConversationViewModel(
+                conversation: $0,
+                socketConnection: socketConnection,
+                moc: moc)
+        }
 
         NotificationCenter.default.rx
             .notification(Notification.Name.NSManagedObjectContextDidSave)
@@ -46,6 +52,8 @@ class ListViewModel {
             })
             .disposed(by: disposeBag)
     }
+
+    // MARK: - Private Functions
 
     private func handleContextSave(notifiaction: Notification) {
         guard let userInfo = notifiaction.userInfo else {
