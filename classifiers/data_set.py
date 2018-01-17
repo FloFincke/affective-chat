@@ -14,7 +14,7 @@ def produce_data_set(path):
 
     np.random.shuffle(data_set)
 
-    x_train, x_test, y_train, y_test = generate_train_test_data(data_set, size=0.1)
+    x_train, x_test, y_train, y_test = generate_train_test_data(data_set, size=0.4)
 
     return x_train, x_test, y_train, y_test
 
