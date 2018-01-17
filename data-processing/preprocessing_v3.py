@@ -12,6 +12,7 @@ import os
 import warnings
 import physi_calc #Physiological calculaction
 import loc_clustering
+from datetime import datetime
 
 warnings.filterwarnings("ignore")
 
@@ -28,6 +29,7 @@ def runPreprocessing():
                 temp = pd.read_json(dir_name_unzipped + folder + file)
                 measurements[file] = {
                     'phoneId': temp['phoneId'][temp['phoneId'].first_valid_index()],
+                    'date': temp.index[0].date(),
                     'location': temp['location'][temp['location'].first_valid_index()],
                     'receptivity': temp['receptivity'][temp['receptivity'].first_valid_index()],
                     'data': temp.drop('receptivity', 1)
@@ -44,6 +46,7 @@ def runPreprocessing():
 def calc_features(measurements):
     results = pd.DataFrame(columns=[
         'phoneId',
+        'date',
         'location',
         'motionType',
         'mean(SCL)',
@@ -79,23 +82,23 @@ def calc_features(measurements):
                 # Mean values
                 mSCL = SCL[0].mean()
                 mSCR = SCR[0].mean()
-                mHR = window.heartRates.mean().item()
-                mRR = window.rrInterval.mean().item()
-                mSkin = window.skinTemperature.mean().item()
+                mHR = window.heartRates.mean()
+                mRR = window.rrInterval.mean()
+                mSkin = window.skinTemperature.mean()
 
                 # Standard deviation
                 stdSCL = SCL[0].std()
                 stdSCR = SCR[0].std()
-                stdHR = window.heartRates.std().item()
-                stdRR = window.rrInterval.std().item()
-                stdSkin = window.skinTemperature.std().item()
+                stdHR = window.heartRates.std()
+                stdRR = window.rrInterval.std()
+                stdSkin = window.skinTemperature.std()
 
                 # Mean absolute deviation (mad)
                 madSCL = SCL[0].mad()
                 madSCR = SCR[0].mad()        
-                madHR = window.heartRates.mad().item()
-                madRR = window.rrInterval.mad().item()
-                madSkin = window.skinTemperature.mad().item()
+                madHR = window.heartRates.mad()
+                madRR = window.rrInterval.mad()
+                madSkin = window.skinTemperature.mad()
 
                 #RR calc
                 rri = window.rrInterval.tolist()
@@ -103,6 +106,7 @@ def calc_features(measurements):
 
                 #Other params
                 id = measurements[key]['phoneId']
+                date = measurements[key]['date']
 
                 location = measurements[key]['location']
                 location = loc_clustering.where(id, (location['lat'], location['long']))
@@ -113,7 +117,7 @@ def calc_features(measurements):
                 if(receptivity == 0):
                     receptivity = -1
 
-                results.loc[-1] = [id, location, motionType, mSCL, mSCR, mHR, mRR, mSkin, madSCL, madSCR, madHR, madRR, madSkin, 
+                results.loc[-1] = [id, date, location, motionType, mSCL, mSCR, mHR, mRR, mSkin, madSCL, madSCR, madHR, madRR, madSkin, 
                     stdSCL, stdSCR, stdHR, stdRR, stdSkin, RMSSD, receptivity]
                 results.index = results.index + 1  # shifting index
                 print('.', sep=' ', end='', flush=True)
@@ -123,6 +127,11 @@ def calc_features(measurements):
     print(' saved ' + results['phoneId'][0] + '! ')
 
 def outputCSV(results):
+
+    for column in results:
+        if column not in ['phoneId', 'date', 'location', 'motionType', 'receptivity']:
+            results[column] = pd.DataFrame(results[column].tolist())
+
     results.to_csv(results['phoneId'][0] + "_export.csv", sep=";", encoding="utf-8")
 
 # Calculate the Tukey interquartile range for outlier detection
