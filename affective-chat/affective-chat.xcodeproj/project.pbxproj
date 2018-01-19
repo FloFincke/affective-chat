@@ -370,7 +370,6 @@
 				90CAECF41FB36137007693CB /* Resources */,
 				7D423892096F685C18B4D198 /* [CP] Embed Pods Frameworks */,
 				E85718DE56DAE24C5BD20122 /* [CP] Copy Pods Resources */,
-				E5D347E81FC428CB00FAF024 /* SwiftLint */,
 				E56931E21FEAB77100A7ACD9 /* Fabric */,
 			);
 			buildRules = (
@@ -481,20 +480,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Fabric/run\" a346a0dadc0c20165d238f47ca6c6da42c7ac2a7 76c30e27de401f0d8fa73803e5d7de27a96d12f424fcff3525ea01055488b867";
-		};
-		E5D347E81FC428CB00FAF024 /* SwiftLint */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = SwiftLint;
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/SwiftLint/swiftlint\"";
 		};
 		E85718DE56DAE24C5BD20122 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;

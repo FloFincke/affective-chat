@@ -32,8 +32,8 @@ class SocketConnection {
     // MARK: - Singleton
     static let shared = SocketConnection()
     private init() {
-        let url = URL(string: "http://10.181.7.87:3000")!
-        manager = SocketManager(socketURL: url/*, config: [.log(true), .compress]*/)
+        let url = URL(string: "http://10.180.23.70:3000")!
+        manager = SocketManager(socketURL: url, config: [.log(true), .compress])
         socket = manager.defaultSocket
 
         newMessages = newMessagesPublishSubject.asObservable()
@@ -60,7 +60,11 @@ class SocketConnection {
     }
 
     func stop() {
-        socket.disconnect()
+        guard let username = username else {
+            return
+        }
+
+        socket.emit("appBackgrounded", username)
         isConnected = false
     }
 

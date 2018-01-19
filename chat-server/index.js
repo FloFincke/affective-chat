@@ -53,19 +53,13 @@ io.on('connection', function (socket) {
         }
     });
 
+    socket.on('appBackgrounded', function (username) {
+        console.log('appBackgrounded');
+        socket.disconnect();
+        delete connectedUsers[username];
+    })
 
     socket.on('disconnect', function () {
         console.log('user disconnected');
-
-        var username;
-        for (var key in connectedUsers) {
-            var value = connectedUsers[key];
-            if (value === socket.id) {
-                username = key;
-                break;
-            }
-        }
-
-        delete connectedUsers[username];
     });
 });
