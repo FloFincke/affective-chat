@@ -3,6 +3,7 @@ import pandas as pd
 from itertools import groupby
 from operator import itemgetter
 import numpy as np
+import random
 
 
 def produce_data_set(path):
@@ -14,18 +15,20 @@ def produce_data_set(path):
 
     data_set = [list(g) for k, g in groupby(data_set, key=itemgetter(2))]
 
-    datum_set = [x[0][2] for x in data_set]
-    print(datum_set)
-    
-    print(data_set[0][7])
+    # datum_set = [x[0][2] for x in data_set]
+    # print(len(datum_set))
+    # print(datum_set)
 
-    np.random.shuffle(data_set)
+    # print(data_set[0][7])
 
-    print(data_set[0][7])
+    # np.random.shuffle(data_set)
+    random.shuffle(data_set)
+
+    # print(data_set[0][7])
 
     x_train, x_test, y_train, y_test = generate_train_test_data(data_set, size=0.2)
 
-    print(x_train[0])
+    # print(x_train[0])
 
     return x_train, x_test, y_train, y_test
 
@@ -38,10 +41,10 @@ def generate_train_test_data(data_set, size=0.0):
     test_set = np.array([item for sublist in big_test for item in sublist])
     training_set = np.array([item for sublist in big_training for item in sublist])
 
-    print('here: ' + str(training_set[0][7]))
+    # print('here: ' + str(training_set[0][7]))
     np.random.shuffle(test_set)
     np.random.shuffle(training_set)
-    print('here1: ' + str(training_set[0][7]))
+    # print('here1: ' + str(training_set[0][7]))
 
     x_train = training_set[:, 3:-1]
     y_train = training_set[:, -1]
