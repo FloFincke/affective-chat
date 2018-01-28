@@ -27,17 +27,17 @@ def runPreprocessing():
         for i, file in enumerate(os.listdir(dir_name_unzipped + folder)):
             if file.endswith(".json"):
                 temp = pd.read_json(dir_name_unzipped + folder + file)
-                measurements[file] = {
+                measurements[i] = {
                     'phoneId': temp['phoneId'][temp['phoneId'].first_valid_index()],
                     'date': temp.index[0].date(),
                     'location': temp['location'][temp['location'].first_valid_index()],
                     'receptivity': temp['receptivity'][temp['receptivity'].first_valid_index()],
                     'data': temp.drop('receptivity', 1)
                 }
-                if measurements[file]['data']['gsr'].count() > 100:
-                    tempSec = measurements[file]['data'].resample('1S').mean()
+                if measurements[i]['data']['gsr'].count() > 100:
+                    tempSec = measurements[i]['data'].resample('1S').mean()
                     tempSec.sort_index(inplace=True)
-                    measurements[file]['data'] = tempSec
+                    measurements[i]['data'] = tempSec
 
         calc_features(measurements)
 
@@ -47,6 +47,7 @@ def calc_features(measurements):
     results = pd.DataFrame(columns=[
         'phoneId',
         'date',
+        'measurementId',
         'location',
         'motionType',
         'mean(SCL)',
@@ -117,7 +118,7 @@ def calc_features(measurements):
                 if(receptivity == 0):
                     receptivity = -1
 
-                results.loc[-1] = [id, date, location, motionType, mSCL, mSCR, mHR, mRR, mSkin, madSCL, madSCR, madHR, madRR, madSkin, 
+                results.loc[-1] = [id, date, key, location, motionType, mSCL, mSCR, mHR, mRR, mSkin, madSCL, madSCR, madHR, madRR, madSkin, 
                     stdSCL, stdSCR, stdHR, stdRR, stdSkin, RMSSD, receptivity]
                 results.index = results.index + 1  # shifting index
                 print('.', sep=' ', end='', flush=True)
@@ -129,7 +130,7 @@ def calc_features(measurements):
 def outputCSV(results):
 
     for column in results:
-        if column not in ['phoneId', 'date', 'location', 'motionType', 'receptivity']:
+        if column not in ['phoneId', 'date', 'measurementId', 'location', 'motionType', 'receptivity']:
             results[column] = pd.DataFrame(results[column].tolist())
 
     results.to_csv(results['phoneId'][0] + "_export.csv", sep=";", encoding="utf-8")
