@@ -1,7 +1,10 @@
 const apn = require('apn');
 const moment = require('moment');
-const io = require('socket.io')(http);
+const app = require('../app');
+const server = require('http').Server(app);
+const io = require('socket.io')(server);
 const database = require('./database');
+const PythonShell = require('python-shell');
 
 /* Variables */
 
@@ -22,16 +25,21 @@ let connectedUsers = [];
 let messages = [];
 let apnProvider;
 
-io.on('connection', function (socket) {
+const pyshell = new PythonShell('../data-backend/calc_receptivity.py', { 
+    mode: 'text',
+    pythonPath: '/usr/local/bin/python3'
+});
+
+io.on('connection', function(socket) {
     console.log('a user connected');
 
-    socket.on("connectUser", function (username) {
+    socket.on("connectUser", function(username) {
         console.log('connectUser: ' + username);
         connectedUsers[username] = socket.id;
         console.log(connectedUsers);
     });
 
-    socket.on('getNewMessages', function (username) {
+    socket.on('getNewMessages', function(username) {
         console.log('getNewMessages for: ' + username);
         var newMessages = messages[username];
         console.log(newMessages);
@@ -39,7 +47,7 @@ io.on('connection', function (socket) {
         delete messages[username];
     });
 
-    socket.on('newMessage', function (conversationId, body, sender, recipient, timestamp) {
+    socket.on('newMessage', function(conversationId, body, sender, recipient, timestamp) {
         console.log('newMessage: ' + body + ' from ' + sender + ' to ' + conversationId);
         var newMessage = {
             body: body,
@@ -59,19 +67,19 @@ io.on('connection', function (socket) {
                 messages[recipient] = [newMessage];
             }
             apnProvider = new apn.Provider(apnOptions);
-            database.Phone.find({username:recipient}).find({username:recipient}).sort({createdAt:-1}).limit(1).exec(function(err, phone) {
+            database.Phone.find({ username: recipient }).find({ username: recipient }).sort({ createdAt: -1 }).limit(1).exec(function(err, phone) {
                 newPush(phone._id, phone.token);
             });
         }
     });
 
-    socket.on('appBackgrounded', function (username) {
+    socket.on('appBackgrounded', function(username) {
         console.log('appBackgrounded');
         socket.disconnect();
         delete connectedUsers[username];
     })
 
-    socket.on('disconnect', function () {
+    socket.on('disconnect', function() {
         console.log('user disconnected');
     });
 });
@@ -96,7 +104,7 @@ function newPush(phoneId, token) {
 
         pushesLeft--;
 
-        if(pushesLeft == 0) {
+        if (pushesLeft == 0) {
             apnProvider.shutdown();
         }
 
@@ -115,3 +123,24 @@ function newPush(phoneId, token) {
         });
     });
 }
+
+function receptivity(raw_data) {
+    // sends a message to the Python script via stdin
+    pyshell.send(raw_data);
+
+    pyshell.on('message', function(message) {
+        // received a message sent from the Python script (a simple "print" statement)
+        console.log(message);
+    });
+
+    // end the input stream and allow the process to exit
+    pyshell.end(function(err) {
+        if (err) {
+            throw err;
+        };
+
+        console.log('finished');
+    });
+}
+
+receptivity(JSON.stringify([1, 2, 3, 4, 5]));
