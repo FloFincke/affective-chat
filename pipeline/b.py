@@ -108,17 +108,18 @@ params = {
 
 dataset = produce_data_set(PATH)
 
-for d in dataset:
-	print(d[1])
-	x_train = d[0]
-	x_test = d[1]
-	y_train = d[2]
-	y_test = d[3]
-	day = d[4]
-	print(type(x_train))
-	helper = EstimatorSelectionHelper(models, params)
-	helper.fit(x_train, y_train)
-	print(helper.score_summary(sort_by='min_score'))
+#for d in dataset:
+#	X_train = d[0]
+#	X_test = d[1]
+#	y_train = d[2]
+#	y_test = d[3]
+#	day = d[4]
+#	print(type(x_train))
+#	helper = EstimatorSelectionHelper(models, params)
+#	helper.fit(X_train, y_train)
+#	print(helper.score_summary(sort_by='min_score'))
 
-
+helper = EstimatorSelectionHelper(models, params)
+helper.fit(X_train, y_train)
+print(helper.score_summary(sort_by='min_score'))
 
