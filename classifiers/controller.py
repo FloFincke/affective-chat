@@ -1,5 +1,6 @@
 import numpy as np
 from sklearn.metrics import accuracy_score
+import _pickle as cPickle
 
 from classifiers.baselines import Classifier
 from classifiers.data_set import produce_data_set
@@ -7,8 +8,11 @@ from classifiers.data_set import produce_data_set
 #from baselines import Classifier
 #from data_set import produce_data_set
 
-PATH = "../vince_with_dates_no_skt.csv"
+# PATH = "../vince_with_dates_no_skt.csv"
 # PATH = "../vince_with_dates.csv"
+PATH = "../vince_5min.csv"
+
+
 
 seed = 155
 np.random.seed(seed)
@@ -31,6 +35,15 @@ def get_accuracies(current_x_train, current_x_test, current_y_train, current_y_t
     decision_tree = classifier.decision_tree.fit(current_x_train, y_train_dt)
     # Random Forest
     random_forest = classifier.random_forest.fit(current_x_train, y_train_dt)
+
+    with open('trained_rf_model', 'wb') as f:
+        cPickle.dump(random_forest, f)
+
+    # exit()
+
+    # with open('path/to/file', 'rb') as f:
+    # rf = cPickle.load(f)
+
     # Dummy Strategies
     dummy_stratified = classifier.dummy_stratified.fit(current_x_train, y_train_dt)
     dummy_most_frequent = classifier.dummy_most_frequent.fit(current_x_train, y_train_dt)
