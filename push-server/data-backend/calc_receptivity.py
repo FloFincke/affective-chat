@@ -8,7 +8,9 @@ import loc_clustering
 from datetime import datetime
 import sys
 import json
+import _pickle as cPickle
 
+RANDOM_FOREST_MODEL = None
 
 def read_in():
     lines = sys.stdin.readlines()
@@ -17,14 +19,17 @@ def read_in():
 
 
 def main():
-    # TODO init model
+    global RANDOM_FOREST_MODEL
+
+    with open('path/to/file', 'rb') as f:
+        RANDOM_FOREST_MODEL = cPickle.load(f)
 
     # get our data as an array from read_in()
     lines = read_in()
 
     # result = receptivity(json.loads(line))
     # print(result)
-    print(True)
+    # print(True)
 
 
 # Start process
@@ -38,8 +43,8 @@ def receptivity(json):
     #  location, motionType
     features = clac_features(raw_data)
 
+    result = True if RANDOM_FOREST_MODEL.predict(features) == 1.0 else False
 
-# TODO call model with features and return receptivity
 
 def clac_features(raw_data):
     results = pd.DataFrame(columns=[
