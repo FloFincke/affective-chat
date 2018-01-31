@@ -12,8 +12,6 @@ from classifiers.data_set import produce_data_set
 # PATH = "../vince_with_dates.csv"
 PATH = "../vince_5min.csv"
 
-
-
 seed = 155
 np.random.seed(seed)
 
@@ -85,31 +83,40 @@ whole_dp_acc = []
 whole_du_acc = []
 whole_dc_acc = []
 
-for option in accuracy_per_day:
-    x_train = option[0]
-    x_test = option[1]
-    y_train = option[2]
-    y_test = option[3]
-    day = option[4]
-    dt_acc, rf_acc, ds_acc, dms_acc, dp_acc, du_acc, dc_acc = get_accuracies(x_train, x_test, y_train, y_test)
-    days.append(day)
-    whole_dt_acc.append(dt_acc)
-    whole_rf_acc.append(rf_acc)
-    whole_ds_acc.append(ds_acc)
-    whole_dms_acc.append(dms_acc)
-    whole_dp_acc.append(dp_acc)
-    whole_du_acc.append(du_acc)
-    whole_dc_acc.append(dc_acc)
+print(len(accuracy_per_day))
 
-    print('Test Day: ' + str(day))
-    print('Decision Tree Acc: ' + str(dt_acc))
-    print('Random Forest Acc: ' + str(rf_acc))
-    print('Dummy Stratified: ' + str(ds_acc))
-    print('Dummy Most Frequent: ' + str(dms_acc))
-    print('Dummy Prior: ' + str(dp_acc))
-    print('Dummy Uniform: ' + str(du_acc))
-    print('Dummy Constant: ' + str(dc_acc))
-    print('\n')
+print(len(accuracy_per_day[0]))
+
+# for option in accuracy_per_day:
+x_train = accuracy_per_day[0]
+x_test = accuracy_per_day[1]
+y_train = accuracy_per_day[2]
+y_test = accuracy_per_day[3]
+print('here again')
+print(len(x_train))
+print(len(y_train))
+print(len(x_test))
+print(len(y_test))
+# day = option[4]
+dt_acc, rf_acc, ds_acc, dms_acc, dp_acc, du_acc, dc_acc = get_accuracies(x_train, x_test, y_train, y_test)
+# days.append(day)
+whole_dt_acc.append(dt_acc)
+whole_rf_acc.append(rf_acc)
+whole_ds_acc.append(ds_acc)
+whole_dms_acc.append(dms_acc)
+whole_dp_acc.append(dp_acc)
+whole_du_acc.append(du_acc)
+whole_dc_acc.append(dc_acc)
+
+# print('Test Day: ' + str(day))
+print('Decision Tree Acc: ' + str(dt_acc))
+print('Random Forest Acc: ' + str(rf_acc))
+print('Dummy Stratified: ' + str(ds_acc))
+print('Dummy Most Frequent: ' + str(dms_acc))
+print('Dummy Prior: ' + str(dp_acc))
+print('Dummy Uniform: ' + str(du_acc))
+print('Dummy Constant: ' + str(dc_acc))
+print('\n')
 
 avg_dt = sum(whole_dt_acc) / len(whole_dt_acc)
 avg_rf = sum(whole_rf_acc) / len(whole_rf_acc)
