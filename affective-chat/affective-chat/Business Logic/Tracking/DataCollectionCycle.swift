@@ -17,6 +17,8 @@ enum Receptivity: Int {
 
 class DataCollectionCycle {
 
+    private var message: String?
+
     private var trackingStopped = false
     private var isReady = true
     private var userDefaults = UserDefaults.standard
@@ -71,7 +73,12 @@ class DataCollectionCycle {
     
     // MARK: - Public Functions
 
-    func start(withDuration duration: Double, timeoutAfter timeout: Double) {
+    func start(withDuration duration: Double, timeoutAfter timeout: Double, message: String) {
+
+        // Mock for presentation
+        stop(receptivity: .unknown)
+        return
+
         guard dataSubscriptionContainer.isConnected else {
             log.warning("Not connected to client")
             UserDefaults.standard.setValue(
@@ -94,6 +101,7 @@ class DataCollectionCycle {
 
         log.info("starting cycle with duration: \(duration) and timeout: \(timeout)")
 
+        self.message = message
         isReady = false
         trackingStopped = false
 
@@ -152,7 +160,8 @@ class DataCollectionCycle {
                 strongSelf.geolocationService.stop()
                 return strongSelf.bandDataStore.uploadSensorData(
                     withReceptivity: receptivity,
-                    atLocation: location
+                    atLocation: location,
+                    message: strongSelf.message ?? ""
                 )
             }
             .subscribe(onNext: {

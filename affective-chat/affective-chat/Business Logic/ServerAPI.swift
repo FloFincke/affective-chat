@@ -29,20 +29,21 @@ private let tokenParameter = "token"
 
 private let newDataPath = "/data/new"
 private let idParameter = "id"
+private let messageParameter = "message"
 
 //let apiProvider = MoyaProvider<ServerAPI>()
 let apiProvider = MoyaProvider<ServerAPI>(plugins: [CompactNetworkLoggerPlugin()])
 
 enum ServerAPI {
     case newDevice(username: String, token: String)
-    case newData(id: String, data: Data, fileName: String)
+    case newData(id: String, message: String, data: Data, fileName: String)
 }
 
 extension ServerAPI: TargetType {
 
     var baseURL: URL {
         switch self {
-        case .newData(let id, _, _):
+        case .newData(let id, _, _, _):
             return URL(string: "\(serverUrl)\(newDataPath)?\(idParameter)=\(id)")!
         default:
             return URL(string: serverUrl)!
@@ -83,14 +84,17 @@ extension ServerAPI: TargetType {
 
     var task: Task {
         switch self {
-        case .newData(_, let data, let fileName):
+        case .newData(_, let message, let data, let fileName):
+            let messageData = MultipartFormData(
+                provider: .data(message.data(using: .utf8)!),
+                name: messageParameter)
             let data = MultipartFormData(
                 provider: .data(data),
                 name: "watch_data",
                 fileName: fileName,
-                mimeType: "application/zip"
-            )
-            return .uploadMultipart([data])
+                mimeType: "application/zip")
+            return .uploadMultipart([messageData, data])
+
         case .newDevice(let username, let token):
             return .requestParameters(
                 parameters: [

@@ -33,7 +33,7 @@ class SocketConnection {
     static let shared = SocketConnection()
     private init() {
 //        let url = URL(string: "http://10.180.23.70:3000")!
-        let url = URL(string: serverUrl)!
+        let url = URL(string: "\(serverUrl):3000")!
         manager = SocketManager(socketURL: url, config: [.log(true), .compress])
         socket = manager.defaultSocket
 

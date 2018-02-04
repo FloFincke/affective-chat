@@ -15,8 +15,10 @@ class TrackingInfoViewModel {
     private let disposeBag = DisposeBag()
 
     init(dataCollectionCycle: DataCollectionCycle) {
-        trackTap.subscribe(onNext: { _ in
-            dataCollectionCycle.start(withDuration: 30, timeoutAfter: 15)
-        }).disposed(by: disposeBag)
+        trackTap
+            .subscribe(onNext: {
+                dataCollectionCycle.start(withDuration: 30, timeoutAfter: 15, message: "")
+            })
+            .disposed(by: disposeBag)
     }
 }

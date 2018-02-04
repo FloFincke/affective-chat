@@ -56,6 +56,7 @@
 		E5D348011FC5E62F00FAF024 /* CLLocationManager+Rx.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5D348001FC5E62F00FAF024 /* CLLocationManager+Rx.swift */; };
 		E5D348031FC5E6F900FAF024 /* RxCLLocationManagerDelegateProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5D348021FC5E6F900FAF024 /* RxCLLocationManagerDelegateProxy.swift */; };
 		E5D65FCB1FE91A3A001BED45 /* ObservableType.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5D65FCA1FE91A3A001BED45 /* ObservableType.swift */; };
+		E5D9FB8920277297004E885E /* sensor-data.json in Resources */ = {isa = PBXBuildFile; fileRef = E5D9FB8820277296004E885E /* sensor-data.json */; };
 		E5F914211FC0623400367BFE /* ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5F914201FC0623400367BFE /* ActivityIndicator.swift */; };
 		E5FD33181FC0BF5600A3AED2 /* CompactNetworkLoggerPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5FD33171FC0BF5600A3AED2 /* CompactNetworkLoggerPlugin.swift */; };
 /* End PBXBuildFile section */
@@ -116,6 +117,7 @@
 		E5D348001FC5E62F00FAF024 /* CLLocationManager+Rx.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CLLocationManager+Rx.swift"; sourceTree = "<group>"; };
 		E5D348021FC5E6F900FAF024 /* RxCLLocationManagerDelegateProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RxCLLocationManagerDelegateProxy.swift; sourceTree = "<group>"; };
 		E5D65FCA1FE91A3A001BED45 /* ObservableType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservableType.swift; sourceTree = "<group>"; };
+		E5D9FB8820277296004E885E /* sensor-data.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "sensor-data.json"; sourceTree = "<group>"; };
 		E5F914201FC0623400367BFE /* ActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityIndicator.swift; sourceTree = "<group>"; };
 		E5FD33171FC0BF5600A3AED2 /* CompactNetworkLoggerPlugin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CompactNetworkLoggerPlugin.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -219,6 +221,7 @@
 			children = (
 				90CAED031FB36137007693CB /* Assets.xcassets */,
 				90CAED051FB36137007693CB /* LaunchScreen.storyboard */,
+				E5D9FB8820277296004E885E /* sensor-data.json */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -429,6 +432,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E5D9FB8920277297004E885E /* sensor-data.json in Resources */,
 				90CAED071FB36137007693CB /* LaunchScreen.storyboard in Resources */,
 				90CAED041FB36137007693CB /* Assets.xcassets in Resources */,
 			);
