@@ -6,7 +6,6 @@ Unser Repo
 
 ```
 .
-├── README.md
 ├── affective-chat --> iOS Application
 ├── classifiers
 │   ├── baselines.py
@@ -19,8 +18,8 @@ Unser Repo
 │   ├── archive --> Old files and Notebooks
 │   ├── hrv --> Library used for feature generation
 │   ├── loc_clustering.py --> Location clustering
-│   ├── physi_calc.py
-│   └── preprocessing_v3.py
+│   ├── physi_calc.py --> feature generation helper functions
+│   └── preprocessing_v3.py --> Preprocessing script
 ├── pipeline --> Automation pipeline
 │   ├── a.py
 │   ├── b.py

@@ -130,9 +130,10 @@ function receptivity(phone, raw_data, chat_message) {
         // received a message sent from the Python script (a simple "print" statement)
         if (message === 'True') {
             pushService.init();
-            pushService.newPush(phone._id, phone.token, { 'message': chat_message }, false);
+            //pushService.newPush(phone._id, phone.token, { 'message': chat_message }, false);
             console.log(phone._id + ' was receptive');
-
+        } else {
+            console.log(phone._id + " wasn't receptive");
         }
     });
 
@@ -142,7 +143,7 @@ function receptivity(phone, raw_data, chat_message) {
             throw err;
         };
 
-        console.log('finished');
+        //console.log('finished');
     });
 }
 module.exports = router;

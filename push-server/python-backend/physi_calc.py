@@ -2,7 +2,6 @@
 
 import numpy as np
 import pandas as pd
-from hrv.classical import frequency_domain
 
 def scl(gsr):
 	scl = []
@@ -73,12 +72,3 @@ def baevsky(rr):
 	mxdmn = max(rr) - min(rr)
 			
 	return amplitudeMode / (2 * mode * mxdmn)
-
-def freq(rr):
-	return frequency_domain(
-	    rri=rr,
-	    fs=1.0,
-	    method='welch',
-	    interp_method='cubic',
-	    detrend='linear'
-	)

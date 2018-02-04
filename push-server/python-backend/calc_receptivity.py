@@ -9,6 +9,8 @@ from datetime import datetime
 import sys
 import json
 import _pickle as cPickle
+import warnings
+warnings.filterwarnings("ignore") # needed because of python-shell
 
 RANDOM_FOREST_MODEL = None
 
@@ -24,14 +26,13 @@ def receptivity(json):
     tempSec.sort_index(inplace=True)
     measurements['data'] = tempSec
 
-    features = clac_features(measurements)
+    features = calc_features(measurements)
 
-    #result = True if RANDOM_FOREST_MODEL.predict(features) == 1.0 else False
-    result = True
+    result = True if RANDOM_FOREST_MODEL.predict(features) == 1.0 else False
     return result
 
 
-def clac_features(measurements):
+def calc_features(measurements):
     raw_data = measurements['data']
     results = pd.DataFrame(columns=[
         'location',
@@ -80,7 +81,7 @@ def clac_features(measurements):
     madSkin = raw_data.skinTemperature.mad()
 
     # RR calc
-    rri = raw_data.rrInterval.tolist()
+    rri = raw_data.rrInterval.dropna().tolist()
     RMSSD = physi_calc.rmssd(rri)
 
     # Other params
@@ -89,8 +90,10 @@ def clac_features(measurements):
 
     motionType = raw_data.motionType.median()  # is this enough?
 
-    return [location, motionType, mSCL, mSCR, mHR, mRR, mSkin, madSCL, madSCR, madHR, madRR, madSkin, stdSCL, stdSCR,
+    results.loc[-1] = [location, motionType, mSCL, mSCR, mHR, mRR, mSkin, madSCL, madSCR, madHR, madRR, madSkin, stdSCL, stdSCR,
             stdHR, stdRR, stdSkin, RMSSD]
+
+    return results
 
 
 def read_in():
@@ -102,10 +105,9 @@ def read_in():
 def main():
     global RANDOM_FOREST_MODEL
 
-    #with open(os.path.dirname(os.path.realpath(__file__)) + '/trained_rf_model', 'rb') as f:
-    #    RANDOM_FOREST_MODEL = cPickle.load(f)
+    with open(os.path.dirname(os.path.realpath(__file__)) + '/trained_rf_model', 'rb') as f:
+        RANDOM_FOREST_MODEL = cPickle.load(f)
 
-    # get our data as an array from read_in()
     lines = read_in()
 
     result = receptivity(lines)
