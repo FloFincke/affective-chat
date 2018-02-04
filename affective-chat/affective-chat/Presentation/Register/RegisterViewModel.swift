@@ -36,44 +36,44 @@ class RegisterViewModel {
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
 
-        //        isRegistered = registerTap
-        //            .map { UserDefaults.standard.value(forKey: Constants.UserDefaults.tokenKey) as? String }
-        //            .filterNil()
-        //            .withLatestFrom(validUsername) { ($0, $1) }
-        //            .flatMap { token, username -> Observable<(Event<String>, String)> in
-        //                return apiProvider.rx
-        //                    .request(.newDevice(username: username, token: token))
-        //                    .asObservable()
-        //                    .filterSuccessfulStatusCodes()
-        //                    .mapString()
-        //                    .materialize()
-        //                    .trackActivity(isRegistering)
-        //                    .map { ($0, username) }
-        //            }
-        //            .map { (event, username) -> Bool in
-        //                if let string = event.element {
-        //                    let phoneId = "5a4f50cbebd4d8179239db7c" //string
-        //                    log.info("Phone ID: \(phoneId)")
-        //                    UserDefaults.standard.set(username, forKey: Constants.UserDefaults.usernameKey)
-        //                    UserDefaults.standard.set(phoneId, forKey: Constants.UserDefaults.phoneIdKey)
-        //                    SocketConnection.shared.start()
-        //                    return true
-        //                } else {
-        //                    return false
-        //                }
-        //            }
-        //            .asDriver(onErrorJustReturn: false)
+                isRegistered = registerTap
+                    .map { UserDefaults.standard.value(forKey: Constants.UserDefaults.tokenKey) as? String }
+                    .filterNil()
+                    .withLatestFrom(validUsername) { ($0, $1) }
+                    .flatMap { token, username -> Observable<(Event<String>, String)> in
+                        return apiProvider.rx
+                            .request(.newDevice(username: username, token: token))
+                            .asObservable()
+                            .filterSuccessfulStatusCodes()
+                            .mapString()
+                            .materialize()
+                            .trackActivity(isRegistering)
+                            .map { ($0, username) }
+                    }
+                    .map { (event, username) -> Bool in
+                        if let string = event.element {
+                            let phoneId = "5a4f50cbebd4d8179239db7c" //string
+                            log.info("Phone ID: \(string)")
+                            UserDefaults.standard.set(username, forKey: Constants.UserDefaults.usernameKey)
+                            UserDefaults.standard.set(phoneId, forKey: Constants.UserDefaults.phoneIdKey)
+                            socketConnection.start()
+                            return true
+                        } else {
+                            return false
+                        }
+                    }
+                    .asDriver(onErrorJustReturn: false)
 
-        isRegistered = registerTap
-            .withLatestFrom(validUsername)
-            .map { username -> Bool in
-                let phoneId = "5a4f50cbebd4d8179239db7c" //string
-                log.info("Phone ID: \(phoneId)")
-                UserDefaults.standard.set(username, forKey: Constants.UserDefaults.usernameKey)
-                UserDefaults.standard.set(phoneId, forKey: Constants.UserDefaults.phoneIdKey)
-                socketConnection.start()
-                return true
-            }
-            .asDriver(onErrorJustReturn: false)
+//        isRegistered = registerTap
+//            .withLatestFrom(validUsername)
+//            .map { username -> Bool in
+//                let phoneId = "5a4f50cbebd4d8179239db7c" //string
+//                log.info("Phone ID: \(phoneId)")
+//                UserDefaults.standard.set(username, forKey: Constants.UserDefaults.usernameKey)
+//                UserDefaults.standard.set(phoneId, forKey: Constants.UserDefaults.phoneIdKey)
+//                socketConnection.start()
+//                return true
+//            }
+//            .asDriver(onErrorJustReturn: false)
     }
 }
