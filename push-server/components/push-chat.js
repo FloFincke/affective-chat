@@ -4,7 +4,7 @@ const app = require('../app');
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const database = require('./database');
-const PythonShell = require('python-shell');
+const pushService = require('./pushService');
 
 /* Variables */
 
@@ -24,11 +24,6 @@ const apnOptions = {
 let connectedUsers = [];
 let messages = [];
 let apnProvider;
-
-const pyshell = new PythonShell('../data-backend/calc_receptivity.py', { 
-    mode: 'text',
-    pythonPath: '/usr/local/bin/python3'
-});
 
 io.on('connection', function(socket) {
     console.log('a user connected');
@@ -59,16 +54,17 @@ io.on('connection', function(socket) {
             console.log('user is connected, emit message');
             io.to(connectedUsers[recipient]).emit("newMessage", newMessage);
         } else {
-            if (recipient in messages) {
+            /*if (recipient in messages) {
                 console.log('user is not connected, push message');
                 messages[recipient].push(newMessage);
             } else {
                 console.log('user is not connected, create messages for recipient and add message');
                 messages[recipient] = [newMessage];
-            }
-            apnProvider = new apn.Provider(apnOptions);
+            }*/
+            pushService.init();
+
             database.Phone.find({ username: recipient }).find({ username: recipient }).sort({ createdAt: -1 }).limit(1).exec(function(err, phone) {
-                newPush(phone._id, phone.token);
+                pushService.newPush(phone._id, phone.token, {'message': newMessage});
             });
         }
     });
@@ -83,64 +79,3 @@ io.on('connection', function(socket) {
         console.log('user disconnected');
     });
 });
-
-
-function newPush(phoneId, token) {
-    //schedule push and put next schdule in callback
-    //Log that in DB
-    const note = new apn.Notification();
-    note.expiry = Math.floor(Date.now() / 1000) + 3600; // Expires 1 hour from now.
-    note.badge = 0;
-    note.sound = null;
-    note.alert = null;
-    note.contentAvailable = 1;
-    note.payload = { 'duration': duration, 'timeout': timeout };
-    note.topic = "de.lmu.ifi.mobile.affective-chat";
-
-    apnProvider.send(note, token).then((result) => {
-
-        //TODO: check for errors
-        console.log(new Date() + " -- " + JSON.stringify(result));
-
-        pushesLeft--;
-
-        if (pushesLeft == 0) {
-            apnProvider.shutdown();
-        }
-
-        const log = new database.Log({
-            id: phoneId,
-            content: database.MESSAGES.NEW_PUSH_SENT,
-            createdAt: new Date()
-        });
-
-        log.save(function(err, data) {
-            if (err) {
-                console.log(err);
-            } else {
-                console.log(new Date + ' -- new push sent to phone with token: ' + phoneId);
-            }
-        });
-    });
-}
-
-function receptivity(raw_data) {
-    // sends a message to the Python script via stdin
-    pyshell.send(raw_data);
-
-    pyshell.on('message', function(message) {
-        // received a message sent from the Python script (a simple "print" statement)
-        console.log(message);
-    });
-
-    // end the input stream and allow the process to exit
-    pyshell.end(function(err) {
-        if (err) {
-            throw err;
-        };
-
-        console.log('finished');
-    });
-}
-
-receptivity(JSON.stringify([1, 2, 3, 4, 5]));

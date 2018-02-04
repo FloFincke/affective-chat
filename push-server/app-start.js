@@ -6,7 +6,7 @@
 
 var app = require('./app');
 var database = require('./components/database');
-var agenda = require('./components/push');
+var agenda = require('./components/push-chat');
 var debug = require('debug')('push-server:server');
 var http = require('http');
 
