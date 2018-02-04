@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const address = process.env.MONGO_URL;
-
+console.log(address)
 const db = mongoose.connect(address, { useMongoClient: true });
 mongoose.Promise = global.Promise;
 
