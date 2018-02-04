@@ -18,6 +18,7 @@ private let sensorDataZipName = "\(sensorDataFileName).\(zip)"
 
 private let receptivityKey = "receptivity"
 private let locationKey = "location"
+private let messageKey = "message"
 
 enum UploadError: Error {
     case instanceGone
@@ -26,6 +27,11 @@ enum UploadError: Error {
 }
 
 class MBDataStore {
+
+    // Testing
+    private var mockDataJsonUrl: URL! {
+        return URL(string: Bundle.main.path(forResource: "sensor-data", ofType: "json")!)!
+    }
 
     private var documentsDirectory: URL!
     private var sensorDataJsonUrl: URL! {
@@ -60,8 +66,10 @@ class MBDataStore {
         saveSensorData(sensorData)
     }
 
-    func uploadSensorData(withReceptivity receptivity: Receptivity,
-                          atLocation location: CLLocationCoordinate2D) -> Observable<Void> {
+    func uploadSensorData(
+        withReceptivity receptivity: Receptivity,
+        atLocation location: CLLocationCoordinate2D,
+        message: String) -> Observable<Void> {
 
         log.info("sending sensor data")
 
@@ -69,7 +77,7 @@ class MBDataStore {
         compressSensorData()
         deleteSensorDataJson()
 
-        return uploadData()
+        return uploadData(message: message)
     }
 
     func deleteSensorDataJson() {
@@ -111,8 +119,8 @@ class MBDataStore {
         return validJson
     }
 
-    private func prepareSensoreDataForSending(receptivity: Receptivity,
-                                              location: CLLocationCoordinate2D) {
+    private func prepareSensoreDataForSending(
+        receptivity: Receptivity, location: CLLocationCoordinate2D) {
 
         let dateValue = UserDefaults.standard.value(
             forKey: Constants.TrackingInfos.trackingEndTimestampKey)
@@ -132,13 +140,13 @@ class MBDataStore {
 
     private func compressSensorData() {
         do {
-            _ = try Zip.quickZipFiles([sensorDataJsonUrl], fileName: sensorDataFileName)
+            _ = try Zip.quickZipFiles([mockDataJsonUrl/*sensorDataJsonUrl*/], fileName: sensorDataFileName)
         } catch {
             print(error)
         }
     }
 
-    private func uploadData() -> Observable<Void> {
+    private func uploadData(message: String) -> Observable<Void> {
         return Observable.create { [weak self] observer in
             guard let strongSelf = self else {
                 observer.onError(UploadError.instanceGone)
@@ -164,6 +172,7 @@ class MBDataStore {
 
             let endpoint = ServerAPI.newData(
                 id: phoneId,
+                message: message,
                 data: zipData,
                 fileName: strongSelf.fileNameDateFormatter.string(from: Date()) + ".zip"
             )
@@ -179,7 +188,7 @@ class MBDataStore {
                         return Observable.error(UploadError.instanceGone)
                     }
                     strongSelf.renameTempZipToCurrent()
-                    return strongSelf.uploadData()
+                    return strongSelf.uploadData(message: "") // queue messages
                 }
                 .subscribe(onNext: { _ in
                     observer.onNext(())

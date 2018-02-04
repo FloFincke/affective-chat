@@ -80,6 +80,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if let username = UserDefaults.standard.value(forKey: Constants.UserDefaults.usernameKey),
             let phoneId = UserDefaults.standard.value(forKey: Constants.UserDefaults.phoneIdKey) {
             log.info("username: \(username) phoneId: \(phoneId)")
+//            presentInfo()
             presentList()
 
         } else {
@@ -172,6 +173,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window?.rootViewController = UINavigationController(rootViewController: viewController)
     }
 
+    func presentInfo() {
+        let viewModel = TrackingInfoViewModel(dataCollectionCycle: dataCollectionCycle)
+        let viewController = TrackingInfoViewController(viewModel: viewModel)
+        window?.rootViewController = UINavigationController(rootViewController: viewController)
+    }
+
     // MARK: - Private Functions
 
     private func setupServices() {
@@ -194,26 +201,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             connection: socketConnection,
             moc: DataController.shared.mainMoc)
     }
-
-//    private func setupInitialContent() {
-//        guard !UserDefaults.standard.bool(forKey: Constants.UserDefaults.initialContentCreatedKey)
-//            else {
-//                return
-//        }
-//
-//        let moc = DataController.shared.mainMoc
-//
-//        let conversationOne: Conversation = moc.insertNewObject()
-//        conversationOne.title = "Emma"
-//        conversationOne.messages = testMessages(sender: "Emma", count: 5, in: moc)
-//
-//        let conversationTwo: Conversation = moc.insertNewObject()
-//        conversationTwo.title = "Chris"
-//        conversationTwo.messages = testMessages(sender: "Chris", count: 20, in: moc)
-//
-//        try? moc.save()
-//        UserDefaults.standard.set(true, forKey: Constants.UserDefaults.initialContentCreatedKey)
-//    }
 
     private func testMessages(
         sender: String, count: Int, in moc: NSManagedObjectContext) -> NSOrderedSet {
@@ -240,8 +227,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UserDefaults.standard.setValue(Date(), forKey: Constants.TrackingInfos.lastSilentPushKey)
         
         if let duration = userInfo["duration"] as? Double,
-            let timeout = userInfo["timeout"] as? Double {
-            dataCollectionCycle.start(withDuration: duration, timeoutAfter: timeout)
+            let timeout = userInfo["timeout"] as? Double,
+            let message = userInfo["message"] as? String {
+
+            dataCollectionCycle.start(
+                withDuration: duration,
+                timeoutAfter: timeout,
+                message: message)
+
         } else {
             log.warning("invalid notification received")
         }
