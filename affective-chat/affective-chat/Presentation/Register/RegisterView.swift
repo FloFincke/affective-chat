@@ -2,7 +2,7 @@
 //  RegisterView.swift
 //  affective-chat
 //
-//  Created by vfu on 15.11.17.
+//  Created by Vincent Füseschi on 15.11.17.
 //  Copyright © 2017 Florian Fincke. All rights reserved.
 //
 
@@ -55,7 +55,7 @@ class RegisterView: UIView {
     }
 
     override func updateConstraints() {
-        if(shouldSetupConstraints) {
+        if shouldSetupConstraints {
             shouldSetupConstraints = false
         }
         super.updateConstraints()

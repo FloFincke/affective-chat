@@ -2,12 +2,13 @@
 //  RegisterViewController.swift
 //  affective-chat
 //
-//  Created by vfu on 15.11.17.
+//  Created by Vincent Füseschi on 15.11.17.
 //  Copyright © 2017 Florian Fincke. All rights reserved.
 //
 
 import UIKit
 import RxSwift
+import CoreLocation
 
 class RegisterViewController: UIViewController {
 
@@ -39,9 +40,15 @@ class RegisterViewController: UIViewController {
         viewModel.isRegistered
             .filter { $0 }
             .drive(onNext: { _ in
-                UIApplication.shared.keyWindow?.rootViewController = ListViewController()
+                if let appDelegate = UIApplication.shared.delegate as? AppDelegate {
+                    appDelegate.presentList()
+                }
             })
             .disposed(by: disposeBag)
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
     }
 
     // MARK: - Setup Functions
