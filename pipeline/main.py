@@ -1,6 +1,4 @@
 import warnings
-with warnings.catch_warnings():
-    warnings.filterwarnings("ignore",category=DeprecationWarning)
 
 # General imports
 import pandas as pd
@@ -31,114 +29,113 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 # Global variables
 PATH_CSV = 'data/vince_5min.csv'
 SLIDING_WINDOW_SIZE = 30
-TESTSET_SIZE = 0.33
+TEST_SET_SIZE = 0.2
 OUTCOME_COLUMN = "receptivity"
-GROUPBY = "measurementId"
+GROUP_BY = "measurementId"
 DESIRED_ACC = 0.6
-
 
 # Transformation variables
 COLS_TO_DROP = ['phoneId', 'date', 'mean(skinTemp)', 'mad(skinTemp)', 'std(skinTemp)']
-#COLS_TO_DROP = ['phoneId', 'date']
+
+
+# COLS_TO_DROP = ['phoneId', 'date']
 
 
 def preprocessing():
-	run_preprocessing(SLIDING_WINDOW_SIZE)
-
+    run_preprocessing(SLIDING_WINDOW_SIZE)
 
 
 def classify(path):
+    # Read in data
+    data_set = pd.read_csv(path, sep=";")
 
-	# Read in data
-	data_set = pd.read_csv(path, sep=";")
+    # Get random set of test-dates
+    test_samples = random.sample(list(data_set[GROUP_BY].unique()), int(TEST_SET_SIZE * len(data_set[GROUP_BY].unique())))
 
-	# Get random set of test-dates
-	test_samples = random.sample(list(data_set[GROUPBY].unique()), int(TESTSET_SIZE * len(data_set[GROUPBY].unique())))
+    # Split into training-set and test-set
+    train = data_set[~data_set[GROUP_BY].isin(test_samples)]
+    test = data_set[data_set[GROUP_BY].isin(test_samples)]
 
-	# Split into training-set and test-set
-	train = data_set[~data_set[GROUPBY].isin(test_samples)]
-	test = data_set[data_set[GROUPBY].isin(test_samples)]
+    x_train = train.drop(OUTCOME_COLUMN, axis=1)
+    y_train = train[OUTCOME_COLUMN]
 
-	x_train = train.drop(OUTCOME_COLUMN, axis=1)
-	y_train = train[OUTCOME_COLUMN]
+    x_test = test.drop(OUTCOME_COLUMN, axis=1)
+    y_test = test[OUTCOME_COLUMN]
 
-	x_test = test.drop(OUTCOME_COLUMN, axis=1)
-	y_test = test[OUTCOME_COLUMN]
+    pipeline = Pipeline([
+        ('removeColumns', RemoveColumns(COLS_TO_DROP))
+    ])
 
-	pipeline = Pipeline([
-			('removeColumns', RemoveColumns(COLS_TO_DROP))
-		])
+    x_train_tf = pipeline.transform(x_train)
+    x_test_tf = pipeline.transform(x_test)
 
-	x_train_tf = pipeline.transform(x_train)
-	x_test_tf = pipeline.transform(x_test)
+    models = {
+        'DecisionTreeClassifier': DecisionTreeClassifier(),
+        'RandomForestClassifier': RandomForestClassifier(),
+        'KNeighborsClassifier': KNeighborsClassifier(),
+        'LogisticRegression': LogisticRegression(),
+        'GradientBoostingClassifier': GradientBoostingClassifier(),
+        # 'SVC':							SVC(),
+        'DummyStratifier': DummyClassifier(),
+        'DummyPrior': DummyClassifier(),
+        'DummyMostFrequent': DummyClassifier(),
+        'DummyUniform': DummyClassifier(),
+        'DummyConstant': DummyClassifier()
 
+    }
 
-	models = {
-		'DecisionTreeClassifier':		DecisionTreeClassifier(),
-		'RandomForestClassifier':		RandomForestClassifier(),
-		'KNeighborsClassifier':			KNeighborsClassifier(),
-		'LogisticRegression':			LogisticRegression(),
-		'GradientBoostingClassifier':	GradientBoostingClassifier(),
-		#'SVC':							SVC(),
-		'DummyStratifier':				DummyClassifier(),
-		'DummyPrior':					DummyClassifier(),
-		'DummyMostFrequent':			DummyClassifier(),
-		'DummyUniform':					DummyClassifier(),
-		'DummyConstant':				DummyClassifier()
+    params = {
+        'DecisionTreeClassifier': {
+            'class_weight': ['balanced', None],
+            'max_depth': [5, 10, 20, None],
+            'splitter': ['best', 'random']
+        },
 
-		}
+        'RandomForestClassifier': {
+            'n_estimators': [16, 32, 64, 128],
+            'n_jobs': [-1],
+            'max_features': ['auto'],
+            'max_depth': [5, 10, 20, None],
+            'class_weight': ['balanced', None]
+        },
 
-	params = {
-		'DecisionTreeClassifier': {
-			'class_weight': ['balanced', None],
-			'max_depth': [5,10,20],
-			'splitter': ['best', 'random']
-		},
+        'KNeighborsClassifier': {},
 
-		'RandomForestClassifier': {
-			'n_estimators': [16, 32, 64, 128], 
-			'n_jobs':[-1], 
-			'max_features':['auto'], 
-			'max_depth': [5,10,20],
-			'class_weight': ['balanced', None]  
-		},
+        'LogisticRegression': {},
 
-		'KNeighborsClassifier': {},
+        'GradientBoostingClassifier': {
+            'n_estimators': [16, 32, 64],
+            'learning_rate': [0.5, 0.8, 1.0, 2.0]
+        },
 
-		'LogisticRegression': {},
+        'SVC': {
+            'C': [0.001, 0.01, 0.1, 1, 10],
+            'gamma': [0.001, 0.01, 0.1, 1]
+        },
 
-		'GradientBoostingClassifier': { 
-			'n_estimators': [16, 32, 64], 
-			'learning_rate': [0.5, 0.8, 1.0, 2.0] 
-		},
+        'DummyStratifier': {'strategy': ['stratified']},
+        'DummyPrior': {'strategy': ['prior']},
+        'DummyMostFrequent': {'strategy': ['most_frequent']},
+        'DummyUniform': {'strategy': ['uniform']},
+        'DummyConstant': {'strategy': ['constant'], 'constant': [1, -1]}
+    }
 
-		'SVC': {
-			'C': [0.001, 0.01, 0.1, 1, 10],
-			'gamma': [0.001, 0.01, 0.1, 1]
-		},
+    helper = EstimatorSelectionHelper(models, params)
+    helper.fit(x_train_tf, y_train)
 
-		'DummyStratifier': {'strategy': ['stratified']},
-		'DummyPrior': {'strategy': ['prior']},
-		'DummyMostFrequent': {'strategy': ['most_frequent']},
-		'DummyUniform': {'strategy': ['uniform']},
-		'DummyConstant': {'strategy': ['constant'], 'constant':[1,-1]}
-	}
-
-	helper = EstimatorSelectionHelper(models, params)
-	helper.fit(x_train_tf, y_train)
-
-	all_classifiers, best_classifier = helper.score_summary()
-	print(all_classifiers)
+    all_classifiers, best_classifier = helper.score_summary()
+    print(all_classifiers)
 
 
-#def export_model():
-
+# def export_model():
 
 
 if __name__ == '__main__':
-	preprocessing()
-	classify(PATH_CSV)
+    preprocessing()
+    classify(PATH_CSV)

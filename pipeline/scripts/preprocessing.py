@@ -5,20 +5,22 @@
 # so we dont build one big dataframe with allllll the dataaaa
 #
 
-# IMPORTS #
-import pandas as pd #Data processing
-import numpy as np #Data processing
 import os
 import warnings
-from . import physi_calc #Physiological calculaction
+
+import numpy as np  # Data processing
+# IMPORTS #
+import pandas as pd  # Data processing
+
 from . import loc_clustering
-from datetime import datetime
+from . import physi_calc  # Physiological calculaction
 
 warnings.filterwarnings("ignore")
 
 # GLOBAL VARIABLES #
-dir = os.path.dirname(os.path.realpath(__file__))
-dir_name_unzipped = os.path.join(dir, '../unzipped/')
+current_dir = os.path.dirname(os.path.realpath(__file__))
+dir_name_unzipped = os.path.join(current_dir, '../unzipped/')
+
 
 def run_preprocessing(sliding_window_size):
     for folder in os.listdir(dir_name_unzipped):
@@ -35,12 +37,11 @@ def run_preprocessing(sliding_window_size):
                     'data': temp.drop('receptivity', 1)
                 }
                 if measurements[i]['data']['gsr'].count() > 100:
-                    tempSec = measurements[i]['data'].resample('1S').mean()
-                    tempSec.sort_index(inplace=True)
-                    measurements[i]['data'] = tempSec
+                    temp_sec = measurements[i]['data'].resample('1S').mean()
+                    temp_sec.sort_index(inplace=True)
+                    measurements[i]['data'] = temp_sec
 
         calc_features(measurements, sliding_window_size)
-
 
 
 def calc_features(measurements, sliding_window_size):
@@ -74,9 +75,9 @@ def calc_features(measurements, sliding_window_size):
 
         for i in range(0, len(measurement.index)):
             if i + sliding_window_size <= len(measurement.index):
-                window = measurement.iloc[i:i+30]
+                window = measurement.iloc[i:i + 30]
 
-                #normalized base values
+                # normalized base values
                 SCL = pd.DataFrame(physi_calc.scl(window.gsr.tolist()))
                 SCR = pd.DataFrame(physi_calc.scr(window.gsr.tolist()))
 
@@ -96,30 +97,31 @@ def calc_features(measurements, sliding_window_size):
 
                 # Mean absolute deviation (mad)
                 madSCL = SCL[0].mad()
-                madSCR = SCR[0].mad()        
+                madSCR = SCR[0].mad()
                 madHR = window.heartRates.mad()
                 madRR = window.rrInterval.mad()
                 madSkin = window.skinTemperature.mad()
 
-                #RR calc
+                # RR calc
                 rri = window.rrInterval.tolist()
                 RMSSD = physi_calc.rmssd(rri)
 
-                #Other params
+                # Other params
                 id = measurements[key]['phoneId']
                 date = measurements[key]['date']
 
                 location = measurements[key]['location']
                 location = loc_clustering.where(id, (location['lat'], location['long']))
 
-                motionType = measurement.motionType.median() # is this enough?
+                motionType = measurement.motionType.median()  # is this enough?
 
                 receptivity = measurements[key]['receptivity']
-                if(receptivity == 0):
+                if (receptivity == 0):
                     receptivity = -1
 
-                results.loc[-1] = [id, date, key, location, motionType, mSCL, mSCR, mHR, mRR, mSkin, madSCL, madSCR, madHR, madRR, madSkin, 
-                    stdSCL, stdSCR, stdHR, stdRR, stdSkin, RMSSD, receptivity]
+                results.loc[-1] = [id, date, key, location, motionType, mSCL, mSCR, mHR, mRR, mSkin, madSCL, madSCR,
+                                   madHR, madRR, madSkin,
+                                   stdSCL, stdSCR, stdHR, stdRR, stdSkin, RMSSD, receptivity]
                 results.index = results.index + 1  # shifting index
                 print('.', sep=' ', end='', flush=True)
 
@@ -127,13 +129,14 @@ def calc_features(measurements, sliding_window_size):
     outputCSV(results)
     print(' saved ' + results['phoneId'][0] + '! ')
 
-def outputCSV(results):
 
+def outputCSV(results):
     for column in results:
         if column not in ['phoneId', 'date', 'measurementId', 'location', 'motionType', 'receptivity']:
             results[column] = pd.DataFrame(results[column].tolist())
 
     results.to_csv(results['phoneId'][0] + "_export.csv", sep=";", encoding="utf-8")
+
 
 # Calculate the Tukey interquartile range for outlier detection
 def get_iqr(dframe, columnName):
@@ -143,11 +146,12 @@ def get_iqr(dframe, columnName):
     max = q75 + (iqr * 1.5)
     return min, max
 
+
 def clean(dframe):
-    for column in dframe:        
-        dframe.fillna(method='ffill', inplace=True) # fill NaN downwards
-    #    dframe.fillna((dframe.mean()), inplace=True)  # fill remaining NaN upwards with mean
-        dframe.fillna(method='bfill', inplace=True) # fill remaining NaN upwards
+    for column in dframe:
+        dframe.fillna(method='ffill', inplace=True)  # fill NaN downwards
+        #    dframe.fillna((dframe.mean()), inplace=True)  # fill remaining NaN upwards with mean
+        dframe.fillna(method='bfill', inplace=True)  # fill remaining NaN upwards
         dframe.fillna(value=-1, inplace=True)  # fill columns with no numerical value at all in it with -1
         min, max = get_iqr(dframe, column)
         dframe['Outlier'] = 0
@@ -158,12 +162,11 @@ def clean(dframe):
             if dframe['Outlier'][key] == 1:
                 dframe.drop(key, inplace=True)
 
-        del dframe['Outlier'] # Remove outlier column
+        del dframe['Outlier']  # Remove outlier column
 
     return dframe
 
 ####################################################################################################################
 ####################################################################################################################
 
-#runPreprocessing()
-
+# runPreprocessing()
