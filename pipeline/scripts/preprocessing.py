@@ -75,7 +75,7 @@ def calc_features(measurements, sliding_window_size):
 
         for i in range(0, len(measurement.index)):
             if i + sliding_window_size <= len(measurement.index):
-                window = measurement.iloc[i:i + 30]
+                window = measurement.iloc[i:i + sliding_window_size]
 
                 # normalized base values
                 SCL = pd.DataFrame(physi_calc.scl(window.gsr.tolist()))
@@ -135,7 +135,7 @@ def outputCSV(results):
         if column not in ['phoneId', 'date', 'measurementId', 'location', 'motionType', 'receptivity']:
             results[column] = pd.DataFrame(results[column].tolist())
 
-    results.to_csv(results['phoneId'][0] + "_export.csv", sep=";", encoding="utf-8")
+    results.to_csv("../data/" + str(results['phoneId'][0]) + "_export.csv", sep=";", encoding="utf-8")
 
 
 # Calculate the Tukey interquartile range for outlier detection

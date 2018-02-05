@@ -65,7 +65,7 @@ def classify(path):
     test = data_set[data_set[GROUP_BY].isin(test_samples)]
 
     x_train = train.drop(OUTCOME_COLUMN, axis=1)
-    y_train = train[OUTCOME_COLUMN]
+    y_train = train[OUTCOME_COLUMN] 
 
     x_test = test.drop(OUTCOME_COLUMN, axis=1)
     y_test = test[OUTCOME_COLUMN]
@@ -100,7 +100,7 @@ def classify(path):
         },
 
         'RandomForestClassifier': {
-            'n_estimators': [16, 32, 64, 128],
+            #'n_estimators': [16, 32, 64, 128],
             'n_jobs': [-1],
             'max_features': ['auto'],
             'max_depth': [5, 10, 20, None],

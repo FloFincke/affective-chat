@@ -4,6 +4,10 @@ import pandas as pd
 from sklearn.base import TransformerMixin
 from sklearn.grid_search import GridSearchCV
 
+from sklearn.externals import joblib
+
+from pprint import pprint
+
 
 class RemoveColumns(TransformerMixin):
     def __init__(self, cols):
@@ -36,6 +40,8 @@ class EstimatorSelectionHelper:
             gs = GridSearchCV(model, params, cv=cv, n_jobs=n_jobs,
                               verbose=verbose, scoring=scoring, refit=refit)
             gs.fit(X, y)
+            joblib.dump(gs, 'trained_models/' + str(key) + '.pkl', compress = 1)
+
             self.grid_searches[key] = gs
 
     def score_summary(self, sort_by='mean_score'):
@@ -49,13 +55,17 @@ class EstimatorSelectionHelper:
             }
             return pd.Series({**params, **d})
 
+
         rows = [row(k, gsc.cv_validation_scores, gsc.parameters)
                 for k in self.keys
                 for gsc in self.grid_searches[k].grid_scores_]
+
         df = pd.concat(rows, axis=1).T
 
         columns = ['estimator', 'min_score', 'mean_score', 'max_score', 'std_score']
         columns = columns + [c for c in df.columns if c not in columns]
 
         result = df[columns].sort_values(by=['mean_score'], ascending=False)
+        print(self.grid_searches)
+
         return result, result.iloc[0]
