@@ -5,8 +5,9 @@
 # so we dont build one big dataframe with allllll the dataaaa
 #
 
-import os
+import os, zipfile #Unzipping
 import warnings
+from time import sleep
 
 import numpy as np  # Data processing
 # IMPORTS #
@@ -18,30 +19,34 @@ from . import physi_calc  # Physiological calculaction
 warnings.filterwarnings("ignore")
 
 # GLOBAL VARIABLES #
-current_dir = os.path.dirname(os.path.realpath(__file__))
-dir_name_unzipped = os.path.join(current_dir, '../unzipped/')
+dir = os.path.dirname(os.path.realpath(__file__))
+dir_name_zipped = os.path.join(dir, 'zipped/')
+dir_name_unzipped = os.path.join(dir, 'unzipped/')
+dir_name_CSV = os.path.join(dir, '../', 'CSV/')
 
 
 def run_preprocessing(sliding_window_size):
-    for folder in os.listdir(dir_name_unzipped):
-        folder = '{0}/'.format(folder)
-        measurements = {}
-        for i, file in enumerate(os.listdir(dir_name_unzipped + folder)):
-            if file.endswith(".json"):
-                temp = pd.read_json(dir_name_unzipped + folder + file)
-                measurements[i] = {
-                    'phoneId': temp['phoneId'][temp['phoneId'].first_valid_index()],
-                    'date': temp.index[0].date(),
-                    'location': temp['location'][temp['location'].first_valid_index()],
-                    'receptivity': temp['receptivity'][temp['receptivity'].first_valid_index()],
-                    'data': temp.drop('receptivity', 1)
-                }
-                if measurements[i]['data']['gsr'].count() > 100:
-                    temp_sec = measurements[i]['data'].resample('1S').mean()
-                    temp_sec.sort_index(inplace=True)
-                    measurements[i]['data'] = temp_sec
+    for folder_user in os.listdir(dir_name_unzipped):
+        folder_user = '{0}/'.format(folder_user)
+        for folder_tracking in os.listdir(dir_name_unzipped + folder_user):
+            folder_tracking = '{0}/'.format(folder_tracking)
+            measurements = {}
+            for i, file in enumerate(os.listdir(dir_name_unzipped + folder_user + folder_tracking)):
+                if file.endswith(".json"):
+                    temp = pd.read_json(dir_name_unzipped + folder_user + folder_tracking + file)
+                    measurements[i] = {
+                        'phoneId': temp['phoneId'][temp['phoneId'].first_valid_index()],
+                        'date': temp.index[0].date(),
+                        'location': temp['location'][temp['location'].first_valid_index()],
+                        'receptivity': temp['receptivity'][temp['receptivity'].first_valid_index()],
+                        'data': temp.drop('receptivity', 1)
+                    }
+                    if measurements[i]['data']['gsr'].count() > 100:
+                        temp_sec = measurements[i]['data'].resample('1S').mean()
+                        temp_sec.sort_index(inplace=True)
+                        measurements[i]['data'] = temp_sec
 
-        calc_features(measurements, sliding_window_size)
+            calc_features(measurements, sliding_window_size)
 
 
 def calc_features(measurements, sliding_window_size):
@@ -135,7 +140,7 @@ def outputCSV(results):
         if column not in ['phoneId', 'date', 'measurementId', 'location', 'motionType', 'receptivity']:
             results[column] = pd.DataFrame(results[column].tolist())
 
-    results.to_csv("../data/" + str(results['phoneId'][0]) + "_export.csv", sep=";", encoding="utf-8")
+    results.to_csv(dir_name_CSV + str(results['phoneId'][0]) + "_export.csv", sep=";", encoding="utf-8")
 
 
 # Calculate the Tukey interquartile range for outlier detection
@@ -166,7 +171,14 @@ def clean(dframe):
 
     return dframe
 
-####################################################################################################################
-####################################################################################################################
-
-# runPreprocessing()
+def unzip(path):
+    extension = ".zip"
+    for folder in os.listdir(path):
+        folder = '{0}/'.format(folder)
+        for counter, item in enumerate(os.listdir(path + folder)):  # loop through items in dir
+            if item.endswith(extension):  # check for ".zip" extension
+                file_name = os.path.abspath(path + folder + item)
+                zip_ref = zipfile.ZipFile(file_name)
+                zip_ref.extractall(dir_name_unzipped + folder + item + '/')
+                zip_ref.close()  # close file
+                #os.remove(file_name) # delete zipped file

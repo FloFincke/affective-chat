@@ -52,8 +52,8 @@ def unzip_files():
                 zip_ref.extractall(dir_name_unzipped)
 
                 # rename file to prevent overwriting the previous json-file
-                temp = os.listdir(dir_name_unzipped)[0]
-                os.rename(dir_name_unzipped + str(temp), dir_name_unzipped + str(counter) + "_" + str(temp))
+                #temp = os.listdir(dir_name_unzipped)[0]
+                #os.rename(dir_name_unzipped + str(temp), dir_name_unzipped + str(counter) + "_" + str(temp))
 
                 zip_ref.close()  # close file
                 os.remove(file_name) # delete zipped file

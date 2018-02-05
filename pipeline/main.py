@@ -15,7 +15,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.grid_search import GridSearchCV
 
 # Preprocessing
-from scripts.preprocessing import run_preprocessing
+from scripts.preprocessing import run_preprocessing, unzip
 from scripts.prepare_data import produce_data_set
 
 # Transformers
@@ -35,7 +35,8 @@ with warnings.catch_warnings():
 
 # Global variables
 current_dir = os.path.dirname(os.path.realpath(__file__))
-PATH_CSV = current_dir + '/data/vince_5min.csv'
+PATH_CSV = current_dir + '/CSV/vince_5min.csv'
+PATH_RAW_DATA = current_dir + '/data/'
 SLIDING_WINDOW_SIZE = 30
 TEST_SET_SIZE = 0.2
 OUTCOME_COLUMN = "receptivity"
@@ -50,6 +51,7 @@ COLS_TO_DROP = ['phoneId', 'date', 'mean(skinTemp)', 'mad(skinTemp)', 'std(skinT
 
 
 def preprocessing():
+    unzip(PATH_RAW_DATA)
     run_preprocessing(SLIDING_WINDOW_SIZE)
 
 
@@ -139,5 +141,5 @@ def classify(path):
 
 
 if __name__ == '__main__':
-    # preprocessing()
+    preprocessing()
     classify(PATH_CSV)
