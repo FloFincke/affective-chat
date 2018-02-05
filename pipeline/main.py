@@ -1,3 +1,4 @@
+import os
 import warnings
 
 # General imports
@@ -33,7 +34,8 @@ with warnings.catch_warnings():
     warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 # Global variables
-PATH_CSV = 'data/vince_5min.csv'
+current_dir = os.path.dirname(os.path.realpath(__file__))
+PATH_CSV = current_dir + '/data/vince_5min.csv'
 SLIDING_WINDOW_SIZE = 30
 TEST_SET_SIZE = 0.2
 OUTCOME_COLUMN = "receptivity"
