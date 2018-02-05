@@ -41,10 +41,15 @@ Unser Repo
 │   ├── physi_calc.py --> feature generation helper functions
 │   └── preprocessing_v3.py --> Preprocessing script
 ├── pipeline --> Automation pipeline
-│   ├── a.py
-│   ├── b.py
-│   ├── data_set.py
-│   └── preprocessing.py
+│   ├── data --> CSV files with raw data
+│   ├── scripts
+│   │   ├── custom-transformers.py --> Transformers for pipeline
+│   │   ├── loc_clustering.py --> cluster users most important locations
+│   │   ├── physi_calc.py --> feature generation helper functions
+│   │   ├── prepare_data.py --> Create a dataframe from input csv-file
+│   │   └── preprocessing.py --> Create csv-file from raw data (1 per user)
+│   ├── unzipped
+│   └── main.py --> Script that starts pipeline and creates trained model 
 ├── push-server
 │   ├── app-start.js --> Starts app
 │   ├── app.js --> Express server
