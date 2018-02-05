@@ -137,5 +137,5 @@ def classify(path):
 
 
 if __name__ == '__main__':
-    preprocessing()
+    # preprocessing()
     classify(PATH_CSV)

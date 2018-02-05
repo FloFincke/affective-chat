@@ -19,8 +19,7 @@ warnings.filterwarnings("ignore")
 
 # GLOBAL VARIABLES #
 current_dir = os.path.dirname(os.path.realpath(__file__))
-# dir_name_unzipped = os.path.join(current_dir, '../unzipped/')
-dir_name_unzipped = ''
+dir_name_unzipped = os.path.join(current_dir, '../unzipped/')
 
 
 def run_preprocessing(sliding_window_size):
