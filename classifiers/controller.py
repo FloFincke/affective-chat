@@ -2,11 +2,11 @@ import numpy as np
 from sklearn.metrics import accuracy_score
 import _pickle as cPickle
 
-from classifiers.baselines import Classifier
-from classifiers.data_set import produce_data_set
+#from classifiers.baselines import Classifier
+#from classifiers.data_set import produce_data_set
 
-#from baselines import Classifier
-#from data_set import produce_data_set
+from baselines import Classifier
+from data_set import produce_data_set
 
 # PATH = "../vince_with_dates_no_skt.csv"
 # PATH = "../vince_with_dates.csv"
