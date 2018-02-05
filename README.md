@@ -68,7 +68,30 @@ Vorher Zugangsdaten etc. von Flo holen
 4. in einem neuen Terminal Fenster die MongoDB starten (`mongod` ausführen)
 5. im ersten Fenster `npm run start` ausführen
 
-## Pipline
+## Pipeline
 
 1. run sudo pip3 install -r requirements.txt
 2. python3 pipeline/main.py
+
+#### Process
+* Start with processing the raw tracking data and exporting the results as CSV files (one per user)
+
+* Preprocessing includes imputation, outlier detection, feature engineering and location clustering
+
+* Read processed dataset into a pandas dataframe
+
+* Split dataframe into training-set and test-set
+
+* Define transformations to the dataset in the pipeline object (l. 75)
+
+* Define scikit classifiction models in the models-object (l. 82)
+
+* Define parameters the pipeline will test for the specific classifiers (each combination of the defined parameters will be evaluated)
+
+
+#### Parameters that can be adjusted
+* Sliding window size in preprocessing
+* Test set size for dataframe-splitting
+* Columns that can be ignored by the classifiers
+* Transformers / Transformations on the dataframe
+* Classifier-parameters (max depth of random forest, gamma of SVC ...)
