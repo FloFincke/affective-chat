@@ -1,34 +1,22 @@
 import os
+import random
 import warnings
 
 # General imports
 import pandas as pd
-import numpy as np
-import glob
-import random
-
-# SciKit imports
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import roc_auc_score
-from sklearn.pipeline import Pipeline
-from sklearn.grid_search import GridSearchCV
-
-# Preprocessing
-from scripts.preprocessing import run_preprocessing, unzip
-from scripts.prepare_data import produce_data_set
-
+from scripts.custom_transformers import EstimatorSelectionHelper
 # Transformers
 from scripts.custom_transformers import RemoveColumns
-from scripts.custom_transformers import EstimatorSelectionHelper
-
+# Preprocessing
+from scripts.preprocessing import run_preprocessing, unzip
 # Classifiers
-from sklearn.svm import SVC
 from sklearn.dummy import DummyClassifier
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
+# SciKit imports
+from sklearn.pipeline import Pipeline
+from sklearn.tree import DecisionTreeClassifier
 
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -60,14 +48,15 @@ def classify(path):
     data_set = pd.read_csv(path, sep=";")
 
     # Get random set of test-dates
-    test_samples = random.sample(list(data_set[GROUP_BY].unique()), int(TEST_SET_SIZE * len(data_set[GROUP_BY].unique())))
+    test_samples = random.sample(list(data_set[GROUP_BY].unique()),
+                                 int(TEST_SET_SIZE * len(data_set[GROUP_BY].unique())))
 
     # Split into training-set and test-set
     train = data_set[~data_set[GROUP_BY].isin(test_samples)]
     test = data_set[data_set[GROUP_BY].isin(test_samples)]
 
     x_train = train.drop(OUTCOME_COLUMN, axis=1)
-    y_train = train[OUTCOME_COLUMN] 
+    y_train = train[OUTCOME_COLUMN]
 
     x_test = test.drop(OUTCOME_COLUMN, axis=1)
     y_test = test[OUTCOME_COLUMN]
@@ -102,7 +91,7 @@ def classify(path):
         },
 
         'RandomForestClassifier': {
-            #'n_estimators': [16, 32, 64, 128],
+            # 'n_estimators': [16, 32, 64, 128],
             'n_jobs': [-1],
             'max_features': ['auto'],
             'max_depth': [5, 10, 20, None],

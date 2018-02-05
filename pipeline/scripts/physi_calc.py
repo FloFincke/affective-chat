@@ -10,7 +10,7 @@ def scl(gsr):
 
         # avoid null pointer
         for j in range(-2, 3):
-            if i + j >= 0 and i + j <= len(gsr) - 1:
+            if 0 <= i + j <= len(gsr) - 1:
                 meanList.append(gsr[i + j])
 
         mean = np.mean([meanList])
@@ -27,7 +27,7 @@ def scr(gsr):
 
         # avoid null pointer
         for j in range(-2, 3):
-            if i + j >= 0 and i + j <= len(gsr) - 1:
+            if 0 <= i + j <= len(gsr) - 1:
                 meanList.append(gsr[i + j])
 
         mean = np.mean([meanList])
@@ -38,7 +38,7 @@ def scr(gsr):
 
 
 def rmssd(rr):
-    sum = 0;
+    sum = 0
 
     for i in range(1, len(rr) - 1):
         sum += (rr[i - 1] - rr[i]) * (rr[i - 1] - rr[i])
@@ -57,7 +57,7 @@ def baevsky(rr):
             # Because the elements are of floating point precision they are
             # almost never the same.
             # Therefore they have to be in a certain range.
-            if (not ((anA1 > anA * 1.05) or (anA1 < anA * 0.95))):
+            if not ((anA1 > anA * 1.05) or (anA1 < anA * 0.95)):
                 count += 1
 
         if count > maxCount:
@@ -66,7 +66,7 @@ def baevsky(rr):
 
     counter = 0
     for aRrinterval in rr:
-        if (not ((aRrinterval > mode * 1.05) or (aRrinterval < mode * 0.95))):
+        if not ((aRrinterval > mode * 1.05) or (aRrinterval < mode * 0.95)):
             counter += 1
 
     amplitudeMode = counter / len(rr)

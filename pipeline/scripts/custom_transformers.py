@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import pandas as pd
 
@@ -40,7 +42,8 @@ class EstimatorSelectionHelper:
             gs = GridSearchCV(model, params, cv=cv, n_jobs=n_jobs,
                               verbose=verbose, scoring=scoring, refit=refit)
             gs.fit(X, y)
-            joblib.dump(gs, 'trained_models/' + str(key) + '.pkl', compress = 1)
+            current_dir = os.path.dirname(os.path.realpath(__file__))
+            joblib.dump(gs, current_dir + '/../trained_models/' + str(key) + '.pkl', compress=1)
 
             self.grid_searches[key] = gs
 
@@ -54,7 +57,6 @@ class EstimatorSelectionHelper:
                 'std_score': np.std(scores),
             }
             return pd.Series({**params, **d})
-
 
         rows = [row(k, gsc.cv_validation_scores, gsc.parameters)
                 for k in self.keys

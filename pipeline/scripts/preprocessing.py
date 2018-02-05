@@ -5,9 +5,9 @@
 # so we dont build one big dataframe with allllll the dataaaa
 #
 
-import os, zipfile #Unzipping
+import os  # Unzipping
 import warnings
-from time import sleep
+import zipfile
 
 import numpy as np  # Data processing
 # IMPORTS #
@@ -112,19 +112,19 @@ def calc_features(measurements, sliding_window_size):
                 RMSSD = physi_calc.rmssd(rri)
 
                 # Other params
-                id = measurements[key]['phoneId']
+                current_id = measurements[key]['phoneId']
                 date = measurements[key]['date']
 
                 location = measurements[key]['location']
-                location = loc_clustering.where(id, (location['lat'], location['long']))
+                location = loc_clustering.where(current_id, (location['lat'], location['long']))
 
                 motionType = measurement.motionType.median()  # is this enough?
 
                 receptivity = measurements[key]['receptivity']
-                if (receptivity == 0):
+                if receptivity == 0:
                     receptivity = -1
 
-                results.loc[-1] = [id, date, key, location, motionType, mSCL, mSCR, mHR, mRR, mSkin, madSCL, madSCR,
+                results.loc[-1] = [current_id, date, key, location, motionType, mSCL, mSCR, mHR, mRR, mSkin, madSCL, madSCR,
                                    madHR, madRR, madSkin,
                                    stdSCL, stdSCR, stdHR, stdRR, stdSkin, RMSSD, receptivity]
                 results.index = results.index + 1  # shifting index
@@ -132,15 +132,18 @@ def calc_features(measurements, sliding_window_size):
 
     results = results.sort_index()  # sorting by index
     outputCSV(results)
-    print(' saved ' + results['phoneId'][0] + '! ')
+    if len(results['phoneId']) >= 1:
+        print(' saved ' + results['phoneId'][0] + '! ')
 
 
 def outputCSV(results):
     for column in results:
-        if column not in ['phoneId', 'date', 'measurementId', 'location', 'motionType', 'receptivity']:
+        if column not in ['phoneId', 'date', 'measurementId', 'location', 'motionType', 'receptivity'] and \
+                        len(results[column].tolist()) > 0:
             results[column] = pd.DataFrame(results[column].tolist())
 
-    results.to_csv(dir_name_CSV + str(results['phoneId'][0]) + "_export.csv", sep=";", encoding="utf-8")
+    if len(results['phoneId']) >= 1:
+        results.to_csv(dir_name_CSV + str(results['phoneId'][0]) + "_export.csv", sep=";", encoding="utf-8")
 
 
 # Calculate the Tukey interquartile range for outlier detection
@@ -154,6 +157,8 @@ def get_iqr(dframe, columnName):
 
 def clean(dframe):
     for column in dframe:
+        if str(column) == 'location' or str(column) == 'phoneId':
+            continue
         dframe.fillna(method='ffill', inplace=True)  # fill NaN downwards
         #    dframe.fillna((dframe.mean()), inplace=True)  # fill remaining NaN upwards with mean
         dframe.fillna(method='bfill', inplace=True)  # fill remaining NaN upwards
@@ -171,6 +176,7 @@ def clean(dframe):
 
     return dframe
 
+
 def unzip(path):
     extension = ".zip"
     for folder in os.listdir(path):
@@ -181,4 +187,4 @@ def unzip(path):
                 zip_ref = zipfile.ZipFile(file_name)
                 zip_ref.extractall(dir_name_unzipped + folder + item + '/')
                 zip_ref.close()  # close file
-                #os.remove(file_name) # delete zipped file
+                # os.remove(file_name) # delete zipped file

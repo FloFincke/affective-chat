@@ -34,8 +34,9 @@ homes = {
 
 
 def where(current_id, location):
-    for i, loc in enumerate(homes[current_id]):
-        if vincenty(location, loc).km < 1.0:
-            return locationsOrder[i]
+    if current_id in homes:
+        for i, loc in enumerate(homes[current_id]):
+            if vincenty(location, loc).km < 1.0:
+                return locationsOrder[i]
 
     return 6
