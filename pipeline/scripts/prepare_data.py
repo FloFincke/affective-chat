@@ -1,9 +1,10 @@
 import glob
-import pandas as pd
+import random
 from itertools import groupby
 from operator import itemgetter
+
 import numpy as np
-import random
+import pandas as pd
 
 
 def produce_data_set(path, testsize):
