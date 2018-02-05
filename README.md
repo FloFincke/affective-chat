@@ -44,3 +44,5 @@ Vorher Zugangsdaten etc. von Flo holen
 5. im ersten Fenster `npm run start` ausführen
 
 ## Pipline
+
+1. run sudo pip3 install -r requirements.txt
