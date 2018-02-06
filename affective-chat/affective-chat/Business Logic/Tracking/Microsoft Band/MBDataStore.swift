@@ -24,13 +24,14 @@ enum UploadError: Error {
     case instanceGone
     case missingZip
     case missingPhoneId
+    case parsingFailed
 }
 
 class MBDataStore {
 
     // Testing
     private var mockDataJsonUrl: URL! {
-        return URL(string: Bundle.main.path(forResource: "sensor-data", ofType: "json")!)!
+        return URL(fileURLWithPath: Bundle.main.path(forResource: "sensor-data", ofType: "json")!)
     }
 
     private var documentsDirectory: URL!
@@ -68,14 +69,14 @@ class MBDataStore {
 
     func uploadSensorData(
         withReceptivity receptivity: Receptivity,
-        atLocation location: CLLocationCoordinate2D,
+//        atLocation location: CLLocationCoordinate2D,
         message: String) -> Observable<Void> {
 
         log.info("sending sensor data")
 
-        prepareSensoreDataForSending(receptivity: receptivity, location: location)
-        compressSensorData()
-        deleteSensorDataJson()
+//        prepareSensoreDataForSending(receptivity: receptivity, location: location)
+//        compressSensorData()
+//        deleteSensorDataJson()
 
         return uploadData(message: message)
     }
@@ -146,6 +147,7 @@ class MBDataStore {
         }
     }
 
+    // Presentation Version
     private func uploadData(message: String) -> Observable<Void> {
         return Observable.create { [weak self] observer in
             guard let strongSelf = self else {
@@ -153,61 +155,109 @@ class MBDataStore {
                 return Disposables.create()
             }
 
-            guard FileManager.default.fileExists(atPath: strongSelf.sensorDataZipUrl.path) else {
-                observer.onNext(())
-                observer.onCompleted()
+            let jsonOpt: Any
+            do {
+                let data = try Data(contentsOf: strongSelf.mockDataJsonUrl)
+                jsonOpt = try JSONSerialization.jsonObject(with: data, options: [])
+            } catch {
+                observer.onError(UploadError.instanceGone)
                 return Disposables.create()
             }
 
-            guard let zipData = try? Data(contentsOf: strongSelf.sensorDataZipUrl) else {
-                observer.onError(UploadError.missingZip)
+            guard let json = jsonOpt as? [String : Any] else {
+                observer.onError(UploadError.parsingFailed)
                 return Disposables.create()
             }
 
             guard let phoneId = UserDefaults.standard.string(
                 forKey: Constants.UserDefaults.phoneIdKey) else {
-                observer.onError(UploadError.missingPhoneId)
-                return Disposables.create()
+                    observer.onError(UploadError.missingPhoneId)
+                    return Disposables.create()
             }
 
-            let endpoint = ServerAPI.newData(
+            let endpoint = ServerAPI.newDataJson(
                 id: phoneId,
                 message: message,
-                data: zipData,
-                fileName: strongSelf.fileNameDateFormatter.string(from: Date()) + ".zip"
+                data: json
             )
 
             let uploadDisposable = apiProvider.rx.request(endpoint)
                 .asObservable()
                 .filterSuccessfulStatusCodes()
-                .map { [weak self] _ in
-                    self?.deleteSensorDataZip()
-                }
-                .flatMap { [weak self] _ -> Observable<Void> in
-                    guard let strongSelf = self else {
-                        return Observable.error(UploadError.instanceGone)
-                    }
-                    strongSelf.renameTempZipToCurrent()
-                    return strongSelf.uploadData(message: "") // queue messages
-                }
                 .subscribe(onNext: { _ in
                     observer.onNext(())
                     observer.onCompleted()
-                }, onError: { [weak self] in
-                    guard let strongSelf = self else {
-                        observer.onError(UploadError.instanceGone)
-                        return
-                    }
-
-                    strongSelf.renameCurrentZipToTemp()
-                    observer.onError($0)
-                })
+                }, onError: { observer.onError($0) })
 
             return Disposables.create {
                 return uploadDisposable.dispose()
             }
         }
     }
+
+    // Actual Version
+    //    private func uploadData(message: String) -> Observable<Void> {
+    //        return Observable.create { [weak self] observer in
+    //            guard let strongSelf = self else {
+    //                observer.onError(UploadError.instanceGone)
+    //                return Disposables.create()
+    //            }
+    //
+    //            guard FileManager.default.fileExists(atPath: strongSelf.sensorDataZipUrl.path) else {
+    //                observer.onNext(())
+    //                observer.onCompleted()
+    //                return Disposables.create()
+    //            }
+    //
+    //            guard let zipData = try? Data(contentsOf: strongSelf.sensorDataZipUrl) else {
+    //                observer.onError(UploadError.missingZip)
+    //                return Disposables.create()
+    //            }
+    //
+    //            guard let phoneId = UserDefaults.standard.string(
+    //                forKey: Constants.UserDefaults.phoneIdKey) else {
+    //                observer.onError(UploadError.missingPhoneId)
+    //                return Disposables.create()
+    //            }
+    //
+    //            let endpoint = ServerAPI.newData(
+    //                id: phoneId,
+    //                message: message,
+    //                data: zipData,
+    //                fileName: strongSelf.fileNameDateFormatter.string(from: Date()) + ".zip"
+    //            )
+    //
+    //            let uploadDisposable = apiProvider.rx.request(endpoint)
+    //                .asObservable()
+    //                .filterSuccessfulStatusCodes()
+    //                .map { [weak self] _ in
+    //                    self?.deleteSensorDataZip()
+    //                }
+    //                .flatMap { [weak self] _ -> Observable<Void> in
+    //                    guard let strongSelf = self else {
+    //                        return Observable.error(UploadError.instanceGone)
+    //                    }
+    //                    strongSelf.renameTempZipToCurrent()
+    //                    return strongSelf.uploadData(message: "") // queue messages
+    //                }
+    //                .subscribe(onNext: { _ in
+    //                    observer.onNext(())
+    //                    observer.onCompleted()
+    //                }, onError: { [weak self] in
+    //                    guard let strongSelf = self else {
+    //                        observer.onError(UploadError.instanceGone)
+    //                        return
+    //                    }
+    //
+    //                    strongSelf.renameCurrentZipToTemp()
+    //                    observer.onError($0)
+    //                })
+    //
+    //            return Disposables.create {
+    //                return uploadDisposable.dispose()
+    //            }
+    //        }
+    //    }
 
     private func renameCurrentZipToTemp() {
         do {

@@ -76,6 +76,7 @@ class DataCollectionCycle {
     func start(withDuration duration: Double, timeoutAfter timeout: Double, message: String) {
 
         // Mock for presentation
+        self.message = message
         stop(receptivity: .unknown)
         return
 
@@ -154,16 +155,7 @@ class DataCollectionCycle {
     private func stop(receptivity: Receptivity) {
         dataSubscriptionContainer.stopSubscriptions()
 
-        geolocationService.start()
-        geolocationService.location.asObservable().take(1)
-            .flatMap(weak: self) { strongSelf, location -> Observable<Void> in
-                strongSelf.geolocationService.stop()
-                return strongSelf.bandDataStore.uploadSensorData(
-                    withReceptivity: receptivity,
-                    atLocation: location,
-                    message: strongSelf.message ?? ""
-                )
-            }
+        return bandDataStore.uploadSensorData(withReceptivity: receptivity, message: message ?? "")
             .subscribe(onNext: {
                 UserDefaults.standard.set(
                     true,

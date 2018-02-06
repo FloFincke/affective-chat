@@ -38,11 +38,10 @@ public final class CompactNetworkLoggerPlugin: PluginType {
             return
         }
 
+        log.info(url)
         if let data = request.request?.httpBody,
             let json = try? JSONSerialization.jsonObject(with: data, options: []) {
-            log.info("\(url) with parameters: \(json)")
-        } else {
-            log.info(url)
+            log.verbose("with parameters: \(json)")
         }
     }
 

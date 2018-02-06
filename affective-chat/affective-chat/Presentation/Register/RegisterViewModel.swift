@@ -52,7 +52,7 @@ class RegisterViewModel {
                     }
                     .map { (event, username) -> Bool in
                         if let string = event.element {
-                            let phoneId = "5a4f50cbebd4d8179239db7c" //string
+                            let phoneId = string
                             log.info("Phone ID: \(string)")
                             UserDefaults.standard.set(username, forKey: Constants.UserDefaults.usernameKey)
                             UserDefaults.standard.set(phoneId, forKey: Constants.UserDefaults.phoneIdKey)

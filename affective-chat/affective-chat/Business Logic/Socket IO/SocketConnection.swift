@@ -32,8 +32,8 @@ class SocketConnection {
     // MARK: - Singleton
     static let shared = SocketConnection()
     private init() {
-//        let url = URL(string: "http://10.180.23.70:3000")!
-        let url = URL(string: "\(serverUrl):3000")!
+        let url = URL(string: "\(serverUrl):3001")!
+        print(url)
         manager = SocketManager(socketURL: url, config: [.log(true), .compress])
         socket = manager.defaultSocket
 
@@ -50,6 +50,10 @@ class SocketConnection {
     func start() {
         guard username != nil else {
             return
+        }
+
+        socket.onAny {
+            print("Socket Event: \($0)")   
         }
 
         socket.rx.connected

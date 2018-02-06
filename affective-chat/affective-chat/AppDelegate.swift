@@ -45,7 +45,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         let console = ConsoleDestination()
         console.format = "$DHH:mm:ss.SSS$d $C$L$c $N[$l] $F - $M"
-        console.minLevel = .verbose
+        console.minLevel = .info
         log.addDestination(console)
 
         let file = FileDestination()
@@ -80,7 +80,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if let username = UserDefaults.standard.value(forKey: Constants.UserDefaults.usernameKey),
             let phoneId = UserDefaults.standard.value(forKey: Constants.UserDefaults.phoneIdKey) {
             log.info("username: \(username) phoneId: \(phoneId)")
-//            presentInfo()
+            //            presentInfo()
             presentList()
 
         } else {
@@ -159,8 +159,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         didReceiveRemoteNotification userInfo: [AnyHashable: Any],
         fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
 
-        guard let aps = userInfo["aps"] as? [String: Any] else { return }
         handleNotification(userInfo: userInfo)
+        DispatchQueue.global(qos: .userInitiated).async {
+            Thread.sleep(forTimeInterval: 10)
+            DispatchQueue.main.async {
+                completionHandler(.noData)
+            }
+        }
     }
 
     // MARK: - Public Functions
