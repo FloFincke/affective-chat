@@ -12,20 +12,12 @@ const sampleData = require('../components/test-data.json');
 
 PythonShell.defaultOptions = { scriptPath: './python-backend' };
 
-const pyshell = new PythonShell('calc_receptivity.py', {
-    mode: 'text',
-    pythonPath: '/usr/local/bin/python3'
-});
-
-/*
 router.post('/recep', function(req, res, next) {
-            console.log(req.body.data)
-
     if (req.body.data && req.body.message && req.body.id) {
-        console.log(req.body.data)
-        database.Phone.findOne({ '_id': new ObjectId(req.body.id) }, function(err, phone) {
+      database.Phone.findOne({ '_id': new ObjectId(req.body.id) }, function(err, phone) {
             if(phone) {
-                receptivity(phone, req.body.data);
+                receptivity(phone, req.body.data, req.body.message);
+                return res.status(200).send('done');
             } else {
                 return res.sendStatus(422);
             }
@@ -37,7 +29,7 @@ router.post('/recep', function(req, res, next) {
     }
 });
 
-
+/*
 router.post('/new', store.multerUpload.single('watch_data'), function(req, res, next) {
     if (req.query.id) {
         database.Phone.findOne({ '_id': new ObjectId(req.query.id) }, function(err, phone) {
@@ -78,7 +70,7 @@ router.post('/new', store.multerUpload.single('watch_data'), function(req, res, 
     }
 
 });
-*/
+
 
 router.post('/new', store.multerUpload.single('watch_data'), function(req, res, next) {
     if (req.query.id) {
@@ -121,16 +113,21 @@ router.post('/new', store.multerUpload.single('watch_data'), function(req, res, 
     }
 
 });
-
+*/
 function receptivity(phone, raw_data, chat_message) {
     // sends a message to the Python script via stdin
-    pyshell.send(JSON.stringify(sampleData));
+
+    const pyshell = new PythonShell('calc_receptivity.py', {
+      mode: 'text',
+      pythonPath: '/usr/local/bin/python3'
+    });
+
+    pyshell.send(JSON.stringify(raw_data));
 
     pyshell.on('message', function(message) {
         // received a message sent from the Python script (a simple "print" statement)
         if (message === 'True') {
-            pushService.init();
-            //pushService.newPush(phone._id, phone.token, { 'message': chat_message }, false);
+            pushService.newPush(phone._id, phone.token, { 'message': chat_message }, false);
             console.log(phone._id + ' was receptive');
         } else {
             console.log(phone._id + " wasn't receptive");

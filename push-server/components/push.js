@@ -15,10 +15,9 @@ database.connection.once('open', function() {
     agenda.mongo(database.db);
 
     agenda.define('push', function(job, done) {
-        pushService.init();
         database.Phone.find({}).exec(function(err, phones) {
             phones.forEach(function(phone) {
-                newPush(phone._id, phone.token, { 'duration': duration, 'timeout': timeout }, true);
+                pushService.newPush(phone._id, phone.token, { 'duration': duration, 'timeout': timeout }, true);
             });
             done()
         });

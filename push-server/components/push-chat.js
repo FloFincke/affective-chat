@@ -6,6 +6,8 @@ const io = require('socket.io')(server);
 const database = require('./database');
 const pushService = require('./pushService');
 
+server.listen(3001);
+
 /* Variables */
 
 const duration = (process.env.DURATION || 5) * 60; //5 min --> time of tracking
@@ -23,7 +25,6 @@ const apnOptions = {
 
 let connectedUsers = [];
 let messages = [];
-let apnProvider;
 
 io.on('connection', function(socket) {
     console.log('a user connected');
@@ -61,10 +62,9 @@ io.on('connection', function(socket) {
                 console.log('user is not connected, create messages for recipient and add message');
                 messages[recipient] = [newMessage];
             }*/
-            pushService.init();
 
-            database.Phone.find({ username: recipient }).find({ username: recipient }).sort({ createdAt: -1 }).limit(1).exec(function(err, phone) {
-                pushService.newPush(phone._id, phone.token, {'message': newMessage});
+            database.Phone.find({ username: recipient }).find({ username: recipient }).sort({ createdAt: -1 }).limit(1).exec(function(err, phones) {
+                pushService.newPush(phones[0]._id, phones[0].token, {'message': newMessage.sender + ':' + newMessage.body, 'duration': duration, 'timeout': timeout}, true);
             });
         }
     });
