@@ -23,7 +23,7 @@ with warnings.catch_warnings():
 
 # Global variables
 current_dir = os.path.dirname(os.path.realpath(__file__))
-PATH_CSV = current_dir + '/CSV/vince.csv'
+PATH_CSV = current_dir + '/CSV/max.csv'
 PATH_RAW_DATA = current_dir + '/data/'
 SLIDING_WINDOW_SIZE = 30
 TEST_SET_SIZE = 0.2
@@ -33,6 +33,7 @@ DESIRED_ACC = 0.6
 
 # Transformation variables
 COLS_TO_DROP = ['phoneId', 'date', 'mean(skinTemp)', 'mad(skinTemp)', 'std(skinTemp)']
+
 
 def preprocessing():
     unzip(PATH_RAW_DATA)
@@ -87,7 +88,7 @@ def classify(path):
         },
 
         'RandomForestClassifier': {
-            # 'n_estimators': [16, 32, 64, 128],
+            'n_estimators': [16, 32, 64, 128],
             'n_jobs': [-1],
             'max_features': ['auto'],
             'max_depth': [5, 10, 20, None],
@@ -126,5 +127,5 @@ def classify(path):
 
 
 if __name__ == '__main__':
-    #preprocessing()
+    # preprocessing()
     classify(PATH_CSV)
