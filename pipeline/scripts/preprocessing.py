@@ -24,58 +24,63 @@ dir_name_zipped = os.path.join(dir, 'zipped/')
 dir_name_unzipped = os.path.join(dir, 'unzipped/')
 dir_name_CSV = os.path.join(dir, '../', 'CSV/')
 
+results = {}
 
 def run_preprocessing(sliding_window_size):
     for folder_user in os.listdir(dir_name_unzipped):
         folder_user = '{0}/'.format(folder_user)
-        for folder_tracking in os.listdir(dir_name_unzipped + folder_user):
+        measurements = {}
+        for i, folder_tracking in enumerate(os.listdir(dir_name_unzipped + folder_user)):
             folder_tracking = '{0}/'.format(folder_tracking)
-            measurements = {}
-            for i, file in enumerate(os.listdir(dir_name_unzipped + folder_user + folder_tracking)):
-                if file.endswith(".json"):
-                    temp = pd.read_json(dir_name_unzipped + folder_user + folder_tracking + file)
-                    measurements[i] = {
-                        'phoneId': temp['phoneId'][temp['phoneId'].first_valid_index()],
-                        'date': temp.index[0].date(),
-                        'location': temp['location'][temp['location'].first_valid_index()],
-                        'receptivity': temp['receptivity'][temp['receptivity'].first_valid_index()],
-                        'data': temp.drop('receptivity', 1)
-                    }
-                    if measurements[i]['data']['gsr'].count() > 100:
-                        temp_sec = measurements[i]['data'].resample('1S').mean()
-                        temp_sec.sort_index(inplace=True)
-                        measurements[i]['data'] = temp_sec
+            temp = pd.read_json(dir_name_unzipped + folder_user + folder_tracking + 'sensor-data.json')
+            measurements[i] = {
+                'phoneId': temp['phoneId'][temp['phoneId'].first_valid_index()],
+                'date': temp.index[0].date(),
+                'location': temp['location'][temp['location'].first_valid_index()],
+                'receptivity': temp['receptivity'][temp['receptivity'].first_valid_index()],
+                'data': temp.drop(columns=['receptivity', 'phoneId', 'location'])
+            }
+            if measurements[i]['data']['gsr'].count() > 100:
+                temp_sec = measurements[i]['data'].resample('1S').mean()
+                temp_sec.sort_index(inplace=True)
+                measurements[i]['data'] = temp_sec
 
-            calc_features(measurements, sliding_window_size)
+        calc_features(measurements, sliding_window_size)
+
 
 
 def calc_features(measurements, sliding_window_size):
-    results = pd.DataFrame(columns=[
-        'phoneId',
-        'date',
-        'measurementId',
-        'location',
-        'motionType',
-        'mean(SCL)',
-        'mean(SCR)',
-        'mean(HR)',
-        'mean(RR)',
-        'mean(skinTemp)',
-        'mad(SCL)',
-        'mad(SCR)',
-        'mad(HR)',
-        'mad(RR)',
-        'mad(skinTemp)',
-        'std(SCL)',
-        'std(SCR)',
-        'std(HR)',
-        'std(RR)',
-        'std(skinTemp)',
-        'RMSSD',
-        'receptivity'
-    ])
+    global results
 
     for key in measurements:
+        phoneId = measurements[key]['phoneId'] 
+        
+        if(phoneId not in results):
+            results[phoneId] = pd.DataFrame(columns=[
+                'phoneId',
+                'date',
+                'measurementId',
+                'location',
+                'motionType',
+                'mean(SCL)',
+                'mean(SCR)',
+                'mean(HR)',
+                'mean(RR)',
+                'mean(skinTemp)',
+                'mad(SCL)',
+                'mad(SCR)',
+                'mad(HR)',
+                'mad(RR)',
+                'mad(skinTemp)',
+                'std(SCL)',
+                'std(SCR)',
+                'std(HR)',
+                'std(RR)',
+                'std(skinTemp)',
+                'RMSSD',
+                'receptivity'
+            ])
+        
         measurement = clean(measurements[key]['data'])
 
         for i in range(0, len(measurement.index)):
@@ -124,16 +129,15 @@ def calc_features(measurements, sliding_window_size):
                 if receptivity == 0:
                     receptivity = -1
 
-                results.loc[-1] = [current_id, date, key, location, motionType, mSCL, mSCR, mHR, mRR, mSkin, madSCL, madSCR,
+                results[phoneId].loc[-1] = [current_id, date, key, location, motionType, mSCL, mSCR, mHR, mRR, mSkin, madSCL, madSCR,
                                    madHR, madRR, madSkin,
                                    stdSCL, stdSCR, stdHR, stdRR, stdSkin, RMSSD, receptivity]
-                results.index = results.index + 1  # shifting index
+                results[phoneId].index = results[phoneId].index + 1  # shifting index
                 print('.', sep=' ', end='', flush=True)
 
-    results = results.sort_index()  # sorting by index
-    outputCSV(results)
-    if len(results['phoneId']) >= 1:
-        print(' saved ' + results['phoneId'][0] + '! ')
+        results[phoneId] = results[phoneId].sort_index()  # sorting by index
+        outputCSV(results[phoneId])
+        print('\n' + phoneId)
 
 
 def outputCSV(results):
@@ -144,7 +148,6 @@ def outputCSV(results):
 
     if len(results['phoneId']) >= 1:
         results.to_csv(dir_name_CSV + str(results['phoneId'][0]) + "_export.csv", sep=";", encoding="utf-8")
-
 
 # Calculate the Tukey interquartile range for outlier detection
 def get_iqr(dframe, columnName):
@@ -157,8 +160,6 @@ def get_iqr(dframe, columnName):
 
 def clean(dframe):
     for column in dframe:
-        if str(column) == 'location' or str(column) == 'phoneId':
-            continue
         dframe.fillna(method='ffill', inplace=True)  # fill NaN downwards
         #    dframe.fillna((dframe.mean()), inplace=True)  # fill remaining NaN upwards with mean
         dframe.fillna(method='bfill', inplace=True)  # fill remaining NaN upwards

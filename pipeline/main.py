@@ -23,7 +23,7 @@ with warnings.catch_warnings():
 
 # Global variables
 current_dir = os.path.dirname(os.path.realpath(__file__))
-PATH_CSV = current_dir + '/CSV/vince_5min.csv'
+PATH_CSV = current_dir + '/CSV/vince.csv'
 PATH_RAW_DATA = current_dir + '/data/'
 SLIDING_WINDOW_SIZE = 30
 TEST_SET_SIZE = 0.2
@@ -34,10 +34,6 @@ DESIRED_ACC = 0.6
 # Transformation variables
 COLS_TO_DROP = ['phoneId', 'date', 'mean(skinTemp)', 'mad(skinTemp)', 'std(skinTemp)']
 
-
-# COLS_TO_DROP = ['phoneId', 'date']
-
-
 def preprocessing():
     unzip(PATH_RAW_DATA)
     run_preprocessing(SLIDING_WINDOW_SIZE)
@@ -45,7 +41,7 @@ def preprocessing():
 
 def classify(path):
     # Read in data
-    data_set = pd.read_csv(path, sep=";")
+    data_set = pd.read_csv(path, sep=",")
 
     # Get random set of test-dates
     test_samples = random.sample(list(data_set[GROUP_BY].unique()),
@@ -130,5 +126,5 @@ def classify(path):
 
 
 if __name__ == '__main__':
-    preprocessing()
+    #preprocessing()
     classify(PATH_CSV)

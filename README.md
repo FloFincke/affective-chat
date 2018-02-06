@@ -22,35 +22,33 @@ W::::::W                           W::::::W            t:::::t         h:::::h  
 
 Unser Repo
 
-## Folder
+## Main Folders
 
 ```
 .
 ├── affective-chat --> iOS Application
-├── classifiers
-│   ├── baselines.py
-│   ├── controller.py
-│   ├── data_set.py
-│   ├── testClassifiers.py
-│   └── trained_rf_model
-├── data --> Backup from S3
-├── data-processing
-│   ├── archive --> Old files and Notebooks
-│   ├── hrv --> Library used for feature generation
-│   ├── loc_clustering.py --> Location clustering
-│   ├── physi_calc.py --> feature generation helper functions
-│   └── preprocessing_v3.py --> Preprocessing script
+├── archive --> Old not anymore used code
+│   ├── classifiers --> old classifier playground
+│   └── data-processing --> Old data processing code
+│       ├── archive --> Old files and Notebooks
+│       ├── hrv --> Library used for feature generation
+│       ├── loc_clustering.py --> Location clustering
+│       ├── physi_calc.py --> feature generation helper functions
+│       └── preprocessing_v3.py --> Preprocessing script
+├── data --> Backup from S3   
 ├── pipeline --> Automation pipeline
-│   ├── data --> CSV files with raw data
+│   ├── CSV --> exported CSV files
+│   ├── data --> zipped JSON files with raw data
+│   ├── main.py --> Script that starts pipeline and creates trained model 
 │   ├── scripts
 │   │   ├── custom-transformers.py --> Transformers for pipeline
 │   │   ├── loc_clustering.py --> cluster users most important locations
+│   │   ├── merge_CSV_by_user.py --> temporary fix: combines csv files of users with multiple ids
 │   │   ├── physi_calc.py --> feature generation helper functions
 │   │   ├── prepare_data.py --> Create a dataframe from input csv-file
 │   │   └── preprocessing.py --> Create csv-file from raw data (1 per user)
-│   ├── unzipped
-│   └── main.py --> Script that starts pipeline and creates trained model 
-├── push-server
+│   └── trained_models --> Trained models
+├── push-server --> Server for app
 │   ├── app-start.js --> Starts app
 │   ├── app.js --> Express server
 │   ├── components --> Components of the server (e.g. push, database etc.)│   
@@ -95,3 +93,4 @@ Vorher Zugangsdaten etc. von Flo holen
 * Columns that can be ignored by the classifiers
 * Transformers / Transformations on the dataframe
 * Classifier-parameters (max depth of random forest, gamma of SVC ...)
+* Users on which the model should be trained on
