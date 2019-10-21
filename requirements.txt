@@ -12,7 +12,7 @@ Keras==2.0.8
 Lasagne==0.1
 Markdown==2.6.9
 matplotlib==2.1.0
-nltk==3.2.5
+nltk==3.4.5
 notebook==5.2.0
 numba==0.35.0
 numpy==1.12.1
