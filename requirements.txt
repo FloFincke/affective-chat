@@ -4,7 +4,7 @@ boto3==1.4.6
 botocore==1.6.8
 coreapi==2.1.1
 coreapi-cli==1.0.6
-cryptography==1.9
+cryptography==3.2
 geopy==1.11.0
 h5py==2.7.1
 hrv==0.1.1
